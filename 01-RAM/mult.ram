@@ -1,0 +1,31 @@
+<input> 25 10
+
+read 1
+read 2
+
+load =0
+store 3
+
+load 2
+sub 1
+jgtz swap
+jmp loop
+
+swap:
+load 2
+store 4
+load 1
+store 2
+load 4
+store 1
+
+loop:
+  load 3
+  add 1
+  store 3
+  load 2
+  sub =1
+  store 2
+  jgtz loop
+write 3
+Halt
