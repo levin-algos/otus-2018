@@ -1,11 +1,10 @@
 <input> 25 4
 
-; считываем данные 
-read 1 ; делимое
-read 2 ; делитель
+read 1
+read 2
 
 load =0
-store 3 ; result
+store 3
 
 load 2
 jz error
