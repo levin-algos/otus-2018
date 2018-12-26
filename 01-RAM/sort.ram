@@ -1,0 +1,79 @@
+;<input> 5 4 5 6 11 4
+<input> 2 -4 -5
+
+; считываем количество
+read 0
+add =10
+store 1 ; конец массива
+; инициализируем счетчик
+load =10
+store 2 ; счетчик
+; считываем данные
+getdata:
+  read *2
+  load 2
+  add =1
+  store 2
+  sub 1
+  jz stop
+  jgtz stop
+  jmp getdata
+
+stop:
+load =10
+store 2
+
+loop:
+  load 2
+  sub 1
+  add =1
+  jz results
+  jgtz results
+
+  load 2
+  add =1
+  store 3
+  innerloop:
+    load *2
+    sub *3
+    jgtz swap
+
+    incinner:
+    load 3
+    add =1
+    store 3
+    sub 1
+    jz inc
+    jgtz inc
+    jmp innerloop
+
+  inc:
+    load 2
+    add =1
+    store 2
+    jmp loop
+  
+swap:
+  load *3
+  store 4
+  load *2
+  store *3
+  load 4
+  store *2
+  jmp incinner
+
+results:
+load =10
+store 2 ; счетчик
+; выводим данные
+outdata:
+  write *2
+  load 2
+  add =1
+  store 2
+  sub 1
+  jz exit
+  jgtz exit
+  jmp outdata
+exit:
+halt
