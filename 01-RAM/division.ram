@@ -1,0 +1,34 @@
+<input> 25 4
+
+; считываем данные 
+read 1 ; делимое
+read 2 ; делитель
+
+load =0
+store 3 ; result
+
+load 2
+jz error
+
+loop:
+load 1
+sub 2
+jgtz inc
+jz inc
+jmp result
+
+inc:
+store 1
+load 3
+add =1
+store 3
+jmp loop
+
+result:
+write 3
+write 1
+halt
+
+error:
+write ="div by zero"
+halt
