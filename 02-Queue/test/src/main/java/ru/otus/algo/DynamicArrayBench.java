@@ -40,20 +40,62 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
-public class DynamicArray {
+public class DynamicArrayBench {
 
-        @Benchmark
+
+
+    private DArray<Integer> improved_array = new DArray<>();
+    private final int pos = 1_000_000;
+
+    @State(Scope.Thread)
+    public static class Arr {
+        DArray<Integer> array;
+
+        @Setup(Level.Iteration)
+        public void setup() {
+            array = new DArray<>();
+            for (int i=0; i< 100_000; i++) {
+                array.add(i, i);
+            }
+        }
+    }
+
+    @State(Scope.Thread)
+    public static class ImpArr {
+        IArray<Integer> array;
+
+        @Setup(Level.Iteration)
+        public void setup() {
+            array = new IArray<>();
+            for (int i=0; i< 100_000; i++) {
+                array.add(i, i);
+            }
+        }
+    }
+
+    @Benchmark
     @BenchmarkMode(Mode.AverageTime)
+    @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void DArray() {
+    public void dArrayAdd(Arr arr) {
+        arr.array.add(pos, 10);
+    }
 
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    public void imprArrayAdd(ImpArr arr) {
+        arr.array.add(pos, 10);
     }
 
     public static void main(String[] args) throws RunnerException {
 
         Options opt = new OptionsBuilder()
 
-                .include(DynamicArray.class.getSimpleName())
+                .include(DynamicArrayBench.class.getSimpleName())
 
                 .forks(1)
 
