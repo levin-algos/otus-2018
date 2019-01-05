@@ -1,7 +1,7 @@
 package ru.otus.algo;
 
 
-public class OList<T> {
+class OList<T> {
 
     private ListItem<T> _head;
 
@@ -16,7 +16,7 @@ public class OList<T> {
     }
 
     void add(T item) {
-        ListItem<T> li = new ListItem<T>(item);
+        ListItem<T> li = new ListItem<>(item);
         if (_head == null) {
             _head = li;
             _tail = li;
@@ -29,7 +29,7 @@ public class OList<T> {
 
     @SuppressWarnings("hiding")
     private class ListItem<K> {
-        K item;
+        final K item;
         ListItem<K> next;
 
         ListItem(K item) {

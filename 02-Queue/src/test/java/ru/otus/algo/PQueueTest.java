@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
     T dequeue() - выбрать элемент из очереди
  */
 
-public class PQueueTest {
+class PQueueTest {
 
     @Test
-    public void queueTest() throws Exception {
+    void queueTest() throws Exception {
         PQueue<String> queue = PArrayQueue.of();
         queue.enqueue(1, "test");
         assertEquals(queue.dequeue(), "test");

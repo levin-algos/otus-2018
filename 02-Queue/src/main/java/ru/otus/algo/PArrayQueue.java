@@ -3,7 +3,7 @@ package ru.otus.algo;
 public class PArrayQueue<T> implements PQueue<T> {
 
     public static <T> PQueue<T> of() {
-        return new PArrayQueue<T>();
+        return new PArrayQueue<>();
     }
 
     private PArrayQueue() {

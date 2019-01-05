@@ -38,36 +38,54 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
+/*
+DynamicArrayBench.dArrayAdd          100  avgt    5  12,925 ± 0,142  us/op
+DynamicArrayBench.dArrayAdd         1000  avgt    5  13,129 ± 0,423  us/op
+DynamicArrayBench.dArrayAdd        10000  avgt    5  14,628 ± 0,103  us/op
+DynamicArrayBench.dArrayAdd       100000  avgt    5  38,113 ± 3,391  us/op
+DynamicArrayBench.imprArrayAdd       100  avgt    5  10,895 ± 0,041  us/op
+DynamicArrayBench.imprArrayAdd      1000  avgt    5  10,977 ± 0,043  us/op
+DynamicArrayBench.imprArrayAdd     10000  avgt    5  12,107 ± 0,019  us/op
+DynamicArrayBench.imprArrayAdd    100000  avgt    5  26,114 ± 0,129  us/op
+
+DynamicArrayBench.dArrayAdd          100  avgt    5  15,140 ± 0,049  us/op
+DynamicArrayBench.dArrayAdd         1000  avgt    5  15,392 ± 0,045  us/op
+DynamicArrayBench.dArrayAdd        10000  avgt    5  17,682 ± 0,050  us/op
+DynamicArrayBench.dArrayAdd       100000  avgt    5  51,287 ± 0,601  us/op
+DynamicArrayBench.imprArrayAdd       100  avgt    5  10,881 ± 0,029  us/op
+DynamicArrayBench.imprArrayAdd      1000  avgt    5  11,020 ± 0,079  us/op
+DynamicArrayBench.imprArrayAdd     10000  avgt    5  12,142 ± 0,085  us/op
+DynamicArrayBench.imprArrayAdd    100000  avgt    5  26,097 ± 0,078  us/op
+ */
 
 @State(Scope.Thread)
-public class DynamicArrayBench {
+class DynamicArrayBench {
 
-
-
-    private DArray<Integer> improved_array = new DArray<>();
-    private final int pos = 1_000_000;
+    @Param({"100", "1000", "10000", "100000"})
+    private static int length;
 
     @State(Scope.Thread)
-    public static class Arr {
+    static class Arr {
+
         DArray<Integer> array;
 
         @Setup(Level.Iteration)
         public void setup() {
             array = new DArray<>();
-            for (int i=0; i< 100_000; i++) {
+            for (int i=0; i< length; i++) {
                 array.add(i, i);
             }
         }
     }
 
     @State(Scope.Thread)
-    public static class ImpArr {
-        IArray<Integer> array;
+    static class ImpArr {
+        BArray<Integer> array;
 
         @Setup(Level.Iteration)
         public void setup() {
-            array = new IArray<>();
-            for (int i=0; i< 100_000; i++) {
+            array = new BArray<>();
+            for (int i=0; i< length; i++) {
                 array.add(i, i);
             }
         }
@@ -75,20 +93,20 @@ public class DynamicArrayBench {
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
-    @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-    @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Warmup(iterations = 20, time = 1)
+    @Measurement(iterations = 20, time = 1)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void dArrayAdd(Arr arr) {
-        arr.array.add(pos, 10);
+        arr.array.add(0, 10);
     }
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
-    @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-    @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Warmup(iterations = 20, time = 1)
+    @Measurement(iterations = 20, time = 1)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
-    public void imprArrayAdd(ImpArr arr) {
-        arr.array.add(pos, 10);
+    public void bArrayAdd(ImpArr arr) {
+        arr.array.add(0, 10);
     }
 
     public static void main(String[] args) throws RunnerException {
