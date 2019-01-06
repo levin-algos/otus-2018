@@ -52,7 +52,7 @@ DynamicArrayBench.iArrayAdd       100  avgt    5   0,247 ± 0,005  us/op
 DynamicArrayBench.iArrayAdd      1000  avgt    5   0,248 ± 0,004  us/op
 DynamicArrayBench.iArrayAdd     10000  avgt    5   0,248 ± 0,005  us/op
 DynamicArrayBench.iArrayAdd    100000  avgt    5   0,252 ± 0,008  us/op
- */
+*/
 
 @State(Scope.Thread)
 public class DynamicArrayBench {

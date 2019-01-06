@@ -66,6 +66,8 @@ class DArray<T> implements DynamicArray<T> {
     }
 
     private void collapse(int index) {
+        if (size() == index+1)
+            _arr[size()-1] = null;
         System.arraycopy(_arr, index+1, _arr, index, size() - index - 1);
     }
 
