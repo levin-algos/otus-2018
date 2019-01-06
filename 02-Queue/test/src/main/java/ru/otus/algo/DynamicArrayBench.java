@@ -39,33 +39,29 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.concurrent.TimeUnit;
 /*
-DynamicArrayBench.dArrayAdd          100  avgt    5  12,925 ± 0,142  us/op
-DynamicArrayBench.dArrayAdd         1000  avgt    5  13,129 ± 0,423  us/op
-DynamicArrayBench.dArrayAdd        10000  avgt    5  14,628 ± 0,103  us/op
-DynamicArrayBench.dArrayAdd       100000  avgt    5  38,113 ± 3,391  us/op
-DynamicArrayBench.imprArrayAdd       100  avgt    5  10,895 ± 0,041  us/op
-DynamicArrayBench.imprArrayAdd      1000  avgt    5  10,977 ± 0,043  us/op
-DynamicArrayBench.imprArrayAdd     10000  avgt    5  12,107 ± 0,019  us/op
-DynamicArrayBench.imprArrayAdd    100000  avgt    5  26,114 ± 0,129  us/op
-
-DynamicArrayBench.dArrayAdd          100  avgt    5  15,140 ± 0,049  us/op
-DynamicArrayBench.dArrayAdd         1000  avgt    5  15,392 ± 0,045  us/op
-DynamicArrayBench.dArrayAdd        10000  avgt    5  17,682 ± 0,050  us/op
-DynamicArrayBench.dArrayAdd       100000  avgt    5  51,287 ± 0,601  us/op
-DynamicArrayBench.imprArrayAdd       100  avgt    5  10,881 ± 0,029  us/op
-DynamicArrayBench.imprArrayAdd      1000  avgt    5  11,020 ± 0,079  us/op
-DynamicArrayBench.imprArrayAdd     10000  avgt    5  12,142 ± 0,085  us/op
-DynamicArrayBench.imprArrayAdd    100000  avgt    5  26,097 ± 0,078  us/op
+Benchmark                    (length)  Mode  Cnt   Score   Error  Units
+DynamicArrayBench.bArrayAdd       100  avgt    5   8,867 ± 0,058  us/op
+DynamicArrayBench.bArrayAdd      1000  avgt    5   8,936 ± 0,045  us/op
+DynamicArrayBench.bArrayAdd     10000  avgt    5   9,704 ± 0,127  us/op
+DynamicArrayBench.bArrayAdd    100000  avgt    5  20,786 ± 0,244  us/op
+DynamicArrayBench.dArrayAdd       100  avgt    5  13,070 ± 0,202  us/op
+DynamicArrayBench.dArrayAdd      1000  avgt    5  13,289 ± 0,203  us/op
+DynamicArrayBench.dArrayAdd     10000  avgt    5  14,839 ± 0,324  us/op
+DynamicArrayBench.dArrayAdd    100000  avgt    5  38,505 ± 1,441  us/op
+DynamicArrayBench.iArrayAdd       100  avgt    5   0,247 ± 0,005  us/op
+DynamicArrayBench.iArrayAdd      1000  avgt    5   0,248 ± 0,004  us/op
+DynamicArrayBench.iArrayAdd     10000  avgt    5   0,248 ± 0,005  us/op
+DynamicArrayBench.iArrayAdd    100000  avgt    5   0,252 ± 0,008  us/op
  */
 
 @State(Scope.Thread)
-class DynamicArrayBench {
+public class DynamicArrayBench {
 
     @Param({"100", "1000", "10000", "100000"})
     private static int length;
 
     @State(Scope.Thread)
-    static class Arr {
+    public static class Arr {
 
         DArray<Integer> array;
 
@@ -79,7 +75,7 @@ class DynamicArrayBench {
     }
 
     @State(Scope.Thread)
-    static class ImpArr {
+    public static class ImpArr {
         BArray<Integer> array;
 
         @Setup(Level.Iteration)
@@ -91,10 +87,23 @@ class DynamicArrayBench {
         }
     }
 
+    @State(Scope.Thread)
+    public static class IArr {
+        IArray<Integer> array;
+
+        @Setup(Level.Iteration)
+        public void setup() {
+            array = new IArray<>();
+            for (int i=0; i< length; i++) {
+                array.add(i, i);
+            }
+        }
+    }
+
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
-    @Warmup(iterations = 20, time = 1)
-    @Measurement(iterations = 20, time = 1)
+    @Warmup(iterations = 5, time = 1)
+    @Measurement(iterations = 5, time = 1)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void dArrayAdd(Arr arr) {
         arr.array.add(0, 10);
@@ -102,24 +111,27 @@ class DynamicArrayBench {
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
-    @Warmup(iterations = 20, time = 1)
-    @Measurement(iterations = 20, time = 1)
+    @Warmup(iterations = 5, time = 1)
+    @Measurement(iterations = 5, time = 1)
     @OutputTimeUnit(TimeUnit.MICROSECONDS)
     public void bArrayAdd(ImpArr arr) {
         arr.array.add(0, 10);
     }
 
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @Warmup(iterations = 5, time = 1)
+    @Measurement(iterations = 5, time = 1)
+    @OutputTimeUnit(TimeUnit.MICROSECONDS)
+    public void iArrayAdd(IArr arr) {
+        arr.array.add(0, 10);
+    }
+
     public static void main(String[] args) throws RunnerException {
-
         Options opt = new OptionsBuilder()
-
                 .include(DynamicArrayBench.class.getSimpleName())
-
                 .forks(1)
-
                 .build();
-
-
         new Runner(opt).run();
 
     }

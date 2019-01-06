@@ -23,8 +23,8 @@ class DArray<T> implements DynamicArray<T> {
         return (T) _arr[index];
     }
 
-    private void relocate(int index) {
 
+    private void relocate(int index) {
         if (_arr == null) {
             _arr =  new Object[newArraySize(size())];
             return;
@@ -33,10 +33,10 @@ class DArray<T> implements DynamicArray<T> {
         if (size() >= _arr.length) {
             Object[] tmp = new Object[newArraySize(size())];
             System.arraycopy(_arr, 0, tmp, 0, index);
-            System.arraycopy(_arr, index, tmp, index + 1, _arr.length - index);
+            System.arraycopy(_arr, index, tmp, index + 1, size() - index);
             _arr = tmp;
         } else {
-            System.arraycopy(_arr, index, _arr, index + 1, _arr.length - index - 1);
+            System.arraycopy(_arr, index, _arr, index + 1, size() - index);
         }
     }
 
@@ -48,6 +48,7 @@ class DArray<T> implements DynamicArray<T> {
         _arr[index] = element;
         size++;
     }
+
 
     public void set(int index, T element) {
         _arr[index] = element;
@@ -65,7 +66,7 @@ class DArray<T> implements DynamicArray<T> {
     }
 
     private void collapse(int index) {
-        System.arraycopy(_arr, index+1, _arr, index, _arr.length - index - 1);
+        System.arraycopy(_arr, index+1, _arr, index, size() - index - 1);
     }
 
     public int size() {
@@ -87,7 +88,7 @@ class DArray<T> implements DynamicArray<T> {
     int newArraySize(int oldSize) {
         return oldSize + 1;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("[");

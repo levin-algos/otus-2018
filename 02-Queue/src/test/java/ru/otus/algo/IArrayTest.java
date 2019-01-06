@@ -46,6 +46,7 @@ class IArrayTest {
         assertArrayEquals(new String[]{"5", "6", "7"}, _arr.get(1).toArray(new String[0]));
 
         assertEquals("5", arr.remove(5));
+
         assertEquals("6", arr.remove(5));
         assertEquals("7", arr.remove(5));
         assertEquals(1, _arr.size());

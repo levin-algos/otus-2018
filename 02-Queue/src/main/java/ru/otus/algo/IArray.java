@@ -15,6 +15,9 @@ package ru.otus.algo;
  * {0, 1, 2, 3}
  * {4, 5, 6}
  *
+ * Remove:
+ * If as a result of removing an element we have an empty subarray, it have to be deleted from dynamic array.
+ *
  * @param <T>
  */
 
@@ -41,8 +44,8 @@ public class IArray<T> implements DynamicArray<T> {
         if (index < 0 || index > size())
             throw new ArrayIndexOutOfBoundsException();
 
-        Pair bin = getRemoveBin(index);
-        return _arr.get(bin.x).get(bin.y);
+        ElementPosition bin = getElementPosition(index, false);
+        return _arr.get(bin.bin).get(bin.pos);
     }
 
     @Override
@@ -50,50 +53,13 @@ public class IArray<T> implements DynamicArray<T> {
         if (index < 0 || size() < index)
             throw new ArrayIndexOutOfBoundsException(index);
 
-        Pair pos = getAddBin(index);
-        BArray<T> bin = _arr.get(pos.x);
-        bin.add(pos.y, element);
+        ElementPosition pos = getElementPosition(index, true);
+        BArray<T> bin = _arr.get(pos.bin);
+        bin.add(pos.pos, element);
         if (resizeNeeded(bin))
-            resizeBin(pos.x);
+            resizeBin(pos.bin);
 
         size++;
-    }
-
-    private void resizeBin(int x) {
-        BArray<T> curBin = _arr.get(x);
-        int splitPoint = curBin.size() / 2;
-        _arr.add(x+1, curBin.split(splitPoint));
-    }
-
-    private boolean resizeNeeded(BArray<T> bin) {
-        return bin.size()/(float) initialCap > GROW_FACTOR;
-    }
-
-private Pair getAddBin(int index) {
-    int sum = 0;
-    int binNum = 0;
-    for (int i=0; i < _arr.size(); i++) {
-        BArray<T> bin = _arr.get(i);
-        if (index - sum <= bin.size()) {
-            break;
-        }
-        sum +=bin.size();
-    }
-    return Pair.of(binNum, Math.max(0, index - sum));
-}
-
-    private Pair getRemoveBin(int index) {
-        int sum = 0;
-        int binNum = 0;
-        for (int i=0; i < _arr.size(); i++) {
-            BArray<T> bin = _arr.get(i);
-            if (index - sum < bin.size()) {
-                break;
-            }
-            sum +=bin.size();
-            binNum++;
-        }
-        return Pair.of(binNum, Math.max(0, index - sum));
     }
 
     @Override
@@ -101,8 +67,8 @@ private Pair getAddBin(int index) {
         if (index < 0 || index > size())
             throw new ArrayIndexOutOfBoundsException();
 
-        Pair bin = getRemoveBin(index);
-        _arr.get(bin.x).set(bin.y, element);
+        ElementPosition bin = getElementPosition(index, false);
+        _arr.get(bin.bin).set(bin.pos, element);
     }
 
     @Override
@@ -110,11 +76,11 @@ private Pair getAddBin(int index) {
         if (index < 0 || index > size())
             throw new ArrayIndexOutOfBoundsException();
 
-        Pair bin = getRemoveBin(index);
-        BArray<T> array = _arr.get(bin.x);
-        T res = array.remove(bin.y);
+        ElementPosition pos = getElementPosition(index, false);
+        BArray<T> array = _arr.get(pos.bin);
+        T res = array.remove(pos.pos);
         if (array.size() == 0)
-            _arr.remove(bin.x);
+            _arr.remove(pos.bin);
 
         size--;
         return res;
@@ -138,25 +104,50 @@ private Pair getAddBin(int index) {
         return res.toArray(cl);
     }
 
+    private boolean resizeNeeded(BArray<T> bin) {
+        return bin.size()/(float) initialCap > GROW_FACTOR;
+    }
+
+    private void resizeBin(int x) {
+        BArray<T> curBin = _arr.get(x);
+        int splitPoint = curBin.size() / 2;
+        _arr.add(x+1, curBin.split(splitPoint));
+    }
+
+    private ElementPosition getElementPosition(int index, boolean adding) {
+        int sum = 0;
+        int binNum = 0;
+        for (int i=0; i < _arr.size(); i++) {
+            BArray<T> bin = _arr.get(i);
+            if (adding ? index - sum <= bin.size()
+                    : index - sum < bin.size()) {
+                break;
+            }
+            sum +=bin.size();
+            binNum++;
+        }
+        return ElementPosition.of(binNum, Math.max(0, index - sum));
+    }
+
     private final BArray<BArray<T>> _arr;
     private static int initialCap = 100;
     private final static float GROW_FACTOR = 0.75f;
     private int size;
 
-    private static class Pair {
-        private final int x, y;
+    private static class ElementPosition {
+        private final int bin, pos;
 
-        private Pair(int x, int y) {
-            this.x = x; this.y = y;
+        private ElementPosition(int bin, int pos) {
+            this.bin = bin; this.pos = pos;
         }
 
-        static Pair of(int x, int y) { return new Pair(x, y);}
+        static ElementPosition of(int x, int y) { return new ElementPosition(x, y);}
 
         @Override
         public String toString() {
-            return "Pair{" +
-                    "x=" + x +
-                    ", y=" + y +
+            return "ElementPosition{" +
+                    "bin=" + bin +
+                    ", pos=" + pos +
                     '}';
         }
     }
