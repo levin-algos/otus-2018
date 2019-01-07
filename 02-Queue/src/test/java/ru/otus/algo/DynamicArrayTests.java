@@ -33,6 +33,12 @@ class DynamicArrayTests {
         assertArrayEquals(new String[]{"2", "3"}, arr.toArray(new String[0]));
         assertEquals(2, arr.size());
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> arr.get(2));
+
+        assertEquals("3", arr.remove(1));
+        assertArrayEquals(new String[]{"2"}, arr.toArray(new String[0]));
+
+        assertEquals("2", arr.remove(0));
+        assertArrayEquals(new String[]{}, arr.toArray(new String[0]));
     }
 
     @ParameterizedTest
@@ -56,10 +62,10 @@ class DynamicArrayTests {
     @MethodSource("arrayStringProvider")
     void seriesOfAdd(DynamicArray<String> arr) {
         arr.add(0, "1");
-        arr.add(0, "2");
-        arr.add(0, "3");
+        arr.add(1, "2");
+        arr.add(2, "3");
 
-        assertArrayEquals(new String[]{"3", "2", "1", "1", "2", "3"}, arr.toArray(new String[0]));
+        assertArrayEquals(new String[]{"1", "2", "3", "1", "2", "3"}, arr.toArray(new String[0]));
     }
 
     @ParameterizedTest
@@ -78,10 +84,19 @@ class DynamicArrayTests {
     }
 
     static Stream<DynamicArray<String>> arrayStringProvider() {
-        return Stream.of(
-                new DArray<>("1", "2", "3"),
-                new BArray<>("1", "2", "3"),
-                new IArray<>("1", "2", "3")
+        DArray<String> dArray = new DArray<>();
+        BArray<String> bArray = new BArray<>();
+        IArray<String> iArray = new IArray<>();
+        return Stream.of(fill(dArray),
+                        fill(bArray),
+                        fill(iArray)
         );
+    }
+
+    private static DynamicArray<String> fill(DynamicArray<String> array) {
+        array.add(0, "1");
+        array.add(1, "2");
+        array.add(2, "3");
+        return array;
     }
 }

@@ -2,42 +2,39 @@ package ru.otus.algo;
 
 class OList<T> {
 
-    @SuppressWarnings("hiding")
-    class ListItem<T> {
-        T _item;
-        ListItem<T> _next;
+     @SuppressWarnings("hiding")
+    class ListItem<K> {
+        final K _item;
+        ListItem<K> _next;
 
-        ListItem(T item) {
+        ListItem(K item) {
             _item = item;
             _next = null;
         }
 
-        T get() {
+        K get() {
             return _item;
         }
 
-        void setNext(ListItem<T> item) {
+        void setNext(ListItem<K> item) {
             _next = item;
         }
-        ListItem<T> getNext() {
+        ListItem<K> getNext() {
             return _next;
         }
     }
 
-    ListItem<T> _head;
-    ListItem<T> _tail;
+    private ListItem<T> _head;
+    private ListItem<T> _tail;
+    private int size;
 
     OList() {
         _head = null;
         _tail = null;
     }
 
-    ListItem<T> head() {
-        return _head;
-    }
-
     void add(T item) {
-        ListItem<T> li = new ListItem<T>(item);
+        ListItem<T> li = new ListItem<>(item);
         if (_head == null) {
             _head = li;
             _tail = li;
@@ -46,6 +43,7 @@ class OList<T> {
             _tail.setNext(li);
             _tail = li;
         }
+        size++;
     }
 
     T removeFirst() {
@@ -54,6 +52,21 @@ class OList<T> {
             throw new NullPointerException();
 
         _head = li.getNext();
+        size--;
         return li.get();
+    }
+
+    int size() {
+        return size;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+
+        for (ListItem<T> li = _head; li != null; li = li.getNext()) {
+            sb.append(li.get()).append(",");
+        }
+        return sb.deleteCharAt(sb.length()-1).append("]").toString();
     }
 }

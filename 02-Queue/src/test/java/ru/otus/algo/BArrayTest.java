@@ -9,7 +9,10 @@ class BArrayTest {
 
     @Test
     void testSplit() {
-        BArray<String> array = new BArray<>("1", "2", "3");
+        BArray<String> array = new BArray<>();
+        array.add(0, "1");
+        array.add(1, "2");
+        array.add(2, "3");
 
         BArray<String> tail = array.split(1);
         assertArrayEquals(new String[]{"1", "2"}, array.toArray(new String[0]));
@@ -18,7 +21,10 @@ class BArrayTest {
 
     @Test
     void wrongSplit() {
-        BArray<String> array = new BArray<>("1", "2", "3");
+        BArray<String> array = new BArray<>();
+        array.add(0, "1");
+        array.add(1, "2");
+        array.add(2, "3");
 
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> array.split(-1));
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> array.split(2));

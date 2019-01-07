@@ -11,10 +11,6 @@ class DArray<T> implements DynamicArray<T> {
 
     DArray(int initSize) { _arr = new Object[initSize]; }
 
-    DArray(T... arr) {
-        for (int i = 0; i < arr.length; i++) add(i, arr[i]);
-    }
-
     @SuppressWarnings("unchecked")
     public T get(int index) {
         if (_arr == null || index < 0 || index >= size())
@@ -66,8 +62,6 @@ class DArray<T> implements DynamicArray<T> {
     }
 
     private void collapse(int index) {
-        if (size() == index+1)
-            _arr[size()-1] = null;
         System.arraycopy(_arr, index+1, _arr, index, size() - index - 1);
     }
 

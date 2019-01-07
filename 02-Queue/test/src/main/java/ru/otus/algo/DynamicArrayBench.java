@@ -54,6 +54,7 @@ DynamicArrayBench.iArrayAdd     10000  avgt    5   0,248 ± 0,005  us/op
 DynamicArrayBench.iArrayAdd    100000  avgt    5   0,252 ± 0,008  us/op
 */
 
+@SuppressWarnings({"ALL", "unused"})
 @State(Scope.Thread)
 public class DynamicArrayBench {
 

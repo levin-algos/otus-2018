@@ -34,11 +34,6 @@ public class IArray<T> implements DynamicArray<T> {
         initialCap = initialSize;
     }
 
-    IArray(T... arr) {
-        this();
-        for (int i = 0; i < arr.length; i++) add(i, arr[i]);
-    }
-
     @Override
     public T get(int index) {
         if (index < 0 || index > size())

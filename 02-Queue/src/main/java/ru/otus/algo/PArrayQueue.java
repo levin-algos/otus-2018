@@ -1,68 +1,59 @@
 package ru.otus.algo;
 
+
+@SuppressWarnings("SameParameterValue")
 public class PArrayQueue<T> implements PQueue<T> {
 
-    public static <T> PQueue<T> of() {
-        return new PArrayQueue<>();
+    PArrayQueue(int maxPriority) {
+        queue = new BArray<>(maxPriority);
+        for (int i = 0; i < maxPriority; i++) {
+            queue.add(i, null);
+        }
     }
 
-    private PArrayQueue() {
-        queue = new BArray<>();
+    public void enqueue(int priority, T el) {
+
+        OList<T> list = getList(priority);
+
+        list.add(el);
+        size++;
     }
 
-    public void enqueue(int priority, T test) {
-        QueueElement<T> element = new QueueElement<>(priority, test);
-        int bin = findBin(element);
-
-        OList<QueueElement<T>> list = queue.get(bin);
+    private OList<T> getList(int priority) {
+        OList<T> list = queue.get(priority);
 
         if (list == null) {
             list = new OList<>();
+            queue.set(priority, list);
         }
-        list.add(element);
-        queue.set(bin, list);
-    }
 
-    private int findBin(QueueElement<T> element) {
-        int size = queue.size();
-        for (int i = 0; i < size; i++) {
-            OList<QueueElement<T>> list = queue.get(i);
-            int res = list.head().get().compareTo(element);
-            if (res<0) {
-                continue;
-            }
-            if (res == 0)
-                return i;
-
-            queue.add(i, new OList<>());
-            return i;
-        }
-        queue.add(size, new OList<>());
-        return size;
+        return list;
     }
 
     public T dequeue() {
-        int size = queue.size()-1;
-        OList<QueueElement<T>> list = queue.get(size);
-        T element = list.removeFirst().element;
-        if (list.head() == null)
-            queue.remove(size);
+        if (size == 0)
+            throw new IllegalStateException();
+
+        OList<T> list = getMostPriorityList();
+        if (list == null)
+            throw new IllegalStateException();
+
+        T element = list.removeFirst();
+
+        size--;
         return element;
     }
 
-    private DynamicArray<OList<QueueElement<T>>> queue;
-    private class QueueElement<T> implements Comparable<QueueElement<T>> {
-        private final int priority;
-        private final T element;
-
-        QueueElement(int priority, T element) {
-            this.priority = priority;
-            this.element = element;
+    private OList<T> getMostPriorityList() {
+        for (int i=queue.size()-1; i >=0; i--) {
+            OList<T> list = queue.get(i);
+            if (list != null && list.size() != 0) {
+                return list;
+            }
         }
-
-        @Override
-        public int compareTo(QueueElement<T> o) {
-            return Integer.compare(priority, o.priority);
-        }
+        return null;
     }
+
+    private final DynamicArray<OList<T>> queue;
+    private int size;
 }

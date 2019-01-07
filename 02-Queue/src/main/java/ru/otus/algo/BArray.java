@@ -7,8 +7,6 @@ public class BArray<T> extends DArray<T> {
 
     BArray(int initSize) { super(initSize);}
 
-    BArray(T... arr) {super(arr);}
-
     @Override
     protected int newArraySize(int oldSize) {
         return oldSize*2+1;
