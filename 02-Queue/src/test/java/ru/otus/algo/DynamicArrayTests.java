@@ -30,6 +30,7 @@ class DynamicArrayTests {
         String remove = arr.remove(0);
         assertEquals(2, arr.size());
         assertEquals("1", remove);
+        System.out.println(arr);
         assertArrayEquals(new String[]{"2", "3"}, arr.toArray(new String[0]));
         assertEquals(2, arr.size());
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> arr.get(2));

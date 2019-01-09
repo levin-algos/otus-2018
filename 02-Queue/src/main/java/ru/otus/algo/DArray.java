@@ -19,7 +19,6 @@ class DArray<T> implements DynamicArray<T> {
         return (T) _arr[index];
     }
 
-
     private void relocate(int index) {
         if (_arr == null) {
             _arr =  new Object[newArraySize(size())];
