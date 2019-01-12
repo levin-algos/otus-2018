@@ -15,7 +15,7 @@ class EratosthenesJOL {
 
         System.out.println(VM.current().details());
 
-        Eratosthenes era = Eratosthenes.of(1_000_000);
+        BitSetEratosthenes era = BitSetEratosthenes.of(Integer.MAX_VALUE);
         GraphLayout layout = GraphLayout.parseInstance(era);
         System.out.println(layout.toFootprint());
     }

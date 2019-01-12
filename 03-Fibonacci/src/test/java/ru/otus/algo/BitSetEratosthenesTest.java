@@ -6,16 +6,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
 
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class EratosthenesTest {
+class BitSetEratosthenesTest {
 
-    private final static int PRIME_SIZE = 104730;
     private static Eratosthenes era;
 
     @BeforeAll
     static void fillSet() {
-        era = Eratosthenes.of(PRIME_SIZE);
+        int PRIME_SIZE = 104730;
+        era = BitSetEratosthenes.of(PRIME_SIZE);
     }
 
     @ParameterizedTest
