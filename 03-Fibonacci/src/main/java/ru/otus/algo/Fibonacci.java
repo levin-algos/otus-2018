@@ -2,9 +2,9 @@ package ru.otus.algo;
 
 import java.math.BigInteger;
 
-public class Fibonacci {
+class Fibonacci {
 
-    public static BigInteger definition(int input) {
+    static BigInteger definition(int input) {
         if (input < 0)
             throw new IllegalArgumentException();
         if (input == 0)
@@ -22,9 +22,9 @@ public class Fibonacci {
         return f;
     }
 
-    public static BigInteger matrix(int input) {
+    static BigInteger matrix(int input) {
 
-        BigInteger arr[] = new BigInteger[2];
+        BigInteger[] arr = new BigInteger[2];
         arr[0] = BigInteger.ZERO;
         arr[1] = BigInteger.ONE;
 
