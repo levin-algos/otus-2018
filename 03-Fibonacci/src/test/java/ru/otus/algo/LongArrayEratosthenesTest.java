@@ -8,24 +8,31 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+@SuppressWarnings("ALL")
 public class LongArrayEratosthenesTest {
 
-        private static Eratosthenes era;
+    private static Eratosthenes era;
 
-        @BeforeAll
-        static void fillSet() {
-            int PRIME_SIZE = 104730;
-            era = LongArrayEratosthenes.of(PRIME_SIZE);
-        }
+    @BeforeAll
+    static void fillSet() {
+        int PRIME_SIZE = 104730;
+        era = LongArrayEratosthenes.of(PRIME_SIZE);
+    }
 
-        @ParameterizedTest
-        @CsvFileSource(resources = "/primes10000")
-        void testPrime(int prime) {
-            assertFalse(era.isPrime(prime));
-        }
+    @ParameterizedTest
+    @CsvFileSource(resources = "/primes10000")
+    void testPrime(int prime) {
+        assertFalse(era.isPrime(prime));
+    }
 
-        @Test
-        void calcPrimeNumber() {
-            assertEquals(10_000, era.size());
-        }
+    @Test
+    void calcPrimeNumber() {
+        assertEquals(10_000, era.getPrimeCount());
+    }
+
+    @Test
+    void testZeroAndOne() {
+        assertFalse(era.isPrime(0));
+        assertFalse(era.isPrime(1));
+    }
 }

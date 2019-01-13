@@ -30,10 +30,10 @@ public class LongArrayEratosthenes implements Eratosthenes {
     }
 
     @Override
-    public int size() {
+    public int getPrimeCount() {
         return (bits >> 1) - array.size();
     }
 
     private LongArray array;
-    private int bits;
+    private final int bits;
 }

@@ -11,29 +11,29 @@ public class LongArray {
         if (nbits ==0)
             throw new IllegalArgumentException();
 
-        words = new long[nbits/64 ==0 ? 1 : nbits/64];
+        words = new long[nbits/WORD_LENGTH ==0 ? 1 : nbits/WORD_LENGTH];
     }
     public void set(int pos) {
         if (pos < 0)
             throw new IllegalArgumentException();
 
-        int bin = calcBin(pos);
-        ensureCapacity(bin);
+        int wordNum = calcWordNum(pos);
+        ensureCapacity(wordNum);
 
-        long tmp = 1L << (pos % 64);
-        words[bin] |= tmp;
+        long tmp = 1L << (pos % WORD_LENGTH);
+        words[wordNum] |= tmp;
     }
 
     public boolean get(int pos) {
         if (pos < 0)
             throw new IllegalArgumentException();
 
-        int bin = calcBin(pos);
+        int bin = calcWordNum(pos);
 
         if (words.length <= bin)
             return false;
 
-        return (words[bin] & (1L << (pos % 64))) != 0;
+        return (words[bin] & (1L << (pos % WORD_LENGTH))) != 0;
     }
 
     public int size() {
@@ -48,7 +48,7 @@ public class LongArray {
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
 
-        for (int i = 0; i < words.length*64; i++) {
+        for (int i = 0; i < words.length*WORD_LENGTH; i++) {
             if (get(i)) sb.append(i).append(" ");
         }
         return sb.append("]").toString();
@@ -64,9 +64,11 @@ public class LongArray {
         words = Arrays.copyOf(words, bin+1);
     }
 
-    private int calcBin(int pos) {
-        return pos / 64;
+    private int calcWordNum(int pos) {
+        return pos / WORD_LENGTH;
     }
 
     private long[] words;
+
+    private static final int WORD_LENGTH = 64;
 }

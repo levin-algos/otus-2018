@@ -3,14 +3,16 @@ package ru.otus.algo;
 import java.util.BitSet;
 
 /**
- * Calculates prime numbers in [2, maxNumber] interval using Sieve of BitSetEratosthenes.
+ * Calculates prime numbers in [2, maxNumber) interval using Sieve of BitSetEratosthenes.
  * This implementation uses BitSet as an bit array for calculating prime numbers.
  */
 public class BitSetEratosthenes implements Eratosthenes {
 
-    private BitSetEratosthenes(int maxNumber) {
-        calcPrimes(maxNumber);
-        this.maxNumber = maxNumber;
+    public static BitSetEratosthenes of(int maxNumber) {
+        if (maxNumber < 2)
+            throw new IllegalArgumentException();
+
+        return new BitSetEratosthenes(maxNumber);
     }
 
     private void calcPrimes(int max) {
@@ -26,21 +28,22 @@ public class BitSetEratosthenes implements Eratosthenes {
         }
     }
 
-    public static BitSetEratosthenes of(int maxNumber) {
-        if (maxNumber < 2)
-            throw new IllegalArgumentException();
-
-        return new BitSetEratosthenes(maxNumber);
-    }
-
     @Override
     public boolean isPrime(int prime) {
+        if (prime >= maxNumber)
+            throw new IllegalArgumentException();
+
         return prime >= 2 && primes.get(prime >> 1);
     }
 
     @Override
-    public int size() {
+    public int getPrimeCount() {
         return size == 0 ? calcSize() : size;
+    }
+
+    private BitSetEratosthenes(int maxNumber) {
+        calcPrimes(maxNumber);
+        this.maxNumber = maxNumber;
     }
 
     private int calcSize() {

@@ -6,8 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
 
-import java.util.stream.Stream;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class BitSetEratosthenesTest {
@@ -16,8 +14,8 @@ class BitSetEratosthenesTest {
 
     @BeforeAll
     static void fillSet() {
-        int PRIME_SIZE = 104730;
-        era = BitSetEratosthenes.of(PRIME_SIZE);
+        int MAX_NUMBER = 104730;
+        era = BitSetEratosthenes.of(MAX_NUMBER);
     }
 
     @ParameterizedTest
@@ -28,6 +26,12 @@ class BitSetEratosthenesTest {
 
     @Test
     void calcPrimeNumber() {
-        assertEquals(10_000, era.size());
+        assertEquals(10_000, era.getPrimeCount());
+    }
+
+    @Test
+    void testZeroAndOne() {
+        assertFalse(era.isPrime(0));
+        assertFalse(era.isPrime(1));
     }
 }
