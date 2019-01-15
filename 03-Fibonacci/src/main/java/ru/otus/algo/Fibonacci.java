@@ -34,14 +34,15 @@ public class Fibonacci {
             return arr[input];
 
         int c = 0;
-        Matrix2D res = new Matrix2D(BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE);
+        Matrix2D res = Matrix2D.IDENTITY;
         while (input != 0) {
             if (bases.size() == c) {
                 bases.add(bases.get(c-1).pow2());
             }
 
             if ((input & 1) == 1) {
-                res = res.multiply(bases.get(c));
+                Matrix2D base = bases.get(c);
+                res = res == Matrix2D.IDENTITY ? base : res.multiply(base);
             }
             input >>= 1;
             c++;
@@ -51,6 +52,7 @@ public class Fibonacci {
 
     private static class Matrix2D {
         private BigInteger x11, x12, x21, x22;
+        final static Matrix2D IDENTITY = new Matrix2D(BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE);
 
         public Matrix2D(BigInteger x11, BigInteger x12, BigInteger x21, BigInteger x22) {
             this.x11 = x11;
