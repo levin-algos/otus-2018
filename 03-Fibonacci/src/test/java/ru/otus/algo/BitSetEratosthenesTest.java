@@ -21,7 +21,7 @@ class BitSetEratosthenesTest {
     @ParameterizedTest
     @CsvFileSource(resources = "/primes10000")
     void testPrime(int prime) {
-        assertFalse(era.isPrime(prime));
+        assertTrue(era.isPrime(prime));
     }
 
     @Test

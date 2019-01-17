@@ -33,7 +33,9 @@ public class BitSetEratosthenes implements Eratosthenes {
         if (prime >= maxNumber)
             throw new IllegalArgumentException();
 
-        return prime >= 2 && primes.get(prime >> 1);
+        if ((prime & 1) == 0 && prime != 2)
+            return false;
+        return prime >= 2 && !primes.get(prime >> 1);
     }
 
     @Override

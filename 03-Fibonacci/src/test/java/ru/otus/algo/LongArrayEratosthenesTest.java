@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("ALL")
 public class LongArrayEratosthenesTest {
@@ -22,7 +21,7 @@ public class LongArrayEratosthenesTest {
     @ParameterizedTest
     @CsvFileSource(resources = "/primes10000")
     void testPrime(int prime) {
-        assertFalse(era.isPrime(prime));
+        assertTrue(era.isPrime(prime));
     }
 
     @Test

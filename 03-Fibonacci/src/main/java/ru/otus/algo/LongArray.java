@@ -13,6 +13,7 @@ public class LongArray {
 
         words = new long[nbits/WORD_LENGTH ==0 ? 1 : nbits/WORD_LENGTH];
     }
+
     public void set(int pos) {
         if (pos < 0)
             throw new IllegalArgumentException();

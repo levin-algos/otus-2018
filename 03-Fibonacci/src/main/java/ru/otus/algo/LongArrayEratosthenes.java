@@ -26,7 +26,13 @@ public class LongArrayEratosthenes implements Eratosthenes {
 
     @Override
     public boolean isPrime(int prime) {
-        return prime >= 2 && array.get(prime >> 1);
+        if (prime < 0)
+            throw new IllegalArgumentException();
+
+        if ((prime & 1) == 0 && prime !=2)
+            return false;
+
+        return prime >= 2 && !array.get(prime >> 1);
     }
 
     @Override
