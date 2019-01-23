@@ -20,16 +20,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class SortTest {
-    private static final String STANDARD_RATING = "standard_rating_list.txt";
+    private static final String STANDARD_RATING = "standard_rating_list.xml";
 
     @ParameterizedTest
     @MethodSource("chessPlayerProvider")
     public void invertionSort(List<ChessPlayer> list) {
 
         Comparator<ChessPlayer> comparator = ChessPlayer.RATING_DESC;
-        Sort.inversion(list, comparator);
+        Sort.insertion(list, comparator);
         assertTrue(Sort.isSorted(list, comparator));
     }
+
+    @Test
+    public void invertionSortInts() {
+
+        ArrayList<Integer> integers = new ArrayList<>(Arrays.asList(5, 4, 3, 2, 1));
+        Sort.insertion(integers, Integer::compareTo);
+        assertTrue(Sort.isSorted(integers, Integer::compareTo));
+        System.out.println(integers);
+    }
+
 
     private static Stream<List<ChessPlayer>> chessPlayerProvider() {
         return Stream.of(ChessPlayer.loadXML(STANDARD_RATING));
