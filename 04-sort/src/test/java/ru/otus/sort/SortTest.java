@@ -28,6 +28,6 @@ public class SortTest {
     }
 
     private static Stream<List<ChessPlayer>> chessPlayerProvider() {
-        return Stream.of(ChessPlayer.load(STANDARD_RATING, 1000));
+        return Stream.of(ChessPlayer.loadXML(STANDARD_RATING, 1000));
     }
 }
