@@ -43,4 +43,10 @@ public class SortTest {
         assertTrue(Sort.isSorted(ints, Integer::compareTo));
         assertFalse(Sort.isSorted(ints1, Integer::compareTo));
     }
+
+    @Test
+    void isSortedOnEmptyList() {
+        ArrayList<Integer> empty = new ArrayList<>();
+        assertTrue(Sort.isSorted(empty, Integer::compareTo));
+    }
 }
