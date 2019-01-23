@@ -9,14 +9,21 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    id 'io.franzbecker.gradle-lombok' version '1.14'
 }
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
 test {
     useJUnitPlatform()
+}
+
+lombok {
+    version = '1.18.4'
+    sha256 = ""
 }
 
 

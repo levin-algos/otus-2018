@@ -12,7 +12,7 @@ class ChessPlayerTest {
     void createPlayer() {
         ChessPlayer chessPlayer = new ChessPlayer("100", "Ivan", Sex.MALE, 1000, "GM");
         assertEquals("100", chessPlayer.getId());
-        assertEquals("Ivan", chessPlayer.getDef());
+        assertEquals("Ivan", chessPlayer.getName());
         assertEquals(Sex.MALE, chessPlayer.getSex());
         assertEquals(1000, chessPlayer.getRating());
         assertEquals("GM", chessPlayer.getTitle());
@@ -33,9 +33,9 @@ class ChessPlayerTest {
     @Test
     void loadXML() {
         ChessPlayer expected = new ChessPlayer("35077023", "A Chakravarthy", Sex.MALE, 1151, "");
-        List<ChessPlayer> chessPlayers = ChessPlayer.loadXML("standard_rating_list.xml", 1);
+        List<ChessPlayer> chessPlayers = ChessPlayer.loadXML("head.xml", 1);
 
-        assertEquals(1, chessPlayers.size());
+        assertEquals(7, chessPlayers.size());
         assertEquals(expected, chessPlayers.get(0));
     }
 
