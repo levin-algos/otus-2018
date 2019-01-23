@@ -29,20 +29,20 @@ public class SortTest {
         Comparator<ChessPlayer> comparator = ChessPlayer.RATING_DESC;
         Sort.insertion(list, comparator);
         assertTrue(Sort.isSorted(list, comparator));
+        list.forEach(System.out::println);
     }
 
     @Test
-    public void invertionSortInts() {
-
+    public void insertionSortInts() {
         ArrayList<Integer> integers = new ArrayList<>(Arrays.asList(5, 4, 3, 2, 1));
-        Sort.insertion(integers, Integer::compareTo);
-        assertTrue(Sort.isSorted(integers, Integer::compareTo));
+        Sort.insertion(integers, Comparator.reverseOrder());
+        assertTrue(Sort.isSorted(integers, Comparator.reverseOrder()));
         System.out.println(integers);
     }
 
 
     private static Stream<List<ChessPlayer>> chessPlayerProvider() {
-        return Stream.of(ChessPlayer.loadXML(STANDARD_RATING));
+        return Stream.of(ChessPlayer.loadXML(STANDARD_RATING, 100));
     }
 
     @Test

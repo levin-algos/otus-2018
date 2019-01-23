@@ -32,8 +32,11 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
     private final int rating;
     private final String title;
 
-
     public static List<ChessPlayer> loadXML(String xmlRating) {
+        return loadXML(xmlRating, Integer.MAX_VALUE);
+    }
+
+    public static List<ChessPlayer> loadXML(String xmlRating, int entries) {
         ArrayList<ChessPlayer> res = new ArrayList<>();
 
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -42,9 +45,11 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
             SAXParser saxParser = spf.newSAXParser();
 
             XMLReader xmlReader = saxParser.getXMLReader();
-            xmlReader.setContentHandler(new ChessPlayerSAXHandler(res));
+            xmlReader.setContentHandler(new ChessPlayerSAXHandler(res, entries));
             ClassLoader classLoader = ChessPlayer.class.getClassLoader();
             xmlReader.parse(classLoader.getResource(xmlRating).getFile());
+        } catch (ChessPlayerSAXHandler.SAXTerminateException e) {
+            return res;
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
@@ -61,12 +66,14 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
         private final List<ChessPlayer> players;
         private ChessPlayerBuilder cur;
         private String chars;
+        private int entries;
 
-        public ChessPlayerSAXHandler(List<ChessPlayer> players) {
-            if (players == null)
+        ChessPlayerSAXHandler(List<ChessPlayer> players, int entries) {
+            if (players == null || entries < 0)
                 throw new IllegalArgumentException();
 
             this.players = players;
+            this.entries = entries;
         }
 
         @Override
@@ -102,6 +109,8 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
                 } else if ("player".equals(localName)) {
                     players.add(cur.build());
                     cur = null;
+                    if (--entries == 0)
+                        throw new SAXTerminateException();
                 }
             }
         }
@@ -110,5 +119,7 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
         public void characters(char[] ch, int start, int length) throws SAXException {
             chars = new String(ch, start, length).trim();
         }
+
+        private class SAXTerminateException extends SAXException {}
     }
 }
