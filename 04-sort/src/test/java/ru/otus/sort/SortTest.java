@@ -4,14 +4,18 @@
 package ru.otus.sort;
 
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import ru.otus.ChessPlayer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -28,6 +32,15 @@ public class SortTest {
     }
 
     private static Stream<List<ChessPlayer>> chessPlayerProvider() {
-        return Stream.of(ChessPlayer.loadXML(STANDARD_RATING, 1000));
+        return Stream.of(ChessPlayer.loadXML(STANDARD_RATING));
+    }
+
+    @Test
+    void isSorted() {
+        ArrayList<Integer> ints = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+        ArrayList<Integer> ints1 = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 0));
+
+        assertTrue(Sort.isSorted(ints, Integer::compareTo));
+        assertFalse(Sort.isSorted(ints1, Integer::compareTo));
     }
 }

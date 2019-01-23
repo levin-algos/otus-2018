@@ -33,9 +33,9 @@ class ChessPlayerTest {
     @Test
     void loadXML() {
         ChessPlayer expected = new ChessPlayer("35077023", "A Chakravarthy", Sex.MALE, 1151, "");
-        List<ChessPlayer> chessPlayers = ChessPlayer.loadXML("head.xml", 1);
+        List<ChessPlayer> chessPlayers = ChessPlayer.loadXML("standard_rating_list.xml");
 
-        assertEquals(7, chessPlayers.size());
+        assertEquals(325203, chessPlayers.size());
         assertEquals(expected, chessPlayers.get(0));
     }
 

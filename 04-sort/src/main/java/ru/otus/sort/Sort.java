@@ -14,6 +14,15 @@ public class Sort {
     }
 
     public static <T extends Comparable<T>> boolean isSorted(List<T> list, Comparator<T> comparator) {
-        return false;
+        T current = null;
+        for (T el: list) {
+            if (current != null) {
+                if (comparator.compare(current, el) > 0)
+                    return false;
+            }
+            current = el;
+        }
+
+        return true;
     }
 }

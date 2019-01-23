@@ -16,6 +16,7 @@ import java.util.Objects;
 /**
  * Class represents chess player from https://ratings.fide.com/download.phtml
  */
+
 @Data
 @AllArgsConstructor
 @Builder
@@ -32,7 +33,7 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
     private final String title;
 
 
-    public static List<ChessPlayer> loadXML(String xmlRating, int i) {
+    public static List<ChessPlayer> loadXML(String xmlRating) {
         ArrayList<ChessPlayer> res = new ArrayList<>();
 
         SAXParserFactory spf = SAXParserFactory.newInstance();
