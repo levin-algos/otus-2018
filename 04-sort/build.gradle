@@ -10,6 +10,7 @@ plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
     id 'io.franzbecker.gradle-lombok' version '1.14'
+    id "me.champeau.gradle.jmh" version "0.4.8"
 }
 
 repositories {
@@ -21,11 +22,17 @@ test {
     useJUnitPlatform()
 }
 
+jmh {
+    timeOnIteration = '1s'
+    iterations = 10
+    benchmarkMode = ['thrpt','ss']
+    jmhVersion = '1.21'
+}
+
 lombok {
     version = '1.18.4'
     sha256 = ""
 }
-
 
 dependencies {
     testCompile('org.junit.jupiter:junit-jupiter-api:5.3.2')
