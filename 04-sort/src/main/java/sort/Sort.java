@@ -12,7 +12,7 @@ public class Sort {
         if (list == null || comparator == null)
             throw new IllegalArgumentException();
 
-        System.out.println(_insertion(list, 1, 1, comparator));
+        _insertion(list, 1, 1, comparator);
     }
 
     public static <T extends Comparable<T>> void shell(List<T> list, Comparator<T> comparator, int[] gapSequence) {
@@ -23,12 +23,9 @@ public class Sort {
         int halfSize = list.size()/2;
         for (int gap: gapSequence) {
             if (halfSize > gap) {
-                System.out.println(gap);
                 swaps += _insertion(list, gap, gap, comparator);
             }
         }
-
-        System.out.println(swaps);
     }
 
     private static <T extends Comparable<T>> int _insertion(List<T> list, int from, int step, Comparator<T> comparator) {

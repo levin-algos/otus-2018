@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class represents chess player from https://ratings.fide.com/download.phtml
@@ -45,8 +46,8 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
 
             XMLReader xmlReader = saxParser.getXMLReader();
             xmlReader.setContentHandler(new ChessPlayerSAXHandler(res, entries));
-            ClassLoader classLoader = ChessPlayer.class.getClassLoader();
-            xmlReader.parse(classLoader.getResource(xmlRating).getFile());
+            Class<? extends ArrayList> aClass = res.getClass();
+            xmlReader.parse(Objects.requireNonNull(aClass.getResource(xmlRating)).getFile());
         } catch (ChessPlayerSAXHandler.SAXTerminateException e) {
             return res;
         } catch (ParserConfigurationException | SAXException | IOException e) {
