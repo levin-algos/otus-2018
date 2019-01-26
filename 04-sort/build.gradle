@@ -32,12 +32,11 @@ sourceSets {
 
 jmh {
     timeOnIteration = '1s'
-    timeUnit = 'ms'
+    timeUnit = 'us'
     fork = 1
     iterations = 1
     benchmarkMode = ['avgt']
     jmhVersion = '1.21'
-    verbosity='EXTRA'
     resultFormat='TEXT'
 }
 

@@ -11,7 +11,7 @@ public class JMHTest {
 
     private final static String xml = "standard_rating_list.xml";
 
-    @Param({"10", "100", "1000"})
+    @Param({"10", "100", "1000", "10000", "100000"})
     private static int entries;
 
     private static int[] gap = new int[]{701, 301, 132, 57, 23, 10, 4, 1};
