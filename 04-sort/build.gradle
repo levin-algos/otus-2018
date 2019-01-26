@@ -32,9 +32,13 @@ sourceSets {
 
 jmh {
     timeOnIteration = '1s'
-    iterations = 10
+    timeUnit = 'ms'
+    fork = 1
+    iterations = 1
     benchmarkMode = ['avgt']
     jmhVersion = '1.21'
+    verbosity='EXTRA'
+    resultFormat='TEXT'
 }
 
 lombok {

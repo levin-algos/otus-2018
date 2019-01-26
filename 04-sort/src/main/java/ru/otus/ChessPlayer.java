@@ -2,12 +2,15 @@ package ru.otus;
 
 import lombok.*;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.*;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,8 +49,9 @@ public final class ChessPlayer implements Comparable<ChessPlayer> {
 
             XMLReader xmlReader = saxParser.getXMLReader();
             xmlReader.setContentHandler(new ChessPlayerSAXHandler(res, entries));
-            Class<? extends ArrayList> aClass = res.getClass();
-            xmlReader.parse(Objects.requireNonNull(aClass.getResource(xmlRating)).getFile());
+//            URL resource = ChessPlayer.class.getClassLoader().getResource(xmlRating);
+            InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream(xmlRating);
+            xmlReader.parse(new InputSource(systemResourceAsStream));
         } catch (ChessPlayerSAXHandler.SAXTerminateException e) {
             return res;
         } catch (ParserConfigurationException | SAXException | IOException e) {

@@ -9,7 +9,7 @@ import java.util.List;
 @State(Scope.Benchmark)
 public class JMHTest {
 
-    private final static String xml = "resources/standard_rating_list.xml";
+    private final static String xml = "standard_rating_list.xml";
 
     @Param({"10", "100", "1000"})
     private static int entries;

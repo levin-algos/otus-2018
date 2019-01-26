@@ -23,7 +23,7 @@ class SortTest {
 
     @BeforeEach
     void prepare() {
-        players = ChessPlayer.loadXML(STANDARD_RATING, 100);
+        players = ChessPlayer.loadXML(STANDARD_RATING, 10000);
     }
 
     @Test
