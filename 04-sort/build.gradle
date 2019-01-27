@@ -34,7 +34,7 @@ jmh {
     timeOnIteration = '1s'
     timeUnit = 'us'
     fork = 1
-    iterations = 1
+    iterations = 10
     benchmarkMode = ['avgt']
     jmhVersion = '1.21'
     resultFormat='TEXT'
