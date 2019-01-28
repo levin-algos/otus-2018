@@ -68,14 +68,7 @@ public class Heap<T extends Comparable<T>> {
      * @return - head element from the heap
      */
     public T poll() {
-        T res = data[0];
-        swap(0, size - 1);
-        data[size - 1] = null;
-        size--;
-        stack.push(0);
-        stack.push(size);
-        drown();
-        return res;
+        return remove(0);
     }
 
     /**
@@ -102,5 +95,29 @@ public class Heap<T extends Comparable<T>> {
                 "data=" + Arrays.toString(data) +
                 ", size=" + size +
                 '}';
+    }
+
+    public void remove(T obj) {
+        if (obj == null)
+            throw new IllegalArgumentException();
+
+        for (int i=0; i< data.length; i++) {
+            T tmp = data[i];
+            if (obj.equals(tmp)) {
+                remove(i);
+                return;
+            }
+        }
+    }
+
+    private T remove(int pos) {
+        T res = data[pos];
+        swap(pos, size - 1);
+        data[size - 1] = null;
+        size--;
+        stack.push(0);
+        stack.push(size);
+        drown();
+        return res;
     }
 }

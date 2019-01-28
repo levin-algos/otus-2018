@@ -1,42 +1,69 @@
 package ru.otus;
 
-import org.junit.Before;
 import org.junit.Test;
-
 import java.util.Arrays;
-
 import static org.junit.Assert.*;
 
-public class HeapTest
-{
+public class HeapTest {
     private Heap h;
     private final Integer[] integers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-    @Before
-    public void prepare() {
-        h = new Heap<>(Arrays.copyOf(integers, integers.length));
-    }
-
     @Test
     public void heapCreate() {
+        Integer[] ints = Arrays.copyOf(this.integers, integers.length);
+        h = new Heap<>(ints);
         assertNotNull(h);
         assertEquals(integers.length, h.size());
+        testInvariant(ints);
     }
 
-    //TODO: add tests for heapify
     @Test
     public void pollMaximum() {
-        for (int i = integers.length-1; i>=0; i--) {
+        Integer[] ints = Arrays.copyOf(this.integers, integers.length);
+        h = new Heap<>(ints);
+
+        for (int i = integers.length - 1; i >= 0; i--) {
             assertEquals(integers[i], h.poll());
+            assertTrue(testInvariant(ints));
             assertEquals(i, h.size());
         }
         assertEquals(0, h.size());
     }
 
     @Test
+    public void remove() {
+        Integer[] data = {1, 2, 3, 4, 5, 5, 6, 7, 8, 9};
+        Heap<Integer> heap = new Heap<>(data);
+        heap.remove(5);
+        assertTrue(testInvariant(data));
+        for (int i = integers.length - 1; i >= 0; i--) {
+            assertEquals(integers[i], heap.poll());
+            assertTrue(testInvariant(data));
+            assertEquals(i, heap.size());
+        }
+        assertEquals(0, heap.size());
+    }
+
+    @Test
     public void sort() {
-        Integer[] ints = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+        Integer[] ints = {9, 7, 5, 6, 8, 4, 3, 2, 1};
         Heap.sort(ints);
         assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, ints);
+    }
+
+    public boolean testInvariant(Integer[] arr) {
+        int size = arr.length;
+        for (int i = 0; i < (size - 1) / 2; i++) {
+            int left = i * 2 + 1, right = i * 2 + 2;
+
+            if (left < size && arr[left] != null)
+                if (arr[left].compareTo(arr[i]) > 0)
+                    return false;
+
+            if (right < size && arr[right] != null)
+                if (arr[right].compareTo(arr[i]) > 0)
+                    return false;
+        }
+        return true;
     }
 }
