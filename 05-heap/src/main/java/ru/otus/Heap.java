@@ -1,13 +1,14 @@
 package ru.otus;
 
 import java.util.Arrays;
-import java.util.Stack;
+import java.util.Deque;
+import java.util.LinkedList;
 
 public class Heap<T extends Comparable<T>> {
 
     private T[] data;
     private int size;
-    private static Stack<Integer> stack = new Stack<>();
+    private Deque<Integer> stack = new LinkedList<>();
 
     public Heap(T[] arr) {
         if (arr == null)
@@ -21,9 +22,9 @@ public class Heap<T extends Comparable<T>> {
     public static <T extends Comparable<T>> void sort(T[] arr) {
         Heap<T> h = new Heap<>(arr);
         for (int i = 0; i < h.size(); i++) {
-            h.swap(0, h.size()-i-1);
-            stack.push(0);
-            stack.push(h.size()-i-1);
+            h.swap(0, h.size() - i - 1);
+            h.stack.push(0);
+            h.stack.push(h.size() - i - 1);
             h.drown();
         }
     }
@@ -37,7 +38,7 @@ public class Heap<T extends Comparable<T>> {
     }
 
     private void drown() {
-        while (!stack.empty()) {
+        while (!stack.isEmpty()) {
             int size = stack.pop();
             int i = stack.pop();
             int left = i * 2 + 1, right = i * 2 + 2;
@@ -97,27 +98,36 @@ public class Heap<T extends Comparable<T>> {
                 '}';
     }
 
-    public void remove(T obj) {
+    /**
+     * Remove first occurrences of {@code obj} from the heap
+     *
+     * @param obj - object to remove from the heap
+     * @return true - if object was removed. false - otherwise.
+     */
+    public boolean remove(T obj) {
         if (obj == null)
             throw new IllegalArgumentException();
 
-        for (int i=0; i< data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             T tmp = data[i];
             if (obj.equals(tmp)) {
                 remove(i);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     private T remove(int pos) {
         T res = data[pos];
-        swap(pos, size - 1);
-        data[size - 1] = null;
         size--;
-        stack.push(0);
-        stack.push(size);
-        drown();
+        swap(pos, size);
+        data[size] = null;
+        if (pos < ((size)/2)) {
+            stack.push(pos);
+            stack.push(size);
+            drown();
+        }
         return res;
     }
 }

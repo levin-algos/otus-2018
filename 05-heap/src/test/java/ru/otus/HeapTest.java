@@ -1,7 +1,9 @@
 package ru.otus;
 
 import org.junit.Test;
+
 import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 public class HeapTest {
@@ -32,10 +34,12 @@ public class HeapTest {
 
     @Test
     public void remove() {
-        Integer[] data = {1, 2, 3, 4, 5, 5, 6, 7, 8, 9};
+        Integer[] data = {1, 2, 3, 4, 1, 5, 6, 7, 8, 9};
         Heap<Integer> heap = new Heap<>(data);
-        heap.remove(5);
+        assertTrue(heap.remove(1));
+        assertFalse(heap.remove(15));
         assertTrue(testInvariant(data));
+        System.out.println(heap);
         for (int i = integers.length - 1; i >= 0; i--) {
             assertEquals(integers[i], heap.poll());
             assertTrue(testInvariant(data));
@@ -51,7 +55,7 @@ public class HeapTest {
         assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, ints);
     }
 
-    public boolean testInvariant(Integer[] arr) {
+    private boolean testInvariant(Integer[] arr) {
         int size = arr.length;
         for (int i = 0; i < (size - 1) / 2; i++) {
             int left = i * 2 + 1, right = i * 2 + 2;
