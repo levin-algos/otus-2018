@@ -1,42 +1,67 @@
 package ru.otus.sort;
 
-/**
- * Hello world!
- *
- */
-public class Sort
-{
+import java.util.Arrays;
 
-    private static final int MERGE_CONST = 2;
+public class Sort {
 
-    public static int[] merge(int[] ints) {
+    private static final int INSERTION_BORDER = 47;
+
+    public static void mergeSort(int[] ints) {
         if (ints == null)
             throw new IllegalArgumentException();
 
-        int[] res = new int[ints.length];
-        return mergesort(ints, 0, ints.length, res);
+        int[] res = Arrays.copyOf(ints, ints.length);
+        mergesort(ints, 0, ints.length, res);
     }
 
-    private static int[] mergesort(int[] ints, int from, int to, int[] res) {
-        int middle = (from + to) / 2;
-        if (to - from > MERGE_CONST) {
-            res = mergesort(ints, from, middle-1, res);
-            res = mergesort(ints, middle, to, res);
+    public static void insertion(int[] list, int begin, int end) {
+        if (list == null)
+            throw new IllegalArgumentException();
+
+        for (int i = begin + 1; i < end; i++) {
+            int j = i;
+            int tmp = list[j];
+            while (j > begin && list[j - 1] > tmp) {
+                list[j] = list[--j];
+            }
+            list[j] = tmp;
         }
-        return _merge(ints, from, middle, to, res);
     }
 
-    private static int[] _merge(int[] ints, int begin, int middle, int end, int[] res) {
+    private static void mergesort(int[] ints, int from, int to, int[] res) {
+        if (to - from > INSERTION_BORDER) {
+            int middle = (from + to) / 2;
+            mergesort(ints, from, middle, res);
+            mergesort(ints, middle, to, res);
+            merge(ints, from, middle, to, res);
+        } else {
+            insertion(ints, from, to);
+        }
+    }
+
+    private static void merge(int[] ints, int begin, int middle, int end, int[] res) {
         int fst = begin, snd = middle;
 
-        for (int i=begin; i < end; i++) {
-            if (fst <= middle && (snd >= end || ints[fst] < ints[snd])) {
-                res[i] = ints[fst++];
+        for (int j = begin; j < end; j++) {
+            if (fst < middle && (snd >= end || ints[fst] < ints[snd])) {
+                res[j] = ints[fst++];
             } else {
-                res[i] = ints[snd++];
+                res[j] = ints[snd++];
             }
         }
+        System.arraycopy(res, begin, ints, begin, end - begin);
+    }
 
-        return res;
+    public static boolean isSorted(int[] list) {
+        if (list == null)
+            throw new IllegalArgumentException();
+
+        int current = Integer.MIN_VALUE;
+        for (int el : list) {
+            if (current > el)
+                return false;
+            current = el;
+        }
+        return true;
     }
 }

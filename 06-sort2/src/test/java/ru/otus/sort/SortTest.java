@@ -1,20 +1,37 @@
 package ru.otus.sort;
 
-
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
-/**
- * Unit test for simple Sort.
- */
 public class SortTest {
 
-    @Test
-    public void mergeSort() {
-        int[] ints = new int[]{9, 8, 7, 6, 5, 4, 3, 2, 1};
+    private static final int ARRAY_SIZE = 10000;
+    private static final int MAX_VALUE = 10000;
 
-        assertArrayEquals(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, Sort.merge(ints));
+    @Test
+    public void checkIsSorted() {
+        int[] ints = {1, 2, 3, 4, 4, 5, 6, 7, 8, 9};
+        assertTrue(Sort.isSorted(ints));
     }
 
+    @Test
+    public void checkOnLargeArray() {
+        int[] random = Generator.generateRandom(ARRAY_SIZE, MAX_VALUE/2);
+        Sort.mergeSort(random);
+        assertTrue(Sort.isSorted(random));
+    }
+
+    @Test
+    public void insertionTest() {
+        int[] random = Generator.generateRandom(ARRAY_SIZE, MAX_VALUE/2);
+        Sort.insertion(random, 0, ARRAY_SIZE);
+        assertTrue(Sort.isSorted(random));
+    }
+
+    @Test
+    public void checkIsSortedWrong() {
+        int[] ints = {1, 2, 3, 4, 5, 4, 6, 7, 8, 9};
+        assertFalse(Sort.isSorted(ints));
+    }
 }
