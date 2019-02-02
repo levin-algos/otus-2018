@@ -17,15 +17,19 @@ public class SortTest {
 
     @Test
     public void checkOnLargeArray() {
+        Sort.times = 0;
         int[] random = Generator.generateRandom(ARRAY_SIZE, MAX_VALUE/2);
         Sort.mergeSort(random);
+        System.out.println(Sort.times);
         assertTrue(Sort.isSorted(random));
     }
 
     @Test
     public void insertionTest() {
         int[] random = Generator.generateRandom(ARRAY_SIZE, MAX_VALUE/2);
+        Sort.times = 0;
         Sort.insertion(random, 0, ARRAY_SIZE);
+        System.out.println(Sort.times);
         assertTrue(Sort.isSorted(random));
     }
 
@@ -34,4 +38,11 @@ public class SortTest {
         int[] ints = {1, 2, 3, 4, 5, 4, 6, 7, 8, 9};
         assertFalse(Sort.isSorted(ints));
     }
+
+    @Test
+    public void testGenerate() {
+        int[] res = Generator.generateRandom(100, 50);
+        assertEquals(100, res.length);
+    }
+
 }

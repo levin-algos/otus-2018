@@ -5,6 +5,7 @@ import java.util.Arrays;
 public class Sort {
 
     private static final int INSERTION_BORDER = 47;
+    public static int times = 0;
 
     public static void mergeSort(int[] ints) {
         if (ints == null)
@@ -23,14 +24,15 @@ public class Sort {
             int tmp = list[j];
             while (j > begin && list[j - 1] > tmp) {
                 list[j] = list[--j];
+                times++;
             }
             list[j] = tmp;
         }
     }
 
     private static void mergesort(int[] ints, int from, int to, int[] res) {
+        int middle = (from + to) / 2;
         if (to - from > INSERTION_BORDER) {
-            int middle = (from + to) / 2;
             mergesort(ints, from, middle, res);
             mergesort(ints, middle, to, res);
             merge(ints, from, middle, to, res);
@@ -45,8 +47,10 @@ public class Sort {
         for (int j = begin; j < end; j++) {
             if (fst < middle && (snd >= end || ints[fst] < ints[snd])) {
                 res[j] = ints[fst++];
+                times++;
             } else {
                 res[j] = ints[snd++];
+                times++;
             }
         }
         System.arraycopy(res, begin, ints, begin, end - begin);
