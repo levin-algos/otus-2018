@@ -1,17 +1,16 @@
 package ru.otus.sort;
 
 import java.util.Arrays;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 
 public class MergeSort {
 
     private final int INSERTION_BORDER;
-    private final int THREAD_BORDER;
+    private final int FORK_BORDER;
 
     public MergeSort(int insertionBound, int forkBound) {
         INSERTION_BORDER = insertionBound;
-        THREAD_BORDER = forkBound;
+        FORK_BORDER = forkBound;
     }
 
     public void mergeSort(int[] ints) {
@@ -22,13 +21,12 @@ public class MergeSort {
         mergesort(ints, 0, ints.length, res);
     }
 
-
     private void mergesort(int[] ints, int from, int to, int[] res) {
         int len = to - from;
         if (len > INSERTION_BORDER) {
             int middle = (from + to) / 2;
 
-            if (len < THREAD_BORDER) {
+            if (len < FORK_BORDER) {
                 mergesort(ints, from, middle, res);
                 mergesort(ints, middle, to, res);
             } else {

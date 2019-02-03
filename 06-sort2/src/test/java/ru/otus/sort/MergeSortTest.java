@@ -11,6 +11,12 @@ public class MergeSortTest {
 
     private static final MergeSort sorter = new MergeSort(47, 8192);
 
+
+    @Test
+    public void test() {
+        System.out.println(Integer.highestOneBit(96));
+    }
+
     @Test
     public void checkIsSorted() {
         int[] ints = {1, 2, 3, 4, 4, 5, 6, 7, 8, 9};
