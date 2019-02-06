@@ -1,20 +1,24 @@
 package ru.otus.sort;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PrefixTree {
+class PrefixTree {
 
     private final PrefixTreeNode root;
+    private final int maxDigitNumber;
+    private int count;
 
-    public PrefixTree() {
+    PrefixTree(int... arr) {
+        maxDigitNumber = Common.getNumberOfDigits(Common.max(arr));
         root = new PrefixTreeNode();
+
+        for (int s : arr) {
+            add(s);
+        }
     }
 
-    public boolean contains(String seq) {
+    boolean contains(int seq) {
         PrefixTreeNode cursor = root;
-        for (char el : seq.toCharArray()) {
-            cursor = cursor.getNode(map(el));
+        for (int i = maxDigitNumber - 1; i >= 0; i--) {
+            cursor = cursor.getNode((seq / Common.POWER_OF_10[i]) % 10);
 
             if (cursor == null)
                 return false;
@@ -22,36 +26,41 @@ public class PrefixTree {
         return true;
     }
 
-    private char map(char ch) {
-        if (ch > 47 && ch <= 57)
-            return (char) (ch - 48);
-        else
-            throw new IllegalStateException();
-    }
-
-    void addAll(String... arr) {
-        for (String s : arr) {
-            add(s);
-        }
-    }
-
-    void add(String value) {
+    private void add(int value) {
         PrefixTreeNode cursor = root;
 
-        for (char ch : value.toCharArray()) {
-            cursor = cursor.addChild(map(ch));
+        for (int i = maxDigitNumber - 1; i >= 0; i--) {
+            cursor = cursor.addChild((value / Common.POWER_OF_10[i]) % 10);
         }
         cursor.hasValue = true;
         cursor.setValue(value);
+        count++;
     }
 
-    List<String> traverse() {
-        List<String> integers = new ArrayList<>();
-        traverse(root, integers);
-        return integers;
+    private final class IntArray {
+        private final int[] array;
+        private int pos;
+
+        IntArray(int size) {
+            array = new int[size];
+        }
+
+        void add(int value) {
+            array[pos++] = value;
+        }
+
+        int[] toArray() {
+            return array;
+        }
     }
 
-    private void traverse(PrefixTreeNode node, List<String> arr) {
+    int[] traverse() {
+        IntArray array = new IntArray(count);
+        traverse(root, array);
+        return array.toArray();
+    }
+
+    private void traverse(PrefixTreeNode node, IntArray arr) {
         if (node.hasValue) {
             arr.add(node.value);
         }
@@ -61,35 +70,33 @@ public class PrefixTree {
         }
     }
 
-    public boolean delete(String s) {
+    boolean delete(int s) {
         PrefixTreeNode cursor = root;
-        int len = s.toCharArray().length - 1;
-        for (int i = 0; i < len; i++) {
-            char el = s.charAt(i);
-            cursor = cursor.getNode(map(el));
+
+        for (int i =maxDigitNumber - 1; i > 0; i--) {
+            cursor = cursor.getNode((s / Common.POWER_OF_10[i]) % 10);
 
             if (cursor == null)
                 return false;
         }
 
-        char key = map(s.charAt(len));
-        if (cursor.getNode(key) != null) {
-            cursor.deleteNode(key);
-
+        if (cursor != null) {
+            cursor.deleteNode(s % 10);
+            count--;
         }
         return true;
     }
 
     private final class PrefixTreeNode {
-        private PrefixTreeNode[] nodes;
-        private String value;
+        private final PrefixTreeNode[] nodes;
+        private int value;
         private boolean hasValue;
 
         PrefixTreeNode() {
             this.nodes = new PrefixTreeNode[10];
         }
 
-        PrefixTreeNode addChild(char key) {
+        PrefixTreeNode addChild(int key) {
             if (nodes[key] == null) {
                 PrefixTreeNode value = new PrefixTreeNode();
                 nodes[key] = value;
@@ -98,15 +105,15 @@ public class PrefixTree {
             return nodes[key];
         }
 
-        PrefixTreeNode getNode(char key) {
+        PrefixTreeNode getNode(int key) {
             return nodes[key];
         }
 
-        void setValue(String value) {
+        void setValue(int value) {
             this.value = value;
         }
 
-        public void deleteNode(char key) {
+        void deleteNode(int key) {
             nodes[key] = null;
         }
     }
