@@ -5,25 +5,25 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class RadixSortTest {
-
+    private final int size = 1000000;
     @Test
     public void leastSignificantSort() {
         RadixSort radixSort = new RadixSort();
-        int[] array = new int[]{123, 45, 678, 901};
+
+        int[] array = Common.generateRandom(size, size/2);
 
         radixSort.sort(array, RadixSort.Modes.LEAST_SIGN);
 
-        assertArrayEquals(new int[]{45, 123, 678, 901}, array);
+        assertTrue(Common.isSorted(array));
     }
 
     @Test
     public void trieSort() {
         RadixSort radixSort = new RadixSort();
-        int[] array = new int[] { 123, 45, 678, 901};
+        int[] array = Common.generateRandom(size, size/2);
 
         radixSort.sort(array, RadixSort.Modes.PREFIX);
 
-        assertArrayEquals(new int[]{45, 123, 678, 901}, array);
+        assertTrue(Common.isSorted(array));
     }
-
 }

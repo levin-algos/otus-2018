@@ -62,8 +62,10 @@ class PrefixTree {
 
     private void traverse(PrefixTreeNode node, IntArray arr) {
         if (node.hasValue) {
-            arr.add(node.value);
+            for (int i=0; i < node.count-1; i++)
+                arr.add(node.value);
         }
+
         for (PrefixTreeNode n : node.nodes) {
             if (n != null)
                 traverse(n, arr);
@@ -91,17 +93,21 @@ class PrefixTree {
         private final PrefixTreeNode[] nodes;
         private int value;
         private boolean hasValue;
+        private int count;
 
         PrefixTreeNode() {
             this.nodes = new PrefixTreeNode[10];
+            count++;
         }
 
         PrefixTreeNode addChild(int key) {
             if (nodes[key] == null) {
                 PrefixTreeNode value = new PrefixTreeNode();
                 nodes[key] = value;
+                value.count++;
                 return value;
             }
+            nodes[key].count++;
             return nodes[key];
         }
 
@@ -114,7 +120,9 @@ class PrefixTree {
         }
 
         void deleteNode(int key) {
-            nodes[key] = null;
+            nodes[key].count--;
+            if (nodes[key].count<1)
+                nodes[key] = null;
         }
     }
 }
