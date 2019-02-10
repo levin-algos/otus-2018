@@ -37,6 +37,23 @@ public class Heap<T extends Comparable<T>> {
         }
     }
 
+    private void ascend() {
+        while (!stack.isEmpty()) {
+            int i = stack.pop();
+
+            int parent = (i-1)/2;
+
+            if (parent > 0) {
+                if (data[parent].compareTo(data[i]) < 0) {
+                    swap(parent, i);
+
+                    stack.push(parent);
+                    ascend();
+                }
+            }
+        }
+    }
+
     private void drown() {
         while (!stack.isEmpty()) {
             int size = stack.pop();
@@ -127,6 +144,9 @@ public class Heap<T extends Comparable<T>> {
             stack.push(pos);
             stack.push(size);
             drown();
+        } else {
+            stack.push(pos);
+            ascend();
         }
         return res;
     }

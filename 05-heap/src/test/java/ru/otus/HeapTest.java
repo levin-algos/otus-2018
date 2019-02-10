@@ -55,6 +55,16 @@ public class HeapTest {
         assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, ints);
     }
 
+    @Test
+    public void testDelete() {
+        Integer[] arr = {33, 25, 12, 17, 24, 1, 7, 13, 15};
+        Heap<Integer> heap = new Heap<>(arr);
+        assertTrue(testInvariant(arr));
+
+        heap.remove(1);
+        assertTrue(testInvariant(arr));
+    }
+
     private boolean testInvariant(Integer[] arr) {
         int size = arr.length;
         for (int i = 0; i < (size - 1) / 2; i++) {
