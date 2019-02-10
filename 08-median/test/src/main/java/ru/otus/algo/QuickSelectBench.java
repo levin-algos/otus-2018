@@ -36,6 +36,13 @@ import org.openjdk.jmh.annotations.*;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+/*
+Benchmark                       (size)  Mode  Cnt    Score   Error  Units
+QuickSelectBench.median            100  avgt   50    1,085 ? 0,006  us/op
+QuickSelectBench.median           1000  avgt   50    9,713 ? 0,030  us/op
+QuickSelectBench.median          10000  avgt   50   73,512 ? 0,205  us/op
+QuickSelectBench.median         100000  avgt   50  893,163 ? 7,194  us/op
+ */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Warmup(iterations = 10, time = 5)

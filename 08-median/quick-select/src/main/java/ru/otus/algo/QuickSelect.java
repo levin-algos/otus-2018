@@ -20,16 +20,16 @@ public class QuickSelect {
         while (ints[pId] != pivot && pId < to) {
             pId++;
         }
-        swap(ints, pId, to-1);
-        int i = from-1;
+        swap(ints, pId, to - 1);
+        int i = from - 1;
         for (int j = from; j <= to - 2; j++) {
             if (ints[j] < pivot) {
                 i++;
                 swap(ints, j, i);
             }
         }
-        swap(ints, i+1, to-1);
-        return i+1;
+        swap(ints, i + 1, to - 1);
+        return i + 1;
     }
 
     private static void swap(int[] ints, int left, int right) {
@@ -40,17 +40,19 @@ public class QuickSelect {
 
     private static int getMedian(int[] ints, int from, int to, int k) {
         int i;
-        for (i = from + 5; i < to; i += 5) {
-            Arrays.sort(ints, i - 5, i);
+        int interval = 5;
+        for (i = from + interval; i < to; i += interval) {
+            Arrays.sort(ints, i - interval, i);
         }
-        Arrays.sort(ints, i - 5, to);
+        Arrays.sort(ints, i - interval, to);
 
-        if (to - from < 5) {
-            return ints[((to - from)/2)+from];
+        int length = to - from;
+        if (length < interval) {
+            return ints[(length / 2) + from];
         }
-        int[] A = new int[(to - from+2) / 5];
+        int[] A = new int[(length + 2) / interval];
         int count = 0;
-        for (int j = from + 2; j < to; j += 5) {
+        for (int j = from + 2; j < to; j += interval) {
             A[count++] = ints[j];
         }
         return getMedian(A, 0, A.length, A.length / 2);
