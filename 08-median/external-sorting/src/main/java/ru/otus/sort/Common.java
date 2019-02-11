@@ -9,6 +9,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.BiConsumer;
 
@@ -69,7 +70,17 @@ public class Common {
             return buffer;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return IntBuffer.allocate(0);
         }
+    }
+
+    public static void sort(Path path, int from, int to) {
+        IntBuffer sort = Common.readInts(path, from, to);
+        int[] arr = new int[to - from];
+        sort.get(arr);
+        Arrays.sort(arr);
+        Common.writeInts(path, from, to, (sz, buf) -> {
+            for (int i : arr) buf.putInt(i);
+        });
     }
 }
