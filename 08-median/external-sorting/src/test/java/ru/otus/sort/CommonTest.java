@@ -3,11 +3,9 @@ package ru.otus.sort;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -15,13 +13,13 @@ public class CommonTest {
 
     @Test
     public void generateIntTest() throws IOException {
-        int[] sizes = new int[]{10, 100, 1000, 10000, Integer.MAX_VALUE / 4};
-        for (int size : sizes) {
+        long[] sizes = new long[]{10, 100, 1000, 10000, Integer.MAX_VALUE / 4};
+        for (long size : sizes) {
             Path path = Paths.get("test" + size + ".txt");
-            Common.writeInts(path, 0, size, (sz, buf) -> {
-                for (int i = sz; i > 0; i--) buf.putInt(i);
+            Common.writeInts(path, 0, size, SizeUnits.INTEGER, (sz, buf) -> {
+                for (long i = 0; i < size; i++)
+                    buf.add((int) (i % Integer.MAX_VALUE));
             });
-
 
             assertTrue(checkSize(path, 4 * size));
             Files.delete(path);
@@ -35,8 +33,9 @@ public class CommonTest {
             Files.delete(path);
 
         int size = 1000;
-        Common.writeInts(path, 0, size, (sz, buf) -> {
-            for (int i = sz; i > 0; i--) buf.putInt(i);
+        Common.writeInts(path, 0, size, SizeUnits.INTEGER, (sz, buf) -> {
+            for (long i = 0; i < size; i++)
+                buf.add((int) ((size - i) % Integer.MAX_VALUE));
         });
 
         assertTrue(checkSize(path, 4 * size));
@@ -49,7 +48,7 @@ public class CommonTest {
         assertTrue(Common.isSortedIntSeq(path, halfSize, size));
     }
 
-    private boolean checkSize(Path path, int i) {
+    private boolean checkSize(Path path, long i) {
         try {
             return Files.exists(path) && Files.size(path) == i;
         } catch (IOException e) {
@@ -66,18 +65,23 @@ public class CommonTest {
         if (Files.exists(path))
             Files.delete(path);
 
-        Common.writeInts(path, 0, arr.length, (integer, buf) -> {
-            for (int i : arr) buf.putInt(i);
+        Common.writeInts(path, 0, arr.length, SizeUnits.INTEGER, (integer, buf) -> {
+            buf.add(arr);
         });
 
-        assertTrue(checkSize(path, 4*arr.length));
+        assertTrue(checkSize(path, 4 * arr.length));
 
-        IntBuffer intBuffer = Common.readInts(path, 0, arr.length);
-        assertNotNull(intBuffer);
+        ByteBufferArray buffer = Common.readInts(path, 0, arr.length);
+        assertNotNull(buffer);
 
-        int[] actual = new int[arr.length];
-        intBuffer.get(actual);
 
-        assertArrayEquals(arr, actual);
+        buffer.rewind();
+        assertEquals(0, buffer.position());
+
+        for (int i: arr) {
+            assertEquals(i, buffer.getInt());
+        }
+
+        assertEquals(arr.length, buffer.position());
     }
 }
