@@ -39,7 +39,6 @@ public class BinarySearchTree<T extends Comparable<T>> {
             return this.right != null && this.right.find(element);
         else
             return this.left != null && this.left.find(element);
-
     }
 
     /**
@@ -73,7 +72,55 @@ public class BinarySearchTree<T extends Comparable<T>> {
      * @param element - element to remove
      */
     public void remove(T element) {
+        if (element == null)
+            throw new IllegalArgumentException();
 
+        int compare = this.value.compareTo(element);
+        if (compare == 0) {
+            remove();
+        } else if (compare < 0) {
+            if (this.right != null)
+                this.right.remove(element);
+        } else {
+            if (this.left != null)
+                this.left.remove(element);
+        }
+    }
+
+    private void remove() {
+        if (left != null && right != null) {
+            BinarySearchTree<T> successor = right.findMin();
+            value = successor.value;
+            successor.remove();
+        } else if (left != null) {
+            replaceInParent(left);
+        } else if (right != null) {
+            replaceInParent(right);
+        } else {
+            replaceInParent(null);
+        }
+    }
+
+    private void replaceInParent(BinarySearchTree<T> value) {
+        if (parent != null) {
+            if (parent.left == this) {
+                parent.left = value;
+            } else if (parent.right == this) {
+                parent.right = value;
+            }
+        } else {
+            left = value.left;
+            right = value.right;
+            this.value = value.value;
+        }
+    }
+
+    private BinarySearchTree<T> findMin() {
+        BinarySearchTree<T> min = this;
+        while (min.left != null) {
+            min = min.left;
+        }
+        return min;
     }
 
     public void traverse(TraversalOrder order, Consumer<BinarySearchTree<T>> action) {
@@ -95,6 +142,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
             action.accept(this);
         }
     }
+
 
     private T value;
     private BinarySearchTree<T> parent;
