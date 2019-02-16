@@ -1,6 +1,8 @@
 package ru.otus.algo;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Implementation of common methods of binary search tree (BST).
@@ -16,10 +18,27 @@ import java.util.function.Consumer;
  */
 public class BinarySearchTree<T extends Comparable<T>> {
 
-    public BinarySearchTree(T value, BinarySearchTree<T> parent) {
-        this.value = value;
-        this.parent = parent;
+    BinarySearchTree<T> create() {
+        return new BinarySearchTree<>();
     }
+
+
+    private TriBooleanFunction<T, Function<BinarySearchTree<T>, Boolean>> proceedBool =
+            (el, less, eq, greater) -> {
+                int cmp = this.value.compareTo(el);
+                return cmp == 0 ? eq.apply(this) : cmp > 0 ? less.apply(this) : greater.apply(this);
+            };
+
+    private TriConsumer<T, Consumer<BinarySearchTree<T>>> proceedVoid =
+            (el, less, eq, greater) -> {
+                int cmp = this.value.compareTo(el);
+                if (cmp == 0)
+                    eq.accept(this);
+                else if (cmp > 0)
+                    less.accept(this);
+                else
+                    greater.accept(this);
+            };
 
     /**
      * Searches element in BST.
@@ -32,13 +51,10 @@ public class BinarySearchTree<T extends Comparable<T>> {
         if (element == null)
             throw new IllegalArgumentException();
 
-        int compare = this.value.compareTo(element);
-        if (compare == 0)
-            return true;
-        else if (compare < 0)
-            return this.right != null && this.right.find(element);
-        else
-            return this.left != null && this.left.find(element);
+        return proceedBool.apply(element,
+                el -> el.left != null && el.left.find(element),
+                el -> true,
+                el -> el.right != null && el.right.find(element));
     }
 
     /**
@@ -50,20 +66,22 @@ public class BinarySearchTree<T extends Comparable<T>> {
         if (element == null)
             throw new IllegalArgumentException();
 
-        int compare = this.value.compareTo(element);
-        if (compare > 0) {
-            if (left == null) {
-                left = new BinarySearchTree<>(element, this);
-            } else {
-                left.add(element);
-            }
-        } else if (compare < 0) {
-            if (right == null) {
-                right = new BinarySearchTree<>(element, this);
-            } else {
-                right.add(element);
-            }
-        }
+        proceedVoid.accept(element,
+                el -> {
+                    if (left == null) {
+                        left = create();
+                        left.setValue(element);
+                        left.setParent(this);
+                    } else left.add(element);
+                },
+                el -> {},
+                el -> {
+                    if (right == null) {
+                        right = create();
+                        right.setValue(element);
+                        right.setParent(this);
+                    } else right.add(element);
+                });
     }
 
     /**
@@ -75,16 +93,14 @@ public class BinarySearchTree<T extends Comparable<T>> {
         if (element == null)
             throw new IllegalArgumentException();
 
-        int compare = this.value.compareTo(element);
-        if (compare == 0) {
-            remove();
-        } else if (compare < 0) {
-            if (this.right != null)
-                this.right.remove(element);
-        } else {
-            if (this.left != null)
-                this.left.remove(element);
-        }
+        proceedVoid.accept(element,
+                el -> {
+                    if (this.left != null) this.left.remove(element);
+                },
+                el -> remove(),
+                el -> {
+                    if (this.right != null) this.right.remove(element);
+                });
     }
 
     private void remove() {
@@ -143,13 +159,20 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
     }
 
-
-    private T value;
-    private BinarySearchTree<T> parent;
-    private BinarySearchTree<T> left;
-    private BinarySearchTree<T> right;
+    T value;
+    BinarySearchTree<T> parent;
+    BinarySearchTree<T> left;
+    BinarySearchTree<T> right;
 
     public T getValue() {
         return value;
+    }
+
+    public void setParent(BinarySearchTree<T> parent) {
+        this.parent = parent;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
     }
 }
