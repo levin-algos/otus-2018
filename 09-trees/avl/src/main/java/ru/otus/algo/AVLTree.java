@@ -18,19 +18,24 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
 
     @Override
     public void add(T element) {
+        System.out.println(element);
         super.add(element);
         getBalance();
         balance();
     }
 
     private void balance() {
-        if (getHeight((AVLTree<T>) left) - getHeight((AVLTree<T>) right) == 2) {
-            if (getHeight((AVLTree<T>) left.left) >= getHeight((AVLTree<T>) left.right))
-                littleRight(this);
-            else if (getHeight((AVLTree<T>) left.left) < getHeight((AVLTree<T>) left.right)) {
-                bigRight(this);
-            } else if (getHeight((AVLTree<T>) right.left) > getHeight((AVLTree<T>) right.right)) {
-                bigLeft(this);
+        if (Math.abs(getHeight((AVLTree<T>) left) - getHeight((AVLTree<T>) right)) == 2) {
+            if (right != null && getHeight((AVLTree<T>) right) >=0 )
+                rotateLeft(this);
+            else if ( right != null && getHeight((AVLTree<T>) left) <=0)
+                rotateRight(this);
+            else if (left != null && getHeight((AVLTree<T>) left)==2) {
+                rotateLeft((AVLTree<T>) left);
+                rotateRight(this);
+            } else if (right != null && getHeight((AVLTree<T>) right) == -2) {
+                rotateRight((AVLTree<T>) right);
+                rotateLeft(this);
             }
         }
         if (parent!= null) {
@@ -39,12 +44,13 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
         }
     }
 
-    private void littleRight(AVLTree<T> node) {
+    private void rotateRight(AVLTree<T> node) {
         AVLTree<T> left = (AVLTree<T>) node.left;
         AVLTree<T> left1 = (AVLTree<T>) left.left;
 
         node.left = left1;
-        left1.parent = node;
+        if (left1 != null)
+            left1.parent = node;
 
         left.left = left.right;
         left.right = node.right;
@@ -56,46 +62,31 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
         left.value = val;
 
         left.getBalance();
+        if (left1 != null)
         left1.getBalance();
         node.getBalance();
     }
 
-    private void bigRight(AVLTree<T> node) {
-        AVLTree<T> c = (AVLTree<T>) node.left.right;
-        AVLTree<T> b = (AVLTree<T>) node.left;
-        AVLTree<T> a = (AVLTree<T>) node.right;
-
-        b.right = c.left;
-        c.left.parent = b;
-
-        c.left = c.right;
-        c.right = a.right;
-        a.right.parent = c;
-
-        a.right = c;
-        c.parent = a;
-
-        T tmp = a.value;
-        a.value = c.value;
-        c.value = tmp;
-    }
-
-    private void bigLeft(AVLTree<T> node) {
+    private void rotateLeft(AVLTree<T> node) {
         AVLTree<T> b = (AVLTree<T>) node.right;
-        AVLTree<T> c = (AVLTree<T>) b.left;
 
-        b.left = c.right;
-        c.right.parent = b;
+        node.right = b.right;
+        if (b.right != null)
+            b.right.parent = node;
 
-        c.right = c.left;
-        c.left = node.left;
-        node.left.parent = c;
+        b.right = b.left;
+        b.left = node.left;
+        if (b.left != null)
+            b.left.parent = b;
 
-        node.left = c;
-        c.parent = node;
+        node.left = b;
+        b.parent = node;
 
         T tmp = node.value;
-        node.value = c.value;
-        c.value = tmp;
+        node.value = b.value;
+        b.value = tmp;
+
+        b.getBalance();
+        node.getBalance();
     }
 }
