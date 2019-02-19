@@ -22,7 +22,9 @@ public class BinarySearchTreeTest {
     public void add() {
         for (Integer i : new Integer[]{3, 5, 2, 1, 4}) {
             tree.add(i);
+            assertTrue(Utils.isBST(tree));
         }
+
 
         List<Integer> ints = new ArrayList<>();
 

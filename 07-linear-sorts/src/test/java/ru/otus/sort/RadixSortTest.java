@@ -10,6 +10,7 @@ public class RadixSortTest {
     public void leastSignificantSort() {
         RadixSort radixSort = new RadixSort();
 
+//        int[] array = new int[0];
         int[] array = Common.generateRandom(size, size/2);
 
         radixSort.sort(array, RadixSort.Modes.LEAST_SIGN);
@@ -21,7 +22,7 @@ public class RadixSortTest {
     public void trieSort() {
         RadixSort radixSort = new RadixSort();
         int[] array = Common.generateRandom(size, size/2);
-
+//        int[] array = new int[0];
         radixSort.sort(array, RadixSort.Modes.PREFIX);
 
         assertTrue(Common.isSorted(array));

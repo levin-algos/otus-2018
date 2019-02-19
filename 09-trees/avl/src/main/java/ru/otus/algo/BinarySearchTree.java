@@ -2,7 +2,6 @@ package ru.otus.algo;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Implementation of common methods of binary search tree (BST).
@@ -22,6 +21,18 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return new BinarySearchTree<>();
     }
 
+    public BinarySearchTree() {}
+
+    public BinarySearchTree(T value, BinarySearchTree<T> left, BinarySearchTree<T> right, BinarySearchTree<T> parent) {
+        this.value = value;
+        this.parent = parent;
+        this.left = left;
+        this.right = right;
+        if (left!=null)
+            left.parent = this;
+        if (right!=null)
+            right.parent = this;
+    }
 
     private TriBooleanFunction<T, Function<BinarySearchTree<T>, Boolean>> proceedBool =
             (el, less, eq, greater) -> {

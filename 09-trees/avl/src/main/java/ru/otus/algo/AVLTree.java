@@ -8,85 +8,58 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
 
     private int height = 1;
 
-    public int getHeight(AVLTree<T> node) {
-        return node == null ? 0 : node.height;
+    private int getHeight(BinarySearchTree<T> node) {
+        return node == null ? 0 : ((AVLTree<T>) node).height;
     }
 
-    public void getBalance() {
-        height = Math.max(getHeight((AVLTree<T>)left), getHeight((AVLTree<T>)right)) + 1;
+    private void getBalance(BinarySearchTree<T> node) {
+        if (node != null)
+            height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
     }
 
     @Override
     public void add(T element) {
-        System.out.println(element);
         super.add(element);
-        getBalance();
-        balance();
+        balance(this);
     }
 
-    private void balance() {
-        if (Math.abs(getHeight((AVLTree<T>) left) - getHeight((AVLTree<T>) right)) == 2) {
-            if (right != null && getHeight((AVLTree<T>) right) >=0 )
-                rotateLeft(this);
-            else if ( right != null && getHeight((AVLTree<T>) left) <=0)
-                rotateRight(this);
-            else if (left != null && getHeight((AVLTree<T>) left)==2) {
-                rotateLeft((AVLTree<T>) left);
-                rotateRight(this);
-            } else if (right != null && getHeight((AVLTree<T>) right) == -2) {
-                rotateRight((AVLTree<T>) right);
-                rotateLeft(this);
+    private void balance(BinarySearchTree<T> node) {
+        if (node == null)
+            return;
+
+        getBalance(node);
+        getBalance(node.left);
+        getBalance(node.right);
+
+        if (Math.abs(getHeight(node.left) - getHeight(node.right)) == 2) {
+            if (right != null && getHeight(right) >= 0) {
+                TreeRotations.left(this);
+                balance(node);
+                balance(node.left);
+            } else if (right != null && getHeight(left) <= 0) {
+                TreeRotations.right(this);
+                balance(node);
+                balance(right);
+            } else if (left != null && getHeight(node.left.left) - getHeight(node.left.right) == 2) {
+                TreeRotations.left(left);
+                balance(node.left);
+                balance(node.left.left);
+                TreeRotations.right(node);
+                balance(node);
+                balance(node.right);
+            } else if (right != null && getHeight(right.left) - getHeight(right.right) == -2) {
+                TreeRotations.right(node.right);
+                this.balance(node);
+                balance(node.right);
+                TreeRotations.left(node);
+                balance(node);
+                balance(node.left);
             }
         }
-        if (parent!= null) {
-            ((AVLTree<T>) parent).getBalance();
-            ((AVLTree<T>) parent).balance();
+
+        if (node.parent != null) {
+            getBalance(node.parent);
+            balance(node.parent);
         }
-    }
-
-    private void rotateRight(AVLTree<T> node) {
-        AVLTree<T> left = (AVLTree<T>) node.left;
-        AVLTree<T> left1 = (AVLTree<T>) left.left;
-
-        node.left = left1;
-        if (left1 != null)
-            left1.parent = node;
-
-        left.left = left.right;
-        left.right = node.right;
-        left.parent = node;
-
-        node.right = left;
-        T val = node.value;
-        node.value = left.value;
-        left.value = val;
-
-        left.getBalance();
-        if (left1 != null)
-        left1.getBalance();
-        node.getBalance();
-    }
-
-    private void rotateLeft(AVLTree<T> node) {
-        AVLTree<T> b = (AVLTree<T>) node.right;
-
-        node.right = b.right;
-        if (b.right != null)
-            b.right.parent = node;
-
-        b.right = b.left;
-        b.left = node.left;
-        if (b.left != null)
-            b.left.parent = b;
-
-        node.left = b;
-        b.parent = node;
-
-        T tmp = node.value;
-        node.value = b.value;
-        b.value = tmp;
-
-        b.getBalance();
-        node.getBalance();
     }
 }
