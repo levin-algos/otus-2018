@@ -4,7 +4,7 @@ public class TreeRotations {
 
     private TreeRotations() {}
 
-    public static <T extends Comparable<T>> void right(BinarySearchTree<T> node) {
+    public static <T> void right(BinarySearchTree<T> node) {
         BinarySearchTree<T> left = node.left;
         BinarySearchTree<T> left1 = left.left;
 
@@ -20,7 +20,7 @@ public class TreeRotations {
         TreeRotations.swapValues(node, left);
     }
 
-    public static <T extends Comparable<T>> void left(BinarySearchTree<T> node) {
+    public static <T> void left(BinarySearchTree<T> node) {
         BinarySearchTree<T> right = node.right;
 
         node.right = right.right;
@@ -38,7 +38,7 @@ public class TreeRotations {
         swapValues(node, right);
     }
 
-    public static <T extends Comparable<T>> void swapValues(BinarySearchTree<T> a, BinarySearchTree<T> b) {
+    public static <T> void swapValues(BinarySearchTree<T> a, BinarySearchTree<T> b) {
         T tmp = a.value;
         a.value = b.value;
         b.value = tmp;

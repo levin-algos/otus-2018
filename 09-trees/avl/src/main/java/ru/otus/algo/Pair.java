@@ -1,6 +1,8 @@
 package ru.otus.algo;
 
-public class Pair<K, V extends Comparable<V>> implements Comparable<Pair<K, V>> {
+import java.util.Comparator;
+
+public class Pair<K, V> {
 
     private final K value;
     private final V priority;
@@ -10,11 +12,6 @@ public class Pair<K, V extends Comparable<V>> implements Comparable<Pair<K, V>> 
         this.priority = priority;
     }
 
-    @Override
-    public int compareTo(Pair<K, V> o) {
-        return this.priority.compareTo(o.priority);
-    }
-
     public K getValue() {
         return value;
     }
@@ -22,5 +19,4 @@ public class Pair<K, V extends Comparable<V>> implements Comparable<Pair<K, V>> 
     public V getPriority() {
         return priority;
     }
-
 }

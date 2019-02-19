@@ -14,7 +14,7 @@ public class BinarySearchTreeTest {
 
     @Before
     public void init() {
-        tree = new BinarySearchTree<>();
+        tree = new BinarySearchTree<>(Integer::compareTo);
         tree.setValue(10);
     }
 
@@ -22,7 +22,7 @@ public class BinarySearchTreeTest {
     public void add() {
         for (Integer i : new Integer[]{3, 5, 2, 1, 4}) {
             tree.add(i);
-            assertTrue(Utils.isBST(tree));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
         }
 
 

@@ -1,5 +1,6 @@
 package ru.otus.algo;
 
+import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -15,14 +16,17 @@ import java.util.function.Function;
  *
  * @param <T> - type of elements in BST
  */
-public class BinarySearchTree<T extends Comparable<T>> {
+public class BinarySearchTree<T> {
 
-    BinarySearchTree<T> create() {
-        return new BinarySearchTree<>();
+    private BinarySearchTree<T> create(Comparator<T> cmp) {
+        return new BinarySearchTree<>(cmp);
     }
 
-    public BinarySearchTree() {}
+    public BinarySearchTree(Comparator<T> comparator) {
+        this.comparator = comparator;
+    }
 
+    Comparator<T> comparator;
     public BinarySearchTree(T value, BinarySearchTree<T> left, BinarySearchTree<T> right, BinarySearchTree<T> parent) {
         this.value = value;
         this.parent = parent;
@@ -36,13 +40,13 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
     private TriBooleanFunction<T, Function<BinarySearchTree<T>, Boolean>> proceedBool =
             (el, less, eq, greater) -> {
-                int cmp = this.value.compareTo(el);
+                int cmp = comparator.compare(this.value, el);
                 return cmp == 0 ? eq.apply(this) : cmp > 0 ? less.apply(this) : greater.apply(this);
             };
 
     private TriConsumer<T, Consumer<BinarySearchTree<T>>> proceedVoid =
             (el, less, eq, greater) -> {
-                int cmp = this.value.compareTo(el);
+                int cmp = comparator.compare(this.value, el);
                 if (cmp == 0)
                     eq.accept(this);
                 else if (cmp > 0)
@@ -80,7 +84,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
         proceedVoid.accept(element,
                 el -> {
                     if (left == null) {
-                        left = create();
+                        left = create(comparator);
                         left.setValue(element);
                         left.setParent(this);
                     } else left.add(element);
@@ -88,7 +92,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
                 el -> {},
                 el -> {
                     if (right == null) {
-                        right = create();
+                        right = create(comparator);
                         right.setValue(element);
                         right.setParent(this);
                     } else right.add(element);

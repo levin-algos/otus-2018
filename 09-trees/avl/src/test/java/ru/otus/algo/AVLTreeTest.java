@@ -10,12 +10,12 @@ public class AVLTreeTest
     @Test
     public void addAVLTreeRightRotation()
     {
-        AVLTree<Integer> tree = new AVLTree<>();
+        AVLTree<Integer> tree = new AVLTree<>(Integer::compareTo);
         tree.setValue(10);
 
         for (Integer i: new Integer[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}) {
             tree.add(i);
-            assertTrue(Utils.isBST(tree));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
         }
 
         for (Integer i: new Integer[]{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}) {
@@ -26,12 +26,12 @@ public class AVLTreeTest
     @Test
     public void addAVLTreeLeftRotation()
     {
-        AVLTree<Integer> tree = new AVLTree<>();
+        AVLTree<Integer> tree = new AVLTree<>(Integer::compareTo);
         tree.setValue(10);
 
         for (Integer i: new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
             tree.add(i);
-            assertTrue(Utils.isBST(tree));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
         }
 
         for (Integer i: new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {

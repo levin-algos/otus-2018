@@ -1,9 +1,11 @@
 package ru.otus.algo;
 
-public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
+import java.util.Comparator;
 
-    BinarySearchTree<T> create() {
-        return new AVLTree<>();
+public class AVLTree<T> extends BinarySearchTree<T> {
+
+    public AVLTree(Comparator<T> comparator) {
+        super(comparator);
     }
 
     private int height = 1;
@@ -33,7 +35,7 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
 
         if (Math.abs(getHeight(node.left) - getHeight(node.right)) == 2) {
             if (right != null && getHeight(right) >= 0) {
-                TreeRotations.left(this);
+                TreeRotations.left(node);
                 balance(node);
                 balance(node.left);
             } else if (right != null && getHeight(left) <= 0) {
