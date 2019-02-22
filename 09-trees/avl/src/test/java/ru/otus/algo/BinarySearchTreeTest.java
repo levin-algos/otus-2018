@@ -11,69 +11,61 @@ import static org.junit.Assert.*;
 public class BinarySearchTreeTest {
 
     private BinarySearchTree<Integer> tree;
+    private final Integer[] integers = {1, 2, 3, 4, 5, 10};
 
     @Before
     public void init() {
-        tree = new BinarySearchTree<>(Integer::compareTo);
-        tree.setValue(10);
+        tree = BinarySearchTree.of(integers);
+    }
+
+    @Test
+    public void soloAdd() {
+        tree.add(100);
+
+        assertTrue(tree.contains(100));
     }
 
     @Test
     public void add() {
-        for (Integer i : new Integer[]{3, 5, 2, 1, 4}) {
-            tree.add(i);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-        }
-
-
-        List<Integer> ints = new ArrayList<>();
+         List<Integer> ints = new ArrayList<>();
 
         tree.traverse(TraversalOrder.INORDER, t -> ints.add(t.getValue()));
 
-        assertArrayEquals(new Integer[]{1, 2, 3, 4, 5, 10}, ints.toArray(new Integer[0]));
+        assertArrayEquals(integers, ints.toArray(new Integer[0]));
     }
 
     @Test
-    public void find() {
-        for (Integer i : new Integer[]{3, 5, 2, 1, 4}) {
-            tree.add(i);
+    public void contains() {
+        for (Integer i : integers) {
+            assertTrue(tree.contains(i));
         }
 
-        for (Integer i : new Integer[]{1, 2, 3, 4, 5, 10}) {
-            assertTrue(tree.find(i));
-        }
-
-        assertFalse(tree.find(11));
+        assertFalse(tree.contains(11));
     }
 
     @Test
     public void remove() {
-        for (Integer i : new Integer[]{3, 5, 2, 1, 4}) {
-            tree.add(i);
-        }
-
         tree.remove(2);
-        assertFalse(tree.find(2));
+        assertFalse(tree.contains(2));
         for (Integer i : new Integer[]{1, 3, 4, 5, 10}) {
-            assertTrue(tree.find(i));
+            assertTrue(tree.contains(i));
         }
 
-        assertFalse(tree.find(11));
+        assertFalse(tree.contains(11));
     }
 
     @Test
     public void deleteRoot() {
-        for (Integer i : new Integer[]{3, 5, 2, 1, 4}) {
-            tree.add(i);
+        for (Integer i : integers) {
+            tree.remove(i);
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
         }
+    }
 
-        tree.remove(3);
-        assertFalse(tree.find(3));
-
+    @Test
+    public void deleteList() {
         tree.remove(10);
-        assertFalse(tree.find(10));
-        for (Integer i : new Integer[]{1, 2, 4, 5}) {
-            assertTrue(tree.find(i));
-        }
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(integers.length-2, tree.size());
     }
 }

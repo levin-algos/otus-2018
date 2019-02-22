@@ -18,16 +18,21 @@ import java.util.function.Function;
  */
 public class BinarySearchTree<T> {
 
-    private BinarySearchTree<T> create(Comparator<T> cmp) {
-        return new BinarySearchTree<>(cmp);
-    }
+    private Comparator<? super T> comparator;
+    private T value;
+    private BinarySearchTree<T> parent;
+    private BinarySearchTree<T> left;
+    private BinarySearchTree<T> right;
 
-    public BinarySearchTree(Comparator<T> comparator) {
+
+    public BinarySearchTree() { comparator = null;}
+
+    public BinarySearchTree(Comparator<? super T> comparator) {
         this.comparator = comparator;
     }
 
-    Comparator<T> comparator;
     public BinarySearchTree(T value, BinarySearchTree<T> left, BinarySearchTree<T> right, BinarySearchTree<T> parent) {
+        comparator = null;
         this.value = value;
         this.parent = parent;
         this.left = left;
@@ -38,15 +43,37 @@ public class BinarySearchTree<T> {
             right.parent = this;
     }
 
+    public static <T> BinarySearchTree<T> of(T[] arr) {
+        BinarySearchTree<T> tree = new BinarySearchTree<>();
+        for (T i: arr) {
+            tree.add(i);
+        }
+        return tree;
+    }
+
     private TriBooleanFunction<T, Function<BinarySearchTree<T>, Boolean>> proceedBool =
             (el, less, eq, greater) -> {
-                int cmp = comparator.compare(this.value, el);
+                int cmp;
+                if (comparator != null) {
+                    cmp = comparator.compare(this.value, el);
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Comparable<? super T> cpr = (Comparable<? super T>)this.value;
+                    cmp = cpr.compareTo(el);
+                }
                 return cmp == 0 ? eq.apply(this) : cmp > 0 ? less.apply(this) : greater.apply(this);
             };
 
     private TriConsumer<T, Consumer<BinarySearchTree<T>>> proceedVoid =
             (el, less, eq, greater) -> {
-                int cmp = comparator.compare(this.value, el);
+                int cmp;
+                if (comparator != null) {
+                    cmp = comparator.compare(this.value, el);
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Comparable<? super T> cpr = (Comparable<? super T>)this.value;
+                    cmp = cpr.compareTo(el);
+                }
                 if (cmp == 0)
                     eq.accept(this);
                 else if (cmp > 0)
@@ -59,17 +86,17 @@ public class BinarySearchTree<T> {
      * Searches element in BST.
      * If {@code element} is {@code null} - throws IllegalArgumentException
      *
-     * @param element - element to find
+     * @param element - element to contains
      * @return - true if element exists in BST, else false
      */
-    public boolean find(T element) {
+    public boolean contains(T element) {
         if (element == null)
             throw new IllegalArgumentException();
 
         return proceedBool.apply(element,
-                el -> el.left != null && el.left.find(element),
+                el -> el.left != null && el.left.contains(element),
                 el -> true,
-                el -> el.right != null && el.right.find(element));
+                el -> el.right != null && el.right.contains(element));
     }
 
     /**
@@ -81,20 +108,21 @@ public class BinarySearchTree<T> {
         if (element == null)
             throw new IllegalArgumentException();
 
+        if (value == null) {
+            value = element;
+            return;
+        }
+
         proceedVoid.accept(element,
                 el -> {
                     if (left == null) {
-                        left = create(comparator);
-                        left.setValue(element);
-                        left.setParent(this);
+                        left = new BinarySearchTree<>(element, null, null, this);
                     } else left.add(element);
                 },
                 el -> {},
                 el -> {
                     if (right == null) {
-                        right = create(comparator);
-                        right.setValue(element);
-                        right.setParent(this);
+                        right = new BinarySearchTree<>(element, null, null, this);
                     } else right.add(element);
                 });
     }
@@ -119,32 +147,9 @@ public class BinarySearchTree<T> {
     }
 
     private void remove() {
-        if (left != null && right != null) {
-            BinarySearchTree<T> successor = right.findMin();
-            value = successor.value;
-            successor.remove();
-        } else if (left != null) {
-            replaceInParent(left);
-        } else if (right != null) {
-            replaceInParent(right);
-        } else {
-            replaceInParent(null);
-        }
+
     }
 
-    private void replaceInParent(BinarySearchTree<T> value) {
-        if (parent != null) {
-            if (parent.left == this) {
-                parent.left = value;
-            } else if (parent.right == this) {
-                parent.right = value;
-            }
-        } else {
-            left = value.left;
-            right = value.right;
-            this.value = value.value;
-        }
-    }
 
     private BinarySearchTree<T> findMin() {
         BinarySearchTree<T> min = this;
@@ -174,13 +179,24 @@ public class BinarySearchTree<T> {
         }
     }
 
-    T value;
-    BinarySearchTree<T> parent;
-    BinarySearchTree<T> left;
-    BinarySearchTree<T> right;
-
     public T getValue() {
         return value;
+    }
+
+    public Comparator<? super T> getComparator() {
+        return comparator;
+    }
+
+    public BinarySearchTree<T> getParent() {
+        return parent;
+    }
+
+    public BinarySearchTree<T> getLeft() {
+        return left;
+    }
+
+    public BinarySearchTree<T> getRight() {
+        return right;
     }
 
     public void setParent(BinarySearchTree<T> parent) {
@@ -189,5 +205,17 @@ public class BinarySearchTree<T> {
 
     public void setValue(T value) {
         this.value = value;
+    }
+
+    public void setLeft(BinarySearchTree<T> left) {
+        this.left = left;
+    }
+
+    public void setRight(BinarySearchTree<T> right) {
+        this.right = right;
+    }
+
+    public int size() {
+        return 0;
     }
 }

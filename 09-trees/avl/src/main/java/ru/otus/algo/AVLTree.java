@@ -16,7 +16,7 @@ public class AVLTree<T> extends BinarySearchTree<T> {
 
     private void getBalance(BinarySearchTree<T> node) {
         if (node != null)
-            height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+            height = Math.max(getHeight(node.getLeft()), getHeight(node.getRight())) + 1;
     }
 
     @Override
@@ -29,39 +29,42 @@ public class AVLTree<T> extends BinarySearchTree<T> {
         if (node == null)
             return;
 
-        getBalance(node);
-        getBalance(node.left);
-        getBalance(node.right);
+        BinarySearchTree<T> left = node.getLeft();
+        BinarySearchTree<T> right = node.getRight();
 
-        if (Math.abs(getHeight(node.left) - getHeight(node.right)) == 2) {
+        getBalance(node);
+        getBalance(left);
+        getBalance(right);
+
+        if (Math.abs(getHeight(left) - getHeight(right)) == 2) {
             if (right != null && getHeight(right) >= 0) {
                 TreeRotations.left(node);
                 balance(node);
-                balance(node.left);
-            } else if (right != null && getHeight(left) <= 0) {
-                TreeRotations.right(this);
-                balance(node);
-                balance(right);
-            } else if (left != null && getHeight(node.left.left) - getHeight(node.left.right) == 2) {
-                TreeRotations.left(left);
-                balance(node.left);
-                balance(node.left.left);
+                balance(left);
+            } else if (getRight() != null && getHeight(getParent()) <= 0) {
                 TreeRotations.right(node);
                 balance(node);
-                balance(node.right);
-            } else if (right != null && getHeight(right.left) - getHeight(right.right) == -2) {
-                TreeRotations.right(node.right);
+                balance(getRight());
+            } else if (getLeft() != null && getHeight(left.getLeft()) - getHeight(left.getRight()) == 2) {
+                TreeRotations.left(getLeft());
+                balance(left);
+                balance(left.getLeft());
+                TreeRotations.right(node);
+                balance(node);
+                balance(right);
+            } else if (getRight() != null && getHeight(getRight().getLeft()) - getHeight(getRight().getRight()) == -2) {
+                TreeRotations.right(right);
                 this.balance(node);
-                balance(node.right);
+                balance(right);
                 TreeRotations.left(node);
                 balance(node);
-                balance(node.left);
+                balance(left);
             }
         }
 
-        if (node.parent != null) {
-            getBalance(node.parent);
-            balance(node.parent);
+        if (node.getParent() != null) {
+            getBalance(node.getParent());
+            balance(node.getParent());
         }
     }
 }

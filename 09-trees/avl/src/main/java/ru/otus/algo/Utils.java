@@ -11,13 +11,13 @@ public class Utils {
 
         if (node == null) return true;
 
-        if (node.left != null && cmp.compare(node.value, node.left.value) <= 0)
+        if (node.getLeft() != null && cmp.compare(node.getValue(), node.getLeft().getValue()) <= 0)
             return false;
 
-        if (node.right != null && cmp.compare(node.value, node.right.value) >= 0)
+        if (node.getRight() != null && cmp.compare(node.getValue(), node.getRight().getValue()) >= 0)
             return false;
 
-        return isBST(node.left, cmp) && isBST(node.right, cmp);
+        return isBST(node.getLeft(), cmp) && isBST(node.getRight(), cmp);
     }
 
     public static Integer[] generateRandom(int size, int max) {
