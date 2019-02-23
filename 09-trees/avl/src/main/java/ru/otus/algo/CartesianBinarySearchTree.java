@@ -9,10 +9,6 @@ public class CartesianTree<K, V> extends BinarySearchTree<Pair<K, V>> {
         super(cmp);
     }
 
-    public CartesianTree(Pair<K, V> value, CartesianTree<K, V> left, CartesianTree<K, V> right, CartesianTree<K, V> parent) {
-        super(value, left, right, parent);
-    }
-
     public CartesianTree<K, V> build(List<Pair<K, V>> values) {
         if (values== null)
             throw new IllegalArgumentException();
