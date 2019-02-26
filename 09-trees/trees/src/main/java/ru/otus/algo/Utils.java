@@ -23,7 +23,7 @@ class Utils {
      * @param <T> - value type of {@code node}
      * @return - true if binary tree is binary search tree, else false
      */
-    static <T> boolean isBST(AbstractBinarySearchTree<T> node, Comparator<T> cmp) {
+    static <T> boolean isBST(AbstractBinarySearchTree<T> node, Comparator<? super T> cmp) {
         if (cmp == null)
             throw new IllegalArgumentException();
 
@@ -32,7 +32,7 @@ class Utils {
         return isBSTNode(node.root, cmp);
     }
 
-    private static <T> boolean isBSTNode(AbstractBinarySearchTree.Node<T> node, Comparator<T> cmp) {
+    private static <T> boolean isBSTNode(AbstractBinarySearchTree.Node<T> node, Comparator<? super T> cmp) {
         if (node == null)
             return true;
 

@@ -16,6 +16,22 @@ class AVLTreeTest {
 
     @ParameterizedTest
     @MethodSource("comparatorSource")
+    void sequentialAddAndRemove(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(new Integer[0], cmp);
+        int MAX = 10000;
+        for (int i = 0; i < MAX; i++) {
+            tree.add(i);
+            Utils.isBST(tree, cmp == null ? Integer::compareTo : cmp);
+        }
+
+        for (int i = 0; i < MAX; i++) {
+            tree.remove(i);
+            Utils.isBST(tree, cmp == null ? Integer::compareTo : cmp);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
     void addAVLTreeRightRotation(Comparator<? super Integer> cmp) {
         Integer[] arr = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
 
