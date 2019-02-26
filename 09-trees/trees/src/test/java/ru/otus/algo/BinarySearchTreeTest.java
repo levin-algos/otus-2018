@@ -58,7 +58,7 @@ class BinarySearchTreeTest {
         int k = 1;
         for (Integer i : integers) {
             tree.remove(i);
-//            assertTrue(Utils.isBST(tree.getTree(), Integer::compareTo));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
             assertEquals(integers.length - k++, tree.getMaxHeight());
         }
     }
@@ -68,7 +68,7 @@ class BinarySearchTreeTest {
         for (int i = integers.length - 1; i >= 0; i--) {
             tree.remove(integers[i]);
 
-//            assertTrue(Utils.isBST(tree.getTree(), Integer::compareTo));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
             assertEquals(i, this.tree.size());
             assertEquals(i, tree.getMaxHeight());
         }
@@ -85,10 +85,10 @@ class BinarySearchTreeTest {
                 tree = BinarySearchTree.of(arr);
 
                 assertEquals(3, tree.getMaxHeight());
-//                assertTrue(Utils.isBST(tree.getTree(), Integer::compareTo));
+                assertTrue(Utils.isBST(tree, Integer::compareTo));
                 tree.remove(arr[1]);
                 assertFalse(BinarySearchTreeTest.this.tree.contains(arr[1]));
-//                assertTrue(Utils.isBST(tree.getTree(), Integer::compareTo));
+                assertTrue(Utils.isBST(tree, Integer::compareTo));
                 assertEquals(arr.length - 1, tree.size());
                 assertTrue(tree.contains(arr[2]));
             }
@@ -99,12 +99,12 @@ class BinarySearchTreeTest {
             Integer[] arr = {5, 2, 8, 1, 4, 6, 10, 3, 7};
 
             tree = BinarySearchTree.of(arr);
-//            assertTrue(Utils.isBST(tree.getTree(), Integer::compareTo));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
             assertEquals(arr.length, tree.size());
 
             tree.remove(5);
             assertFalse(tree.contains(5));
-//            assertTrue(Utils.isBST(tree.getTree(), Integer::compareTo));
+            assertTrue(Utils.isBST(tree, Integer::compareTo));
             assertEquals(arr.length - 1, tree.size());
             for (int i = 1; i < arr.length; i++) {
                 assertTrue(tree.contains(arr[i]));
