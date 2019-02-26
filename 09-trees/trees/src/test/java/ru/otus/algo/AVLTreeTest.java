@@ -1,81 +1,64 @@
 package ru.otus.algo;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AVLTreeTest
-{
-    @Test
-    public void addAVLTreeRightRotation()
-    {
+class AVLTreeTest {
+
+    static Stream<Comparator<? super Integer>> comparatorSource() {
+        return Stream.of(null, Integer::compareTo);
+    }
+
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void addAVLTreeRightRotation(Comparator<? super Integer> cmp) {
         Integer[] arr = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
 
-        AVLTree<Integer> tree = AVLTree.of(arr);
+        AVLTree<Integer> tree = AVLTree.of(arr, cmp);
 
         assertTrue(Utils.isBST(tree, Integer::compareTo));
 
-        for (Integer i: arr) {
+        for (Integer i : arr) {
             assertTrue(tree.contains(i));
         }
     }
 
-    @Test
-    public void addAVLTreeLeftRotation()
-    {
-        AVLTree<Integer> tree = new AVLTree<>(Integer::compareTo);
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void addAVLTreeLeftRotation(Comparator<? super Integer> cmp) {
+        Integer[] integers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        tree = AVLTree.of(integers, cmp);
 
-        for (Integer i: new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
-            tree.add(i);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+
+        for (Integer i : integers) {
+            assertTrue(this.tree.contains(i));
         }
-
-        for (Integer i: new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
-            assertTrue(tree.contains(i));
-        }
-
-        List<Integer> sorted = new ArrayList<>();
-        tree.traverse(tree, in -> sorted.add(in.getValue()));
-
-        assertTrue(Utils.isSorted(sorted.toArray(new Integer[0])));
     }
 
 
     private AVLTree<Integer> tree;
     private final Integer[] integers = {1, 2, 3, 4, 5, 10};
 
-    @BeforeEach
-    public void init() {
-        tree = AVLTree.of(integers);
-    }
-
-    @Test
-    public void soloAdd() {
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void soloAdd(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(integers, cmp);
         assertEquals(integers.length, tree.size());
         tree.add(100);
         assertEquals(integers.length + 1, tree.size());
         assertTrue(tree.contains(100));
     }
 
-    @Test
-    public void traverse() {
-        List<Integer> ints = new ArrayList<>();
-
-        assertEquals(integers.length, tree.size());
-        tree.traverse(tree, t -> ints.add(t.getValue()));
-
-        assertEquals(integers.length, tree.size());
-        assertArrayEquals(integers, ints.toArray(new Integer[0]));
-    }
-
-    @Test
-    public void contains() {
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void contains(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(integers, cmp);
         for (Integer i : integers) {
             assertTrue(tree.contains(i));
         }
@@ -84,8 +67,10 @@ public class AVLTreeTest
         assertFalse(tree.contains(11));
     }
 
-    @Test
-    public void remove() {
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void remove(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(integers, cmp);
         assertEquals(integers.length, tree.size());
         tree.remove(2);
         assertEquals(integers.length - 1, tree.size());
@@ -97,16 +82,21 @@ public class AVLTreeTest
         assertFalse(tree.contains(11));
     }
 
-    @Test
-    public void deleteRoot() {
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void deleteRoot(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(integers, cmp);
+
         for (Integer i : integers) {
             tree.remove(i);
             assertTrue(Utils.isBST(tree, Integer::compareTo));
         }
     }
 
-    @Test
-    public void deleteLeaf() {
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void deleteLeaf(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(integers, cmp);
         tree.remove(10);
         assertTrue(Utils.isBST(tree, Integer::compareTo));
         assertEquals(integers.length - 1, tree.size());
@@ -133,69 +123,67 @@ public class AVLTreeTest
     }
 
 
-    @Nested
-    class Deletion {
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void deleteWithOneChild(Comparator<? super Integer> cmp) {
+        Integer[] arr = {2, 4, 3};
+        tree = AVLTree.of(arr, cmp);
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        tree.remove(4);
+        assertFalse(tree.contains(4));
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(arr.length - 1, tree.size());
+        assertTrue(tree.contains(3));
 
-        @Test
-        public void deleteWithOneChild() {
-            Integer[] arr = {2, 4, 3};
-            tree = AVLTree.of(arr);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            tree.remove(4);
-            assertFalse(tree.contains(4));
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            assertEquals(arr.length - 1, tree.size());
-            assertTrue(tree.contains(3));
+        arr = new Integer[]{3, 1, 2};
+        tree = AVLTree.of(arr, cmp);
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        tree.remove(1);
+        assertFalse(tree.contains(1));
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(arr.length - 1, tree.size());
+        assertTrue(tree.contains(2));
 
-            arr = new Integer[]{3, 1, 2};
-            tree = AVLTree.of(arr);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            tree.remove(1);
-            assertFalse(tree.contains(1));
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            assertEquals(arr.length - 1, tree.size());
-            assertTrue(tree.contains(2));
+        arr = new Integer[]{3, 2, 1};
+        tree = AVLTree.of(arr, cmp);
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        tree.remove(2);
+        assertFalse(tree.contains(2));
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(arr.length - 1, tree.size());
+        assertTrue(tree.contains(1));
 
-            arr = new Integer[]{3, 2, 1};
-            tree = AVLTree.of(arr);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            tree.remove(2);
-            assertFalse(tree.contains(2));
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            assertEquals(arr.length - 1, tree.size());
-            assertTrue(tree.contains(1));
+        arr = new Integer[]{1, 2, 3};
+        tree = AVLTree.of(arr, cmp);
+        tree.remove(2);
+        assertFalse(tree.contains(2));
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(arr.length - 1, tree.size());
+        assertTrue(tree.contains(3));
+    }
 
-            arr = new Integer[]{1, 2, 3};
-            tree = AVLTree.of(arr);
-            tree.remove(2);
-            assertFalse(tree.contains(2));
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            assertEquals(arr.length - 1, tree.size());
-            assertTrue(tree.contains(3));
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void deleteWithTwoChildren(Comparator<? super Integer> cmp) {
+        Integer[] arr = {5, 2, 8, 1, 4, 6, 10, 3, 7};
+
+        tree = AVLTree.of(arr, cmp);
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(arr.length, tree.size());
+
+        tree.remove(5);
+        assertFalse(tree.contains(5));
+        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertEquals(arr.length - 1, tree.size());
+        for (int i = 1; i < arr.length; i++) {
+            assertTrue(tree.contains(arr[i]));
         }
+    }
 
-        @Test
-        public void deleteWithTwoChildren() {
-            Integer[] arr = {5, 2, 8, 1, 4, 6, 10, 3, 7};
-
-            tree = AVLTree.of(arr);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            assertEquals(arr.length, tree.size());
-
-            tree.remove(5);
-            assertFalse(tree.contains(5));
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
-            assertEquals(arr.length-1, tree.size());
-            for (int i=1; i< arr.length; i++) {
-                assertTrue(tree.contains(arr[i]));
-            }
-        }
-
-        @Test
-        public void deleteOnEmptyTree() {
-            tree = AVLTree.of(new Integer[0]);
-
-            tree.remove(0);
-        }
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void deleteOnEmptyTree(Comparator<? super Integer> cmp) {
+        tree = AVLTree.of(new Integer[0], cmp);
+        tree.remove(0);
     }
 }

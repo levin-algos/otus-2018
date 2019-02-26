@@ -1,22 +1,29 @@
 package ru.otus.algo;
 
-import java.util.Comparator;
-
 public class Pair<K, V> {
 
-    private final K value;
-    private final V priority;
+    private final K val1;
+    private final V val2;
 
-    Pair(K value, V priority) {
-        this.value = value;
-        this.priority = priority;
+    private Pair(K value1, V value2) {
+        this.val1 = value1;
+        this.val2 = value2;
     }
 
-    public K getValue() {
-        return value;
+    public static <K, V> Pair<K, V> of(K value, V value2) {
+        return new Pair<>(value, value2);
     }
 
-    public V getPriority() {
-        return priority;
+    public K getFirst() {
+        return val1;
+    }
+
+    public V getSecond() {
+        return val2;
+    }
+
+    @Override
+    public String toString() {
+        return "Pair{" + val1 + ":" + val2 +'}';
     }
 }

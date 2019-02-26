@@ -41,10 +41,10 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 10, time = 1)
 @Fork(1)
 @State(Scope.Benchmark)
-public class MyBenchmark {
+class MyBenchmark {
 
     @State(Scope.Benchmark)
-    public static class Data {
+    static class Data {
         int param;
         int param() {
             return param;

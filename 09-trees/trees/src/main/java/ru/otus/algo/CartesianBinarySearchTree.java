@@ -5,19 +5,21 @@ import java.util.List;
 
 public class CartesianBinarySearchTree<K, V>  {
 
-//    public CartesianBinarySearchTree(Comparator<Pair<K, V>> cmp) {
-//        super(cmp);
-//    }
+    private Comparator<? extends K> comparator;
+
+    CartesianBinarySearchTree(Comparator<Pair<K, V>> cmp) {
+
+    }
 
     public CartesianBinarySearchTree<K, V> build(List<Pair<K, V>> values) {
-        if (values== null)
-            throw new IllegalArgumentException();
-
-        CartesianBinarySearchTree<K, V> last = null;
-
+//        if (values== null)
+//            throw new IllegalArgumentException();
+//
+//        CartesianBinarySearchTree<K, V> last = null;
+//
 //        for (Pair<K, V> i: values) {
 //            if (last == null) {
-//                last = new CartesianBinarySearchTree<>(i, null, null, null);
+//                last = new CartesianBinarySearchTree<>(null);
 //                continue;
 //            }
 //            if (comparator.compare(last.value, i) > 0) {
@@ -39,7 +41,8 @@ public class CartesianBinarySearchTree<K, V>  {
 //
 //        while (last != null && last.parent != null)
 //            last = (CartesianBinarySearchTree<K, V>) last.parent;
-
-        return last;
+//
+//        return last;
+        return null;
     }
 }
