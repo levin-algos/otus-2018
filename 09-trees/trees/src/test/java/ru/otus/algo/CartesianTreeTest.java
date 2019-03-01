@@ -1,0 +1,64 @@
+package ru.otus.algo;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.BiPredicate;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class CartesianTreeTest {
+
+    private final Integer[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    private final Integer[] priorities = {1, 2, 1, 2, 1, 2, 1, 2, 2, 1};
+    private final List<Pair<Integer, Integer>> pairs = Pair.combine(values, priorities);
+
+    private final TreeChecker<Pair<Integer, Integer>> checker = new TreeChecker<>();
+
+    private final Comparator<? super Pair<Integer, Integer>> cmp = (o1, o2) -> {
+        int cmp = Integer.compare(o1.getRight(), o2.getRight());
+        if (cmp == 0) return Integer.compare(o1.getLeft(), o2.getLeft());
+        return cmp;
+    };
+
+    @Test
+    void buildTest() {
+        CartesianTree<Integer, Integer> tree = CartesianTree.of(pairs);
+
+        assertTrue(Utils.isBST(tree, Comparator.comparingInt(Pair::getLeft)));
+    }
+
+    @Test
+    void merge() {
+        Integer[] values =     {1, 2, 3 };
+        Integer[] priorities = {1, 2, 1};
+        CartesianTree<Integer, Integer> tree = CartesianTree.of(Pair.combine(values, priorities));
+
+        Integer[] values1 =     {4, 5, 6 };
+        Integer[] priorities1 = {1, 2, 1};
+        CartesianTree<Integer, Integer> tree1 = CartesianTree.of(Pair.combine(values1, priorities1));
+
+        CartesianTree<Integer, Integer> merge = CartesianTree.merge(tree, tree1);
+    }
+
+    @Test
+    void add() throws IllegalAccessException {
+        checker.addCheck(AbstractBinarySearchTree.class, TreeInvariants.isBST(), Comparator.comparing(Pair::getLeft));
+        checker.addCheck(CartesianTree.class, TreeInvariants.isHeap(), Comparator.comparing(Pair::getRight));
+        Integer[] values =     {1, 2, 3,  4,  5, 6, 7,  8, 10, 11, 14};
+        Integer[] priorities = {3, 1, 2,  4,  5, 3, 2,  4,  2,  3,  2};
+        CartesianTree<Integer, Integer> tree = CartesianTree.of(Pair.combine(values, priorities));
+
+        assertTrue(checker.check(tree));
+        Pair<CartesianTree<Integer, Integer>, CartesianTree<Integer, Integer>> split = tree.split(5);
+        assertTrue(checker.check(split.getLeft()));
+        assertTrue(checker.check(split.getRight()));
+
+        CartesianTree<Integer, Integer> merge = CartesianTree.merge(split.getLeft(), split.getRight());
+        assertTrue(checker.check(merge));
+
+        merge.add(Pair.of(5, 5));
+        assertTrue(checker.check(merge));
+    }
+}

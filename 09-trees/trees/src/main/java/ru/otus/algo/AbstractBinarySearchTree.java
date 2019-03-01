@@ -7,7 +7,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
     int size;
 
-    private final Comparator<? super T> comparator;
+    final Comparator<? super T> comparator;
     Node<T> root;
 
     AbstractBinarySearchTree() {

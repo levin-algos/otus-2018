@@ -14,7 +14,6 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
         AVLNode(V value, AVLNode<V> parent) {
             super(value, parent);
         }
-
     }
 
     @Override

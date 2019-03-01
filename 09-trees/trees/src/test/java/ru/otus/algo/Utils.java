@@ -2,6 +2,9 @@ package ru.otus.algo;
 
 import java.util.Comparator;
 import java.util.Random;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 class Utils {
     private Utils() {}
@@ -83,11 +86,11 @@ class Utils {
             Pair<Boolean, Integer> left = verifyNode((RedBlackTree.RedBlackTreeNode<T> )root.left, cmp);
             Pair<Boolean, Integer> right = verifyNode((RedBlackTree.RedBlackTreeNode<T> )root.right, cmp);
 
-            if (!left.getFirst() || !right.getFirst()) {
+            if (!left.getLeft() || !right.getLeft()) {
                 return false;
             }
 
-            return left.getSecond().equals(right.getSecond());
+            return left.getRight().equals(right.getRight());
         }
         return true;
     }
@@ -122,10 +125,10 @@ class Utils {
         Pair<Boolean, Integer> leftRes = verifyNode(left, cmp);
         Pair<Boolean, Integer> rightRes = verifyNode(right, cmp);
 
-        if (leftRes.getFirst() && rightRes.getFirst()) {
-            if (leftRes.getSecond().equals(rightRes.getSecond())) {
+        if (leftRes.getLeft() && rightRes.getLeft()) {
+            if (leftRes.getRight().equals(rightRes.getRight())) {
                 int inc = node.color == RedBlackTree.BLACK ? 1 : 0;
-                return Pair.of(true, leftRes.getSecond() + inc);
+                return Pair.of(true, leftRes.getRight() + inc);
             } else {
                 return Pair.of(false, 0);
             }
@@ -153,5 +156,9 @@ class Utils {
             current = el;
         }
         return true;
+    }
+
+    public static <V> boolean checkTree(AbstractBinarySearchTree<V> tree, BiPredicate<AbstractBinarySearchTree.Node<V>, Comparator<? super V>> predicate) {
+        return false;
     }
 }

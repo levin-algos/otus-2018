@@ -1,9 +1,11 @@
 package ru.otus.algo;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Comparator;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,6 +14,16 @@ class AVLTreeTest {
 
     static Stream<Comparator<? super Integer>> comparatorSource() {
         return Stream.of(null, Integer::compareTo);
+    }
+
+    @Test
+    void random() {
+        AVLTree<Integer> tree = AVLTree.of(new Integer[0]);
+        for(int i=0; i<100000; i++)
+            tree.add(i);
+        Random r = new Random();
+        for(int i = 0; i<100000; i++)
+            tree.remove(r.nextInt(100000));
     }
 
     @ParameterizedTest
