@@ -10,59 +10,6 @@ class Utils {
     private Utils() {}
 
     /**
-     * Recursively checks invariants of binary search tree:
-     * 1. {@code node} value greater than left child of this {@code node}
-     * 2. {@code node} value less than right child of this {@code node}
-     * Empty tree is binary search tree by definition.
-     * Comparisons are made by {@code cmp} comparator
-     *
-     * This method does not allow null {@code node} values.
-     * Tree with null values are not considered to be binary search tree.
-     *
-     * If {@code cmp} is null throws IllegalArgumentException
-     *
-     * @param node - root element of the binary search tree
-     * @param cmp - comparator to compare {@code node} values
-     * @param <T> - value type of {@code node}
-     * @return - true if binary tree is binary search tree, else false
-     */
-    static <T> boolean isBST(AbstractBinarySearchTree<T> node, Comparator<? super T> cmp) {
-        if (cmp == null)
-            throw new IllegalArgumentException();
-
-        if (node == null) return true;
-
-        return isBSTNode(node.root, cmp);
-    }
-
-    private static <T> boolean isBSTNode(AbstractBinarySearchTree.Node<T> node, Comparator<? super T> cmp) {
-        if (node == null)
-            return true;
-
-        AbstractBinarySearchTree.Node<T> left = node.left;
-        if (left != null) {
-
-            T nodeValue = node.value;
-            T leftValue = left.value;
-
-            if (nodeValue == null || leftValue == null || cmp.compare(nodeValue, leftValue) < 0)
-                return false;
-        }
-
-        AbstractBinarySearchTree.Node<T> right = node.right;
-        if (right != null) {
-
-            T nodeValue = node.value;
-            T rightValue = right.value;
-
-            if (nodeValue == null || rightValue == null || cmp.compare(nodeValue, rightValue) > 0)
-                return false;
-        }
-
-        return isBSTNode(left, cmp) && isBSTNode(right, cmp);
-    }
-
-    /**
      * Checks invariants of red black tree and red-black tree:
      * 1. {@code node} value greater than left child of this {@code node}
      * 2. {@code node} value less than right child of this {@code node}
@@ -156,9 +103,5 @@ class Utils {
             current = el;
         }
         return true;
-    }
-
-    public static <V> boolean checkTree(AbstractBinarySearchTree<V> tree, BiPredicate<AbstractBinarySearchTree.Node<V>, Comparator<? super V>> predicate) {
-        return false;
     }
 }

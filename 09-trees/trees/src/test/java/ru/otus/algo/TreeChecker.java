@@ -1,18 +1,17 @@
 package ru.otus.algo;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
+import ru.otus.algo.common.ReflectionEntry;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.BiPredicate;
 
 class TreeChecker<V> {
 
     private class Rule<V> {
-        private final BiPredicate<AbstractBinarySearchTree.Node<V>, Comparator<? super V>> rule;
+        private final BiPredicate<ReflectionEntry, Comparator<? super V>> rule;
         private final Comparator<? super V> cmp;
 
-        public Rule(BiPredicate<AbstractBinarySearchTree.Node<V>, Comparator<? super V>> rule, Comparator<? super V> cmp) {
+        public Rule(BiPredicate<ReflectionEntry, Comparator<? super V>> rule, Comparator<? super V> cmp) {
             this.rule = rule;
             this.cmp = cmp;
         }
@@ -38,7 +37,7 @@ class TreeChecker<V> {
         invariants = new HashMap<>();
     }
 
-    void addCheck(Class cl, BiPredicate<AbstractBinarySearchTree.Node<V>, Comparator<? super V>> check, Comparator<? super V> cmp) {
+    void addCheck(Class cl, BiPredicate<ReflectionEntry, Comparator<? super V>> check, Comparator<? super V> cmp) {
         if (cl == null || check == null || cmp == null)
             throw new IllegalArgumentException();
 
@@ -55,12 +54,11 @@ class TreeChecker<V> {
         }
     }
 
-    boolean check(AbstractBinarySearchTree tree) throws IllegalAccessException {
+    boolean check(AbstractBinarySearchTree tree) {
         for (Map.Entry<Class<?>, List<Rule<V>>> entry: invariants.entrySet()) {
-            Field root = FieldUtils.getField(entry.getKey(), "root", true);
-            AbstractBinarySearchTree.Node node = (AbstractBinarySearchTree.Node<V>) root.get(tree);
+            ReflectionEntry root = new ReflectionEntry(tree);
             for (Rule<V> rule: entry.getValue()) {
-                if (!checkRecursive(node, root.getType(), rule))
+                if (!checkRecursive(root.getField("root"), rule))
                 return false;
             }
         }
@@ -68,9 +66,7 @@ class TreeChecker<V> {
         return true;
     }
 
-    private boolean checkRecursive(AbstractBinarySearchTree.Node<V> node,
-                                   Class<?> nodeType,
-                                   Rule<V> rule) {
+    private boolean checkRecursive(ReflectionEntry node, Rule<V> rule) {
         if (node == null)
             return true;
 
@@ -78,6 +74,6 @@ class TreeChecker<V> {
             return false;
         }
 
-        return checkRecursive(node.left, nodeType, rule) && checkRecursive(node.right, nodeType, rule);
+        return checkRecursive(node.getField("left"), rule) && checkRecursive(node.getField("right"), rule);
     }
 }

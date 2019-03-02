@@ -65,10 +65,11 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
      */
     @Override
     public void add(T element) {
-        insert(element, tNode -> {});
+        insert(element, tNode -> {
+        });
     }
 
-    void insert(T element, Consumer<Node<T>> consumer){
+    void insert(T element, Consumer<Node<T>> consumer) {
         if (element == null)
             throw new IllegalArgumentException();
 
@@ -76,38 +77,47 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
             root = createNode(element, null);
             consumer.accept(root);
             size++;
+            return;
         }
 
         int cmp;
-        Node<T> p = this.root;
-        while (p != null) {
-            if (comparator != null) {
-                cmp = comparator.compare(p.value, element);
-            } else {
-                @SuppressWarnings("unchecked")
-                Comparable<? super T> cpr = (Comparable<? super T>) p.value;
-                cmp = cpr.compareTo(element);
-            }
-            if (cmp == 0) {
-                return;
-            } else if (cmp > 0) {
-                if (p.left == null) {
-                    p.left = createNode(element, p);
-                    consumer.accept(p.left);
-                    size++;
-                    return;
-                } else
+        Node<T> p = root;
+        Node<T> parent;
+
+        if (comparator != null) {
+            do {
+                cmp = comparator.compare(element, p.value);
+                parent = p;
+                if (cmp < 0) {
                     p = p.left;
-            } else {
-                if (p.right == null) {
-                    p.right = createNode(element, p);
-                    consumer.accept(p.right);
-                    size++;
-                    return;
-                } else
+                } else if (cmp > 0) {
                     p = p.right;
-            }
+                } else return;
+            } while (p != null);
+
+        } else {
+            @SuppressWarnings("unchecked")
+            Comparable<? super T> cpr = (Comparable<? super T>) element;
+            do {
+                cmp = cpr.compareTo(p.value);
+                parent = p;
+                if (cmp > 0) {
+                    p = p.right;
+                } else if (cmp < 0) {
+                    p = p.left;
+                } else return;
+            } while (p != null);
         }
+
+        Node<T> node = createNode(element, parent);
+        if (cmp < 0)
+            parent.left = node;
+        else if (cmp > 0)
+            parent.right = node;
+
+        consumer.accept(node);
+
+        size++;
     }
 
     /**
@@ -268,6 +278,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
     /**
      * Get maximum height of binary tree
      * Returns {@code 0} for empty tree
+     *
      * @return - maximum height
      */
     int getMaxHeight() {
@@ -277,7 +288,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         int left = getMaxHeightNode(root.left);
         int right = getMaxHeightNode(root.right);
 
-        return Math.max(left, right)+1;
+        return Math.max(left, right) + 1;
     }
 
     private int getMaxHeightNode(Node<T> node) {
@@ -287,7 +298,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         int left = getMaxHeightNode(node.left);
         int right = getMaxHeightNode(node.right);
 
-        return Math.max(left, right)+1;
+        return Math.max(left, right) + 1;
     }
 
     @Override

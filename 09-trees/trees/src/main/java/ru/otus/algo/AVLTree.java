@@ -49,42 +49,72 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
         return node == null ? 0 : ((AVLNode<T>) node).height;
     }
 
-    private void getBalance(AVLNode<T> node) {
-        if (node != null)
-            node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+    private int getBalance(AVLNode<T> node) {
+        return node == null ? 0 : getHeight(node.right) - getHeight(node.left);
     }
 
-    private void balance(AVLNode<T> node) {
-        if (node == null)
-            return;
+    private void balanceAfterInsertion(Node<T> node) {
+        while (node != null) {
 
-        Node<T> left = node.left;
-        Node<T> right = node.right;
-
-        getBalance(node);
-        getBalance((AVLNode<T>) left);
-        getBalance((AVLNode<T>) right);
-
-        if (Math.abs(getHeight(left) - getHeight(right)) == 2) {
-            if (right != null && getHeight(right) >= 0) {
-                rotateLeft(node);
-            } else if (left != null && getHeight(left.left) - getHeight(left.right) >= 0) {
-                rotateRight(node);
-            } else if (node.left != null && getHeight(left != null ? left.left : null) - getHeight(left != null ? left.right : null) == 2) {
-                rotateLeft(left);
-                rotateRight(node);
-            } else if (node.right != null && getHeight(node.right.left) - getHeight(node.right.right) == -2) {
-                rotateRight(right);
-                rotateLeft(node);
+            if (getBalance((AVLNode<T>) node) == 2) {
+                Node<T> right = rightOf(node);
+                if (node.right != null && getBalance((AVLNode<T>) node.right) < 0) {
+                    rotateRight(right);
+                    rotateLeft(node);
+                    ((AVLNode<T>) right).height = calculateHeight(right);
+                } else if (right != null) {
+                    rotateLeft(node);
+                }
+            } else if (getBalance((AVLNode<T>) node) == -2) {
+                Node<T> left = leftOf(node);
+                if (node.left != null && getBalance((AVLNode<T>) node.left) > 0) {
+                    rotateLeft(left);
+                    rotateRight(node);
+                    ((AVLNode<T>) left).height = calculateHeight(left);
+                } else if (left != null) {
+                    rotateRight(node);
+                }
             }
+
+            int newH = calculateHeight(node);
+            ((AVLNode<T>) node).height = newH;
+
+            node = parentOf(node);
         }
 
-        if (node.parent != null) {
-            getBalance((AVLNode<T>) node.parent);
-            balance((AVLNode<T>) node.parent);
-        }
     }
 
+    private int calculateHeight(Node<T> node) {
+        return Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+    }
+
+
+    private void balanceAfterDeletion(Node<T> node) {
+        while (node != null && node.parent != null) {
+            Node<T> parent = parentOf(node);
+
+            if (node == leftOf(parent)) {
+                if (getBalance((AVLNode<T>) parent) > 0) {
+                    Node<T> sibling = rightOf(parent);
+                    if (getBalance((AVLNode<T>) sibling) < 0) {
+                        rotateRight(sibling);
+                        rotateLeft(parent);
+                    } else
+                        rotateLeft(parent);
+                }
+            } else {
+                if (getBalance((AVLNode<T>) node) < 0) {
+                    Node<T> sibling = leftOf(parent);
+                    if (getBalance((AVLNode<T>) sibling) > 0) {
+                        rotateLeft(sibling);
+                        rotateRight(parent);
+                    } else
+                        rotateRight(parent);
+                }
+            }
+            ((AVLNode<T>) node).height = Math.max(getHeight(node.left), getHeight(node.right) + 1);
+        }
+    }
 
     /**
      * Adds element to the BST
@@ -92,10 +122,7 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
      * @param element - element to add
      */
     public void add(T element) {
-        insert(element, node -> {
-            getBalance((AVLNode<T>) node);
-            balance((AVLNode<T>) node);
-        });
+        insert(element, this::balanceAfterInsertion);
     }
 
     /**
@@ -134,21 +161,19 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
 
             node.left = node.right = node.parent = null;
 
-            getBalance((AVLNode<T>) replacement);
-            balance((AVLNode<T>) replacement);
+            balanceAfterInsertion(replacement);
         } else if (node.parent == null) {
             root = null;
         } else {
-            getBalance(node);
-            balance(node);
+            Node<T> parent = parentOf(node);
 
-            if (node.parent != null) {
-                if (node == node.parent.left)
-                    node.parent.left = null;
-                else if (node == node.parent.right)
-                    node.parent.right = null;
-                node.parent = null;
-            }
+            if (node == node.parent.left)
+                node.parent.left = null;
+            else if (node == node.parent.right)
+                node.parent.right = null;
+            node.parent = null;
+
+            balanceAfterInsertion(parent);
         }
     }
 }

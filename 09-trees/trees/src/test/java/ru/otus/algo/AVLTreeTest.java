@@ -1,11 +1,13 @@
 package ru.otus.algo;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Comparator;
 import java.util.Random;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,29 +18,39 @@ class AVLTreeTest {
         return Stream.of(null, Integer::compareTo);
     }
 
+    private static TreeChecker<Integer> checker = new TreeChecker<>();
+
+    @BeforeAll
+    static void init() {
+        checker.addCheck(AbstractBinarySearchTree.class, TreeInvariants.isAVL(), Integer::compareTo);
+    }
+
     @Test
     void random() {
         AVLTree<Integer> tree = AVLTree.of(new Integer[0]);
-        for(int i=0; i<100000; i++)
+        int MAX = 1000;
+        for(int i = 0; i< MAX; i++) {
             tree.add(i);
+            assertTrue(checker.check(tree));
+        }
+
         Random r = new Random();
-        for(int i = 0; i<100000; i++)
-            tree.remove(r.nextInt(100000));
+        for(int i = 0; i< MAX; i++) {
+            tree.remove(r.nextInt(MAX));
+            assertTrue(checker.check(tree));
+        }
     }
 
     @ParameterizedTest
     @MethodSource("comparatorSource")
     void sequentialAddAndRemove(Comparator<? super Integer> cmp) {
-        tree = AVLTree.of(new Integer[0], cmp);
-        int MAX = 10000;
-        for (int i = 0; i < MAX; i++) {
-            tree.add(i);
-            Utils.isBST(tree, cmp == null ? Integer::compareTo : cmp);
-        }
+        int MAX = 10;
+        tree = AVLTree.of(IntStream.range(0, MAX).boxed().toArray(Integer[]::new), cmp);
+        assertTrue(checker.check(tree));
 
         for (int i = 0; i < MAX; i++) {
             tree.remove(i);
-            Utils.isBST(tree, cmp == null ? Integer::compareTo : cmp);
+            assertTrue(checker.check(tree));
         }
     }
 
@@ -49,7 +61,7 @@ class AVLTreeTest {
 
         AVLTree<Integer> tree = AVLTree.of(arr, cmp);
 
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
 
         for (Integer i : arr) {
             assertTrue(tree.contains(i));
@@ -62,7 +74,7 @@ class AVLTreeTest {
         Integer[] integers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         tree = AVLTree.of(integers, cmp);
 
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
 
         for (Integer i : integers) {
             assertTrue(this.tree.contains(i));
@@ -117,7 +129,7 @@ class AVLTreeTest {
 
         for (Integer i : integers) {
             tree.remove(i);
-            assertTrue(Utils.isBST(tree, Integer::compareTo));
+            assertTrue(checker.check(tree));
         }
     }
 
@@ -126,27 +138,27 @@ class AVLTreeTest {
     void deleteLeaf(Comparator<? super Integer> cmp) {
         tree = AVLTree.of(integers, cmp);
         tree.remove(10);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(integers.length - 1, tree.size());
 
         tree.remove(5);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(integers.length - 2, tree.size());
 
         tree.remove(4);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(integers.length - 3, tree.size());
 
         tree.remove(3);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(integers.length - 4, tree.size());
 
         tree.remove(2);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(integers.length - 5, tree.size());
 
         tree.remove(1);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(0, tree.size());
     }
 
@@ -156,28 +168,28 @@ class AVLTreeTest {
     void deleteWithOneChild(Comparator<? super Integer> cmp) {
         Integer[] arr = {2, 4, 3};
         tree = AVLTree.of(arr, cmp);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         tree.remove(4);
         assertFalse(tree.contains(4));
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(arr.length - 1, tree.size());
         assertTrue(tree.contains(3));
 
         arr = new Integer[]{3, 1, 2};
         tree = AVLTree.of(arr, cmp);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         tree.remove(1);
         assertFalse(tree.contains(1));
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(arr.length - 1, tree.size());
         assertTrue(tree.contains(2));
 
         arr = new Integer[]{3, 2, 1};
         tree = AVLTree.of(arr, cmp);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         tree.remove(2);
         assertFalse(tree.contains(2));
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(arr.length - 1, tree.size());
         assertTrue(tree.contains(1));
 
@@ -185,7 +197,7 @@ class AVLTreeTest {
         tree = AVLTree.of(arr, cmp);
         tree.remove(2);
         assertFalse(tree.contains(2));
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(arr.length - 1, tree.size());
         assertTrue(tree.contains(3));
     }
@@ -196,12 +208,12 @@ class AVLTreeTest {
         Integer[] arr = {5, 2, 8, 1, 4, 6, 10, 3, 7};
 
         tree = AVLTree.of(arr, cmp);
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(arr.length, tree.size());
 
         tree.remove(5);
         assertFalse(tree.contains(5));
-        assertTrue(Utils.isBST(tree, Integer::compareTo));
+        assertTrue(checker.check(tree));
         assertEquals(arr.length - 1, tree.size());
         for (int i = 1; i < arr.length; i++) {
             assertTrue(tree.contains(arr[i]));
