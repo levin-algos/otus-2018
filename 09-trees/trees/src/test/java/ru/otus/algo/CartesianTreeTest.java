@@ -3,6 +3,7 @@ package ru.otus.algo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -71,6 +72,11 @@ class CartesianTreeTest {
         for (Pair<Integer, Integer> i: pairs1) {
             assertTrue(merge.contains(i));
         }
+
+        List<Integer> merged = new ArrayList<>();
+//        merge.traverse(Traversal.IN_ORDER, o -> {merged.add(o);});
+
+        assertEquals(new Integer[]{1, 2, 3, 4, 5, 6}, merged.toArray(new Integer[0]));
     }
 
     @Test

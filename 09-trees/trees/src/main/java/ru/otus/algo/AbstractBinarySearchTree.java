@@ -58,6 +58,19 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         return null;
     }
 
+    @Override
+    public void traverse(Traversal order, Consumer<T> action) {
+        if (Traversal.IN_ORDER == order) {
+            traverseInOrder(action);
+        }
+    }
+
+    private void traverseInOrder(Consumer<T> action) {
+        for (Node<T> cur = getMin(root); cur != null; cur = successor(cur)) {
+            action.accept(cur.value);
+        }
+    }
+
     /**
      * Adds element to the BST
      *
@@ -155,9 +168,23 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
     }
 
     private Node<T> getMax(Node<T> node) {
+        if (node == null)
+            return null;
+
         Node<T> res = node;
         while (res.right != null) {
             res = res.right;
+        }
+        return res;
+    }
+
+    private Node<T> getMin(Node<T> node) {
+        if (node == null)
+            return null;
+
+        Node<T> res = node;
+        while (res.left != null) {
+            res = res.left;
         }
         return res;
     }

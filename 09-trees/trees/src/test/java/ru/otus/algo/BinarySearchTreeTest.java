@@ -5,12 +5,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import ru.otus.algo.common.Utils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class BinarySearchTreeTest {
 
+    private static final int MAX = 1000;
     private BinarySearchTree<Integer> tree;
     private final Integer[] integers = {1, 2, 3, 4, 5, 10};
     private static final TreeChecker<Integer> checker = new TreeChecker<>();
@@ -23,6 +32,20 @@ class BinarySearchTreeTest {
     @BeforeEach
     void init() {
         tree = BinarySearchTree.of(integers);
+    }
+
+
+    @Test
+    void inorderTraversal() {
+        List<Integer> list = IntStream.range(0, MAX).boxed().collect(Collectors.toList());
+        Collections.shuffle(list);
+        BinarySearchTree<Integer> tree = BinarySearchTree.of(list.toArray(new Integer[0]));
+
+        List<Integer> res = new ArrayList<>();
+
+        tree.traverse(Traversal.IN_ORDER, res::add);
+        assertEquals(MAX, res.size());
+        assertTrue(Utils.isSorted(res.toArray(new Integer[0])));
     }
 
     @Test

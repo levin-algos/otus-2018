@@ -82,7 +82,6 @@ class AVLTreeTest {
         }
     }
 
-
     private AVLTree<Integer> tree;
     private final Integer[] integers = {1, 2, 3, 4, 5, 10};
 
@@ -162,7 +161,6 @@ class AVLTreeTest {
         assertTrue(checker.check(tree));
         assertEquals(0, tree.size());
     }
-
 
     @ParameterizedTest
     @MethodSource("comparatorSource")

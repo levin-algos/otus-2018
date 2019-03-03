@@ -18,6 +18,9 @@ public class Utils {
         if (list == null)
             throw new IllegalArgumentException();
 
+        if (list.length == 0)
+            return true;
+
         int current = Integer.MIN_VALUE;
         for (int el : list) {
             if (current > el)
