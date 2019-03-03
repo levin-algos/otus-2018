@@ -4,10 +4,6 @@ import java.util.Comparator;
 
 public class AVLTree<T> extends AbstractBinarySearchTree<T> {
 
-    public boolean contains(T i) {
-        return getElement(i) != null;
-    }
-
     private class AVLNode<V> extends Node<V> {
         private int height;
 
@@ -35,6 +31,14 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
             tree.add(i);
         }
         return tree;
+    }
+
+    public static <T> AVLTree<T> of () {
+        return new AVLTree<>();
+    }
+
+    public static <T> AVLTree<T> of (Comparator<? super T> cmp) {
+        return new AVLTree<>(cmp);
     }
 
     public static <T> AVLTree<T> of(T[] arr, Comparator<? super T> cmp) {
@@ -76,8 +80,7 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
                 }
             }
 
-            int newH = calculateHeight(node);
-            ((AVLNode<T>) node).height = newH;
+            ((AVLNode<T>) node).height = calculateHeight(node);
 
             node = parentOf(node);
         }
@@ -86,34 +89,6 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
 
     private int calculateHeight(Node<T> node) {
         return Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-    }
-
-
-    private void balanceAfterDeletion(Node<T> node) {
-        while (node != null && node.parent != null) {
-            Node<T> parent = parentOf(node);
-
-            if (node == leftOf(parent)) {
-                if (getBalance((AVLNode<T>) parent) > 0) {
-                    Node<T> sibling = rightOf(parent);
-                    if (getBalance((AVLNode<T>) sibling) < 0) {
-                        rotateRight(sibling);
-                        rotateLeft(parent);
-                    } else
-                        rotateLeft(parent);
-                }
-            } else {
-                if (getBalance((AVLNode<T>) node) < 0) {
-                    Node<T> sibling = leftOf(parent);
-                    if (getBalance((AVLNode<T>) sibling) > 0) {
-                        rotateLeft(sibling);
-                        rotateRight(parent);
-                    } else
-                        rotateRight(parent);
-                }
-            }
-            ((AVLNode<T>) node).height = Math.max(getHeight(node.left), getHeight(node.right) + 1);
-        }
     }
 
     /**

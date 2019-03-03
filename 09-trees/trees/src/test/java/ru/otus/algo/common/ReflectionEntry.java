@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 
 public class ReflectionEntry {
 
-    private Object object;
+    private final Object object;
 
     public ReflectionEntry(Object object) {
         this.object = object;
@@ -38,6 +38,19 @@ public class ReflectionEntry {
         }
 
         return 0;
+    }
+
+    public boolean getBoolFieldValue(String fieldName) {
+        Field field = FieldUtils.getField(object.getClass(), fieldName, true);
+        if (field == null)
+            throw new IllegalStateException("no field: " + fieldName);
+        try {
+            return field.getBoolean(object);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public Object getValue(String fieldName) {

@@ -1,7 +1,6 @@
 package ru.otus.algo;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -18,16 +17,18 @@ class AVLTreeTest {
         return Stream.of(null, Integer::compareTo);
     }
 
-    private static TreeChecker<Integer> checker = new TreeChecker<>();
+    private static final TreeChecker<Integer> checker = new TreeChecker<>();
 
     @BeforeAll
     static void init() {
-        checker.addCheck(AbstractBinarySearchTree.class, TreeInvariants.isAVL(), Integer::compareTo);
+        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
+        checker.addCheck(TreeInvariants.isAVL(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
     }
 
-    @Test
-    void random() {
-        AVLTree<Integer> tree = AVLTree.of(new Integer[0]);
+    @ParameterizedTest
+    @MethodSource("comparatorSource")
+    void random(Comparator<? super Integer> cmp) {
+        AVLTree<Integer> tree = AVLTree.of(cmp);
         int MAX = 1000;
         for(int i = 0; i< MAX; i++) {
             tree.add(i);

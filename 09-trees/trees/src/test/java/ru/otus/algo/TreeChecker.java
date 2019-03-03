@@ -7,11 +7,16 @@ import java.util.function.BiPredicate;
 
 class TreeChecker<V> {
 
-    private class Rule<V> {
-        private final BiPredicate<ReflectionEntry, Comparator<? super V>> rule;
-        private final Comparator<? super V> cmp;
+    enum Invocation {
+        EACH_NODE,
+        ROOT
+    }
 
-        public Rule(BiPredicate<ReflectionEntry, Comparator<? super V>> rule, Comparator<? super V> cmp) {
+    private class Rule<R> {
+        private final BiPredicate<ReflectionEntry, Comparator<? super R>> rule;
+        private final Comparator<? super R> cmp;
+
+        Rule(BiPredicate<ReflectionEntry, Comparator<? super R>> rule, Comparator<? super R> cmp) {
             this.rule = rule;
             this.cmp = cmp;
         }
@@ -20,6 +25,7 @@ class TreeChecker<V> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+            @SuppressWarnings("unchecked")
             Rule<?> rule1 = (Rule<?>) o;
             return rule.equals(rule1.rule) &&
                     cmp.equals(rule1.cmp);
@@ -31,49 +37,69 @@ class TreeChecker<V> {
         }
     }
 
-    private Map<Class<?>, List<Rule<V>>> invariants;
+    private final Map<Invocation, List<Rule<V>>> invariants;
 
     TreeChecker() {
         invariants = new HashMap<>();
     }
 
-    void addCheck(Class cl, BiPredicate<ReflectionEntry, Comparator<? super V>> check, Comparator<? super V> cmp) {
-        if (cl == null || check == null || cmp == null)
+    void addCheck(BiPredicate<ReflectionEntry, Comparator<? super V>> check, Comparator<? super V> cmp, Invocation inv) {
+        if (check == null || cmp == null)
             throw new IllegalArgumentException();
 
-        List<Rule<V>> predicates;
-        if (invariants.containsKey(cl)) {
-            predicates = invariants.get(cl);
-        } else {
-            predicates = new ArrayList<>();
-            invariants.put(cl, predicates);
+        List<Rule<V>> rules;
+        if (invariants.containsKey(inv))
+            rules = invariants.get(inv);
+        else {
+            rules = new ArrayList<>();
+            invariants.put(inv, rules);
         }
-        Rule<V> rule = new Rule<V>(check, cmp);
-        if (!predicates.contains(rule)) {
-            predicates.add(rule);
+
+        Rule<V> rule = new Rule<>(check, cmp);
+        if (!rules.contains(rule)) {
+            rules.add(rule);
         }
     }
 
     boolean check(AbstractBinarySearchTree tree) {
-        for (Map.Entry<Class<?>, List<Rule<V>>> entry: invariants.entrySet()) {
+        if (!checkRoot(tree))
+            return false;
+
+        return checkEachNode(tree);
+
+    }
+
+    private boolean checkRoot(AbstractBinarySearchTree tree) {
+        List<Rule<V>> eachNode = invariants.get(Invocation.ROOT);
+        if (eachNode != null) {
+            for (Rule<V> rule : eachNode) {
+                ReflectionEntry root = new ReflectionEntry(tree);
+                if (!rule.rule.test(root.getField("root"), rule.cmp))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkEachNode(AbstractBinarySearchTree tree) {
+        List<Rule<V>> eachNode = invariants.get(Invocation.EACH_NODE);
+        if (eachNode != null) {
             ReflectionEntry root = new ReflectionEntry(tree);
-            for (Rule<V> rule: entry.getValue()) {
-                if (!checkRecursive(root.getField("root"), rule))
+            return checkRecursive(root.getField("root"), eachNode);
+        }
+        return true;
+    }
+
+    private boolean checkRecursive(ReflectionEntry node, List<Rule<V>> rules) {
+        if (node == null)
+            return true;
+
+        for (Rule<V> rule : rules) {
+            if (!rule.rule.test(node, rule.cmp)) {
                 return false;
             }
         }
 
-        return true;
-    }
-
-    private boolean checkRecursive(ReflectionEntry node, Rule<V> rule) {
-        if (node == null)
-            return true;
-
-        if (!rule.rule.test(node, rule.cmp)) {
-            return false;
-        }
-
-        return checkRecursive(node.getField("left"), rule) && checkRecursive(node.getField("right"), rule);
+        return checkRecursive(node.getField("left"), rules) && checkRecursive(node.getField("right"), rules);
     }
 }

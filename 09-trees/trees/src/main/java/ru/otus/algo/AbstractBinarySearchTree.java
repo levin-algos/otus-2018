@@ -7,7 +7,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
     int size;
 
-    final Comparator<? super T> comparator;
+    private final Comparator<? super T> comparator;
     Node<T> root;
 
     AbstractBinarySearchTree() {
@@ -112,7 +112,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         Node<T> node = createNode(element, parent);
         if (cmp < 0)
             parent.left = node;
-        else if (cmp > 0)
+        else
             parent.right = node;
 
         consumer.accept(node);

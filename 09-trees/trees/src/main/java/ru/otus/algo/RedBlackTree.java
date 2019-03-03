@@ -209,7 +209,7 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
     final static boolean RED = true;
     final static boolean BLACK = false;
 
-    static class RedBlackTreeNode<V> extends Node<V> {
+    private static class RedBlackTreeNode<V> extends Node<V> {
         boolean color = RED;
 
         RedBlackTreeNode(V value, RedBlackTreeNode<V> parent) {

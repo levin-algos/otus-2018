@@ -5,6 +5,7 @@ import ru.otus.algo.common.ReflectionEntry;
 import java.util.Comparator;
 import java.util.function.BiPredicate;
 
+@SuppressWarnings("unchecked")
 class TreeInvariants {
 
     private TreeInvariants() {
@@ -21,10 +22,8 @@ class TreeInvariants {
             int leftH = left == null ? 0 : left.getIntFieldValue("height");
             int rightH = right == null ? 0 : right.getIntFieldValue("height");
 
-            if (Math.abs(leftH - rightH) > 1)
-                return false;
+            return Math.abs(leftH - rightH) <= 1;
 
-            return true;
         };
     }
 
@@ -49,8 +48,7 @@ class TreeInvariants {
                 V nodeValue = (V) n.getValue("value");
                 V rightValue = (V) right.getValue("value");
 
-                if (nodeValue == null || rightValue == null || cmp.compare(nodeValue, rightValue) > 0)
-                    return false;
+                return nodeValue != null && rightValue != null && cmp.compare(nodeValue, rightValue) <= 0;
             }
             return true;
         };
@@ -77,10 +75,59 @@ class TreeInvariants {
                 Pair<K, V> nodeValue = (Pair<K, V>) n.getValue("value");
                 Pair<K, V> rightValue = (Pair<K, V>) right.getValue("value");
 
-                if (nodeValue == null || rightValue == null || cmp.compare(nodeValue, rightValue) < 0)
-                    return false;
+                return nodeValue != null && rightValue != null && cmp.compare(nodeValue, rightValue) >= 0;
             }
             return true;
         };
+    }
+
+    static <V> BiPredicate<ReflectionEntry, Comparator<? super V>> isRedBlack() {
+        return (n, cmp) -> {
+                if (n == null) return false;
+                if (cmp == null)
+                    throw new IllegalArgumentException();
+
+            ReflectionEntry left = n.getField("left");
+            ReflectionEntry right = n.getField("right");
+            boolean color = n.getBoolFieldValue("color");
+
+
+            if (left != null && right != null) {
+                boolean leftColor = left.getBoolFieldValue("color");
+                boolean rightColor = right.getBoolFieldValue("color");
+                return color != RedBlackTree.RED || (leftColor == RedBlackTree.BLACK && rightColor == RedBlackTree.BLACK);
+            }
+
+            return true;
+        };
+    }
+
+    static <V> BiPredicate<ReflectionEntry, Comparator<? super V>> countBlackNodes() {
+        return (n, cmp) -> {
+            Pair<Boolean, Integer> res = verifyNode(n);
+            return res.getLeft();
+        };
+    }
+
+    private static Pair<Boolean, Integer> verifyNode(ReflectionEntry entry) {
+        if (entry == null)
+            return Pair.of(true, 0);
+
+        ReflectionEntry left = entry.getField("left");
+        ReflectionEntry right = entry.getField("right");
+
+        Pair<Boolean, Integer> leftRes = verifyNode(left);
+        Pair<Boolean, Integer> rightRes = verifyNode(right);
+
+        if (leftRes.getLeft() && rightRes.getLeft()) {
+            if (leftRes.getRight().equals(rightRes.getRight())) {
+                int inc = entry.getBoolFieldValue("color") == RedBlackTree.BLACK ? 1 : 0;
+                return Pair.of(true, leftRes.getRight() + inc);
+            } else {
+                return Pair.of(false, 0);
+            }
+        } else {
+            return Pair.of(false, 0);
+        }
     }
 }
