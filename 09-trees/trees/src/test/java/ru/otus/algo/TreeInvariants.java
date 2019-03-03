@@ -33,26 +33,35 @@ class TreeInvariants {
                 return true;
 
             ReflectionEntry left = n.getField("left");
-            if (left != null) {
-
-                V nodeValue = (V) n.getValue("value");
-                V leftValue = (V) left.getValue("value");
-
-                if (nodeValue == null || leftValue == null || cmp.compare(nodeValue, leftValue) < 0)
-                    return false;
-            }
-
             ReflectionEntry right = n.getField("right");
-            if (right != null) {
+            V nodeValue = (V) n.getValue("value");
 
-                V nodeValue = (V) n.getValue("value");
-                V rightValue = (V) right.getValue("value");
-
-                return nodeValue != null && rightValue != null && cmp.compare(nodeValue, rightValue) <= 0;
-            }
-            return true;
+            return  (isBST(left, cmp, null, nodeValue) &&
+                     isBST(right, cmp, nodeValue, null));
         };
     }
+
+    private static <V> boolean isBST(ReflectionEntry node, Comparator<? super V> cmp, V from, V to) {
+        if (node == null)
+            return true;
+
+        V value = (V) node.getValue("value");
+        if (value != null) {
+            if (from != null)
+                if (cmp.compare(value, from) <= 0)
+                    return false;
+
+            if (to != null)
+                if (cmp.compare(value, to) >= 0)
+                    return false;
+        }
+
+        ReflectionEntry left = node.getField("left");
+        ReflectionEntry right = node.getField("right");
+
+        return isBST(left, cmp, from, value) && isBST(right, cmp, value, to);
+    }
+
 
     static <K, V> BiPredicate<ReflectionEntry, Comparator<? super Pair<K, V>>> isHeap() {
         return (n, cmp) -> {
@@ -83,9 +92,9 @@ class TreeInvariants {
 
     static <V> BiPredicate<ReflectionEntry, Comparator<? super V>> isRedBlack() {
         return (n, cmp) -> {
-                if (n == null) return false;
-                if (cmp == null)
-                    throw new IllegalArgumentException();
+            if (n == null) return false;
+            if (cmp == null)
+                throw new IllegalArgumentException();
 
             ReflectionEntry left = n.getField("left");
             ReflectionEntry right = n.getField("right");

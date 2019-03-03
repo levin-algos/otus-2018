@@ -31,8 +31,11 @@
 
 package ru.otus.algo;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.AverageTime)
@@ -41,25 +44,24 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 10, time = 1)
 @Fork(1)
 @State(Scope.Benchmark)
-class MyBenchmark {
+public class MyBenchmark {
 
     @State(Scope.Benchmark)
-    static class Data {
-        int param;
-        int param() {
-            return param;
+    public static class Data {
+        AVLTree<Integer> tree;
+        Field field;
+
+        @Setup
+        public void setup() {
+            field = FieldUtils.getField(AVLTree.class, "root", true);
+            tree = AVLTree.of(new Integer[]{10});
         }
     }
 
 
     @Benchmark
-    public int callByField(Data data) {
-        return data.param;
-    }
-
-    @Benchmark
-    public int callByMethod(Data data) {
-        return data.param();
+    public void callByField(Blackhole bh, Data data) throws IllegalAccessException {
+        bh.consume(data.field.get(data.tree));
     }
 
 }

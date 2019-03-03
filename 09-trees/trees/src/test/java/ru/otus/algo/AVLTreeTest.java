@@ -21,7 +21,7 @@ class AVLTreeTest {
 
     @BeforeAll
     static void init() {
-        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
+        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.ROOT);
         checker.addCheck(TreeInvariants.isAVL(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
     }
 

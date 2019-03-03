@@ -24,7 +24,7 @@ class RedBlackTreeTest {
 
     @BeforeAll
     static void init() {
-        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
+        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.ROOT);
         checker.addCheck(TreeInvariants.isRedBlack(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
         checker.addCheck(TreeInvariants.countBlackNodes(), Integer::compareTo, TreeChecker.Invocation.ROOT);
     }

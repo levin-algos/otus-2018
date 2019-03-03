@@ -1,9 +1,15 @@
 package ru.otus.algo;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CartesianTree<K extends Comparable<K>, V extends Comparable<V>> extends AbstractBinarySearchTree<Pair<K, V>> {
+
+
+    public CartesianTree() {
+        super(Comparator.comparing(Pair::getLeft));
+    }
 
     static <K extends Comparable<K>, V extends Comparable<V>> CartesianTree<K, V> of(List<Pair<K, V>> pairs) {
         return CartesianTree.build(pairs);
@@ -90,7 +96,6 @@ public class CartesianTree<K extends Comparable<K>, V extends Comparable<V>> ext
 
         return Pair.of(left, right);
     }
-
 
     /**
      * Invariants:

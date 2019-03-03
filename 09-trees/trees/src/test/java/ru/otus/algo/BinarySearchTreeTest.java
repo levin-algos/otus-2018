@@ -17,7 +17,7 @@ class BinarySearchTreeTest {
 
     @BeforeAll
     static void initChecker() {
-        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
+        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.ROOT);
     }
 
     @BeforeEach
