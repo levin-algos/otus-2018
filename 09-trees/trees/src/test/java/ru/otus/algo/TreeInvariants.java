@@ -63,7 +63,7 @@ class TreeInvariants {
     }
 
 
-    static <K, V> BiPredicate<ReflectionEntry, Comparator<? super Pair<K, V>>> isHeap() {
+    static <K, V> BiPredicate<ReflectionEntry, Comparator<? super V>> isHeap() {
         return (n, cmp) -> {
             if (n == null)
                 return true;
@@ -71,20 +71,20 @@ class TreeInvariants {
             ReflectionEntry left = n.getField("left");
             if (left != null) {
 
-                Pair<K, V> nodeValue = (Pair<K, V>) n.getValue("value");
-                Pair<K, V> leftValue = (Pair<K, V>) left.getValue("value");
+                int nodeValue = n.getIntFieldValue("priority");
+                int leftValue = left.getIntFieldValue("priority");
 
-                if (nodeValue == null || leftValue == null || cmp.compare(nodeValue, leftValue) < 0)
+                if (nodeValue < leftValue)
                     return false;
             }
 
             ReflectionEntry right = n.getField("right");
             if (right != null) {
 
-                Pair<K, V> nodeValue = (Pair<K, V>) n.getValue("value");
-                Pair<K, V> rightValue = (Pair<K, V>) right.getValue("value");
+                int nodeValue = n.getIntFieldValue("priority");
+                int rightValue = right.getIntFieldValue("priority");
 
-                return nodeValue != null && rightValue != null && cmp.compare(nodeValue, rightValue) >= 0;
+                return nodeValue >= rightValue;
             }
             return true;
         };
@@ -106,7 +106,6 @@ class TreeInvariants {
                 boolean rightColor = right.getBoolFieldValue("color");
                 return color != RedBlackTree.RED || (leftColor == RedBlackTree.BLACK && rightColor == RedBlackTree.BLACK);
             }
-
             return true;
         };
     }
