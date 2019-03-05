@@ -39,87 +39,90 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
         return CartesianTree.build(arr, priority);
     }
 
-//    /**
-//     * Splits cartesian tree into two trees splitting {@code tree} at the key {@code element}
-//     *
-//     * @param element - key for splitting tree
-//     * @return - {@link Pair} of trees splitted by key {@code element}
-//     */
-//    public Pair<CartesianTree<V>, CartesianTree<V>> split(V element) {
-//        Pair<Node<V>, Node<V>> split = split(root, element);
-//
-//        CartesianTree<V> left = new CartesianTree<>();
-//        CartesianTree<V> right = new CartesianTree<>();
-//        left.root = split.getLeft();
-//        if (left != null)
-//            left.root.parent = left.root;
-//        right.root = split.getRight();
-//        if (right != null)
-//            right.root.parent = right.root;
-//        return Pair.of(left, right);
-//    }
+    /**
+     * Splits cartesian tree into two trees.
+     * Splitting {@code tree} at the key {@code element}
+     *
+     * @param element - key for splitting tree
+     * @return - {@link Pair} of trees splitted by key {@code element}
+     */
+    public Pair<CartesianTree<V>, CartesianTree<V>> split(V element) {
+        Pair<Node<V>, Node<V>> split = split(root, element);
 
-//    private Pair<Node<V>, Node<V>> split(Node<V> node, V element) {
-//        Node<V> cur = node, left = null, right = null;
-//        while (cur != null) {
-//            int cmp = cur.value.compareTo(element);
-//            if (cmp < 0) {
-//                if (left == null) {
-//                    left = cur;
-//                    left.parent = null;
-//                } else {
-//                    left.right = cur;
-//                    cur.parent = left;
-//                    left = left.right;
-//
-//                }
-//                cur = cur.right;
-//            } else if (cmp > 0) {
-//                if (right == null) {
-//                    right = cur;
-//                    right.parent = null;
-//                } else {
-//                    right.left = cur;
-//                    cur.parent = right;
-//                    right = right.left;
-//                }
-//                cur = cur.left;
-//            } else {
-//                if (left == null) {
-//                    left = cur.left;
-//                    left.parent = null;
-//                } else {
-//                    left.right = cur.left;
-//                    left.right.parent = left;
-//                }
-//
-//                if (right == null) {
-//                    right = cur.right;
-//                    right.parent = null;
-//                } else {
-//                    right.left = cur.right;
-//                    right.left.parent = right;
-//                }
-//                cur = null;
-//            }
-//
-//        }
-//
-//        if (left != null) {
-////            left.right = null;
-//            while (left.parent != null) {
-//                left = left.parent;
-//            }
-//        }
-//        if (right != null) {
-////            right.left = null;
-//            while (right.parent != null) {
-//                right = right.parent;
-//            }
-//        }
-//
-//        return Pair.of(left, right);
-//    }
+        CartesianTree<V> left = new CartesianTree<>(priorityConsumer);
+        CartesianTree<V> right = new CartesianTree<>(priorityConsumer);
+        left.root = split.getLeft();
+        if (left.root != null)
+            left.root.parent = null;
+        right.root = split.getRight();
+        if (right.root != null)
+            right.root.parent = null;
+        return Pair.of(left, right);
+    }
+
+    private Pair<Node<V>, Node<V>> split(Node<V> node, V element) {
+        Node<V> cur = node, left = null, right = null;
+        Comparable<V> c = (Comparable<V>) element;
+        while (cur != null) {
+            int cmp = c.compareTo(cur.value);
+            if (cmp > 0) {
+                if (left == null) {
+                    left = cur;
+                    left.parent = null;
+                } else {
+                    left.right = cur;
+                    cur.parent = left;
+                    left = left.right;
+                }
+                cur = cur.right;
+                left.right = null;
+            } else if (cmp < 0) {
+                if (right == null) {
+                    right = cur;
+                    right.parent = null;
+                } else {
+                    right.left = cur;
+                    cur.parent = right;
+                    right = right.left;
+                }
+                cur = cur.left;
+                right.left = null;
+            } else {
+                if (left == null) {
+                    left = cur.left;
+                    left.parent = null;
+                } else {
+                    left.right = cur.left;
+                    left.right.parent = left;
+                }
+
+                if (right == null) {
+                    right = cur.right;
+                    right.parent = null;
+                } else {
+                    right.left = cur.right;
+                    right.left.parent = right;
+                }
+                cur = null;
+            }
+
+        }
+
+        if (left != null) {
+//            left.right = null;
+            while (left.parent != null) {
+                left = left.parent;
+            }
+        }
+        if (right != null) {
+//            right.left = null;
+            while (right.parent != null) {
+                right = right.parent;
+            }
+        }
+
+        return Pair.of(left, right);
+    }
 
     /**
      * Merge two cartesian trees into one.
