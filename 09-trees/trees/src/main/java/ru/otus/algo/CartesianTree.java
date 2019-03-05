@@ -2,9 +2,17 @@ package ru.otus.algo;
 
 import java.util.function.Function;
 
+/**
+ * Cartesian tree implementation. Priority generates with {@code Function<V, Integer>} functional interface.
+ * <p>
+ * This implementation is immutable.
+ *
+ * @param <V>
+ */
 public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
 
     private final Function<V, Integer> priorityConsumer;
+
     private static class CTNode<V> extends Node<V> {
         int priority;
 
@@ -114,37 +122,67 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
 //    }
 
     /**
+     * Merge two cartesian trees into one.
+     * Priority functions must be the same for {@code left} and {@code right} cartesian tree.
+     * If both of {@code left} and {@code right} are null - returns null
+     * Otherwise if {@code left} is null then return {@code right}.
+     * Otherwise If {@code right} is null then return {@code left}.
      * Invariants:
      * 1. maximum value in left cartesian tree is lower (equal?) than the minimum value i right cartesian tree
-     * @param left -
-     * @param right -
-     * @param <V> -
-     * @return -
+     *
+     * @param left  - left cartesian tree
+     * @param right - right cartesian tree
+     * @param <V>   - type value of cartesian trees
+     * @return - merged cartesian tree
      */
     static <V> CartesianTree<V> merge(CartesianTree<V> left, CartesianTree<V> right) {
-//        CartesianTree<V> tree = new CartesianTree<>();
-//
-//        tree.root = mergeNodes(left.root, right.root);
-        return null;
-    }
-
-    private static <K extends Comparable<K>, V extends Comparable<V>>
-    Node<Pair<K, V>> mergeNodes(Node<Pair<K, V>> left, Node<Pair<K, V>> right) {
-
+        if (left == null && right == null)
+            return null;
         if (left == null) return right;
         if (right == null) return left;
 
-        if (left.value.getRight().compareTo(right.value.getRight()) > 0) {
-            Node<Pair<K, V>> newR = mergeNodes(left.right, right);
-            Node<Pair<K, V>> node = new Node<>(left.value, null);
+        if (left.priorityConsumer != right.priorityConsumer)
+            throw new IllegalStateException("priority functions are not equal");
+
+        CartesianTree<V> tree = new CartesianTree<>(left.priorityConsumer);
+
+        tree.root = mergeNodes((CTNode<V>) left.root, (CTNode<V>) right.root, (CTNode<V>) tree.root);
+        return tree;
+    }
+
+    private static <V> CTNode<V> mergeNodes(CTNode<V> left, CTNode<V> right, CTNode<V> parent) {
+
+        if (left == null && right == null)
+            return null;
+
+        if (left == null) {
+            right.parent = parent;
+            return right;
+        }
+        if (right == null) {
+            left.parent = parent;
+            return left;
+        }
+
+        if (left.priority > right.priority) {
+            CTNode<V> newR = mergeNodes((CTNode<V>) left.right, right, left);
+            CTNode<V> node = new CTNode<>(left.value, parent, left.priority);
             node.left = left.left;
+            if (left.left != null)
+                left.left.parent = node;
             node.right = newR;
+            if (newR != null)
+                newR.parent = node;
             return node;
         } else {
-            Node<Pair<K, V>> newL = mergeNodes(left, right.left);
-            Node<Pair<K, V>> node = new Node<>(right.value, null);
+            CTNode<V> newL = mergeNodes(left, (CTNode<V>) right.left, right);
+            CTNode<V> node = new CTNode<>(right.value, parent, right.priority);
             node.left = newL;
+            if (newL != null)
+                newL.parent = node;
             node.right = right.right;
+            if (right.right != null)
+                right.right.parent = node;
             return node;
         }
     }
@@ -166,7 +204,7 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
      * left = {e in V | left < pivot}
      * right = {e in V | right > pivot}
      * return node(buildTree(left), pivot, BuildTree(right))
-     *
+     * <p>
      * Time complexity is {@code O(nlogn)}
      *
      * @param values - list of pairs
@@ -183,21 +221,21 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
         int size = values.length;
         int[] priorities = new int[size];
 
-        for (int i=0; i< size; i++) {
+        for (int i = 0; i < size; i++) {
             priorities[i] = priority.apply(values[i]);
         }
 
-        tree.root = buildTree(values, priorities, 0, size);
+        tree.root = buildTree(values, priorities, 0, size, null);
 
         return tree;
     }
 
-    private static <V> Node<V> buildTree(V[] values, int[] priorities, int from, int to) {
+    private static <V> Node<V> buildTree(V[] values, int[] priorities, int from, int to, CTNode<V> parent) {
         if (to > from) {
             int pivot = getMaxPriorityPos(priorities, from, to);
-            Node<V> node = new CTNode<>(values[pivot], null, priorities[pivot]);
-            Node<V> left = buildTree(values, priorities, from, pivot);
-            Node<V> right = buildTree(values, priorities, pivot + 1, to);
+            CTNode<V> node = new CTNode<>(values[pivot], parent, priorities[pivot]);
+            Node<V> left = buildTree(values, priorities, from, pivot, node);
+            Node<V> right = buildTree(values, priorities, pivot + 1, to, node);
             node.left = left;
             if (left != null)
                 left.parent = node;
@@ -211,7 +249,7 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
         return null;
     }
 
-    private static <V> int getMaxPriorityPos(int[] values, int from, int to) {
+    private static int getMaxPriorityPos(int[] values, int from, int to) {
         if (values == null || from < 0 || to > values.length || to - from < 0)
             throw new IllegalArgumentException();
 
