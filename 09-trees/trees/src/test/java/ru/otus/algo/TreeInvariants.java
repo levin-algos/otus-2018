@@ -19,9 +19,12 @@ class TreeInvariants {
             ReflectionEntry left = n.getField("left");
             ReflectionEntry right = n.getField("right");
 
+            int nodeH = n.getIntFieldValue("height");
             int leftH = left == null ? 0 : left.getIntFieldValue("height");
             int rightH = right == null ? 0 : right.getIntFieldValue("height");
 
+            if (nodeH != Math.max(leftH, rightH)+1) return false;
+//            System.out.println(rightH + " - " + leftH + " = " + (rightH - leftH) + ", n: " + nodeH);
             return Math.abs(leftH - rightH) <= 1;
 
         };
@@ -36,8 +39,8 @@ class TreeInvariants {
             ReflectionEntry right = n.getField("right");
             V nodeValue = (V) n.getValue("value");
 
-            return  (isBST(left, cmp, null, nodeValue) &&
-                     isBST(right, cmp, nodeValue, null));
+            return (isBST(left, cmp, null, nodeValue) &&
+                    isBST(right, cmp, nodeValue, null));
         };
     }
 

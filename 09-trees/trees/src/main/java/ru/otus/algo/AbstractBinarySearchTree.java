@@ -1,10 +1,17 @@
 package ru.otus.algo;
 
-import java.util.Comparator;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
-
     int size;
 
     private final Comparator<? super T> comparator;
@@ -62,7 +69,8 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
     public void traverse(Traversal order, Consumer<T> action) {
         if (Traversal.IN_ORDER == order) {
             traverseInOrder(action);
-        }
+        } else
+            throw new IllegalStateException();
     }
 
     private void traverseInOrder(Consumer<T> action) {
@@ -246,7 +254,6 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         return node == null ? null : node.right;
     }
 
-
     void rotateRight(Node<T> node) {
         if (node != null) {
             Node<T> l = node.left;
@@ -326,6 +333,12 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         int right = getMaxHeightNode(node.right);
 
         return Math.max(left, right) + 1;
+    }
+
+
+    public void saveToFile(Path path) {
+        TreeVisualizer treeVisualizer = new TreeVisualizer(getMaxHeight());
+        treeVisualizer.save(path, root);
     }
 
     @Override

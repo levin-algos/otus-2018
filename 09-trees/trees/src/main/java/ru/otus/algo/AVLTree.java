@@ -1,6 +1,8 @@
 package ru.otus.algo;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class AVLTree<T> extends AbstractBinarySearchTree<T> {
 
@@ -9,6 +11,14 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
 
         AVLNode(V value, AVLNode<V> parent) {
             super(value, parent);
+        }
+
+        @Override
+        public String toString() {
+            return "{" +
+                    "" + value +
+                    ", " + height +
+                    '}';
         }
     }
 
@@ -81,6 +91,7 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
             }
 
             ((AVLNode<T>) node).height = calculateHeight(node);
+
 
             node = parentOf(node);
         }

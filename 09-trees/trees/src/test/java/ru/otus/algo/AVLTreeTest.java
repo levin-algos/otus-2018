@@ -1,9 +1,14 @@
 package ru.otus.algo;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -25,19 +30,52 @@ class AVLTreeTest {
         checker.addCheck(TreeInvariants.isAVL(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
     }
 
+    @Test
+    void writeToFileTest() throws IOException {
+        Path path = Paths.get("test.png");
+        if (Files.exists(path))
+            Files.delete(path);
+
+        AVLTree<Integer> tree = AVLTree.of(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        tree.saveToFile(path);
+    }
+
+
+//    @Test
+    void test1() {
+        AVLTree<Integer> tree = AVLTree.of(new Integer[0]);
+        int MAX = 1000;
+
+        for (int i = 0; i < MAX; i++) {
+            tree.add(i);
+        }
+
+        assertTrue(checker.check(tree));
+
+//        tree.saveToFile(Paths.get("avl-vis", "1000.png"));
+        for (int i = 0; i <= 50; i++) {
+            tree.remove(500 - i);
+//            tree.saveToFile(Paths.get("avl-vis", "1000_rm"+(500-i)+".png"));
+            tree.remove(500 + i);
+//            tree.saveToFile(Paths.get("avl-vis", "1000_rm"+(500+i)+".png"));
+            assertTrue(checker.check(tree));
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("comparatorSource")
     void random(Comparator<? super Integer> cmp) {
         AVLTree<Integer> tree = AVLTree.of(cmp);
         int MAX = 1000;
-        for(int i = 0; i< MAX; i++) {
+        for (int i = 0; i < MAX; i++) {
             tree.add(i);
             assertTrue(checker.check(tree));
         }
 
         Random r = new Random();
-        for(int i = 0; i< MAX; i++) {
+        for (int i = 0; i < MAX; i++) {
             tree.remove(r.nextInt(MAX));
+
             assertTrue(checker.check(tree));
         }
     }
