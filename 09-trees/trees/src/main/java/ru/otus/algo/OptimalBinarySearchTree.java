@@ -51,7 +51,8 @@ public class OptimalBinarySearchTree<T> extends AbstractBinarySearchTree<T> {
     public static <T extends Comparable<T>, K extends Comparable<? super K>>  OptimalBinarySearchTree<T> buildMehlhorn(List<Pair<T, K>> pairs) {
         pairs.sort(Comparator.comparing(Pair::getLeft));
 
-        return buildTree(pairs, 0, pairs.size());
+        return null;
+//        return buildTree(pairs, 0, pairs.size());
     }
 
     private static <T extends Comparable<T>, K extends Comparable<K>> OptimalBinarySearchTree<T> buildTree(List<Pair<T, K>> pairs, int from, int to) {
