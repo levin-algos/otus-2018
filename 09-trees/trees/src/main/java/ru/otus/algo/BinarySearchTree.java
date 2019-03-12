@@ -29,7 +29,7 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
     }
 
     static <T> BinarySearchTree<T> of() {
-        return new BinarySearchTree<>((Comparator<? super T>)null);
+        return new BinarySearchTree<>((Comparator<? super T>) null);
     }
 
     static <T> BinarySearchTree<T> of(T[] arr) {
@@ -53,29 +53,29 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
         return new Node<>(value, parent);
     }
 
-
     /**
-     * Implementation of binary search tree provides nearly the smallest possible search time
-     * based on paper "Nearly optimal binary search trees" by Kurt Mehlhorn.
-     *
-     * This class solves the static optimality problem.
-     * E.g. it cannot be modified since it has been constructed.
-     *
-     *
      * Build approximately optimal search tree.
      * Algorithm:
      * <ul>
+     * <li>Sort {@code pairs} by weight in descending order</li>
      * <li>Place most frequently occurred element at the root of the tree.</li>
      * <li>Proceed similarly on subtrees</li>
      * </ul>
+     * </p>
+     * <p>
+     * This function solves static optimality problem.
+     * Tree cannot be modified since it has been constructed.
      *
-     * @return - constructed optimal tree
+     * @param pairs - list of {@code pairs} of {@code (T: K}.
+     *              Where T - element to add in the tree
+     *              K - frequency of element.
+     * @return - constructed approximately optimal immutable tree.
      */
-    public static <T, K extends Comparable<? super K>> BinarySearchTree<T> buildOptimal(List<Pair<T, K>> pairs) {
+    public static <T> BinarySearchTree<T> buildOptimal(List<Pair<T, Integer>> pairs) {
         pairs.sort(Comparator.comparing(Pair::getRight, Comparator.reverseOrder()));
-        BinarySearchTree<T> tree = new BinarySearchTree<>((Comparator<? super T>)null);
+        BinarySearchTree<T> tree = new BinarySearchTree<>((Comparator<? super T>) null);
 
-        for (Pair<T, K> e : pairs) {
+        for (Pair<T, Integer> e : pairs) {
             tree.add(e.getLeft());
         }
 
@@ -87,31 +87,62 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
      *
      * @param pairs
      * @param <T>
-     * @param <K>
      * @return
      */
-    public static <T extends Comparable<? super T>, K extends Comparable<? super K>> BinarySearchTree<T> buildMehlhorn(List<Pair<T, K>> pairs) {
+    public static <T extends Comparable<? super T>> BinarySearchTree<T> buildMehlhorn(List<Pair<T, Integer>> pairs) {
+        BinarySearchTree<T> tree = new BinarySearchTree<>();
+
+        if (pairs == null) {
+            return tree;
+        }
+
         pairs.sort(Comparator.comparing(Pair::getLeft));
 
-//        return null;
-        return new ImmutableBinarySearchTree<>(buildTree(pairs, 0, pairs.size()));
+        tree.root = buildTree(pairs, null, 0, pairs.size());
+        return new ImmutableBinarySearchTree<T>(tree);
     }
 
-    private static <T extends Comparable<? super T>, K extends Comparable<? super K>> BinarySearchTree<T> buildTree(List<Pair<T, K>> pairs, int from, int to) {
+    private static <T extends Comparable<? super T>> Node<T> buildTree(List<Pair<T, Integer>> pairs, Node<T> parent, int from, int to) {
         if (to > from) {
             int pivot = getPivot(pairs, from, to);
+            Node<T> node = new Node<>(pairs.get(pivot).getLeft(), parent);
+            Node<T> left = buildTree(pairs, node, from, pivot);
+            Node<T> right = buildTree(pairs, node, pivot + 1, to);
+            node.left = left;
+            if (left != null)
+                left.parent = node;
+            node.right = right;
+            if (right != null)
+                right.parent = node;
 
+            return node;
         }
+
         return null;
     }
 
-    private static <T extends Comparable<? super T>, K extends Comparable<? super K>> int getPivot(List<Pair<T, K>> pairs, int from, int to) {
-        return 0;
+    private static <T extends Comparable<? super T>> int getPivot(List<Pair<T, Integer>> pairs, int from, int to) {
+        if (pairs == null || from < 0 || to > pairs.size() || to - from < 0)
+            throw new IllegalArgumentException();
+
+        int lcur = from, rcur = to - 1;
+        int lsum = 0, rsum = 0;
+
+        while (lcur < rcur) {
+            if (lsum < rsum) {
+                lsum += pairs.get(lcur).getRight();
+                lcur++;
+            } else {
+                rsum += pairs.get(rcur).getRight();
+                rcur--;
+            }
+        }
+        return lcur;
     }
 
     private static class ImmutableBinarySearchTree<T> extends BinarySearchTree<T> {
 
-        public ImmutableBinarySearchTree(BinarySearchTree<T> tree) {
+        private ImmutableBinarySearchTree(BinarySearchTree<T> tree) {
             super(tree);
         }
 
