@@ -1,21 +1,20 @@
 package ru.otus.algo;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.List;
 import java.util.function.Consumer;
 
 abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
-    int size;
 
+    int size;
     private final Comparator<? super T> comparator;
     Node<T> root;
+
+    AbstractBinarySearchTree(AbstractBinarySearchTree<T> tree) {
+        this.size = tree.size;
+        this.comparator = tree.comparator;
+        this.root = tree.root;
+    }
 
     AbstractBinarySearchTree() {
         comparator = null;
@@ -354,8 +353,8 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
         @Override
         public String toString() {
-            return "Node{" +
-                    "value=" + value +
+            return "{" +
+                    value +
                     '}';
         }
 

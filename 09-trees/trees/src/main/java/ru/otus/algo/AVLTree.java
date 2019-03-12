@@ -28,7 +28,7 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
     }
 
     private AVLTree() {
-        super(null);
+        super();
     }
 
     private AVLTree(Comparator<? super T> cmp) {

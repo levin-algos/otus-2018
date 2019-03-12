@@ -23,7 +23,7 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
     }
 
     public CartesianTree(Function<V, Integer> priority) {
-        super(null);
+        super();
         if (priority == null)
             throw new IllegalArgumentException();
 
