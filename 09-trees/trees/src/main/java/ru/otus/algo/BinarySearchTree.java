@@ -9,6 +9,7 @@ import java.util.List;
  * 1. Add element to tree
  * 2. Remove element from the tree
  * 3. Find element in the tree
+ * 4. Build an optimal binary search tree
  * </p>
  * This implementation cannot keep null values.
  *
@@ -54,7 +55,9 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
     }
 
     /**
-     * Build approximately optimal search tree.
+     * Build approximately optimal search tree using list of {@code pairs}.
+     * Pair is an element to add in a tree and element's weight.
+     * Weight of an element represents it's searching frequency.
      * Algorithm:
      * <ul>
      * <li>Sort {@code pairs} by weight in descending order</li>
@@ -66,14 +69,15 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
      * This function solves static optimality problem.
      * Tree cannot be modified since it has been constructed.
      *
-     * @param pairs - list of {@code pairs} of {@code (T: K}.
+     * @param pairs - list of {@code pairs} of {@code (T - K}.
      *              Where T - element to add in the tree
-     *              K - frequency of element.
+     *              K - weight of element.
+     * @param <T>  - type of tree elements
      * @return - constructed approximately optimal immutable tree.
      */
     public static <T> BinarySearchTree<T> buildOptimal(List<Pair<T, Integer>> pairs) {
         pairs.sort(Comparator.comparing(Pair::getRight, Comparator.reverseOrder()));
-        BinarySearchTree<T> tree = new BinarySearchTree<>((Comparator<? super T>) null);
+        BinarySearchTree<T> tree = new BinarySearchTree<>();
 
         for (Pair<T, Integer> e : pairs) {
             tree.add(e.getLeft());
@@ -83,11 +87,17 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
     }
 
     /**
-     * Build nearly optimal search tree.
-     *
-     * @param pairs
-     * @param <T>
-     * @return
+     * Build nearly optimal search tree using list of {@code pairs}.
+     * Pair is an element to add in a tree and element's weight.
+     * Weight of an element represents it's searching frequency.
+     * Main idea of this algorithm:
+     * choose root of tree so as to equalize the weight of left and right subtrees as much as possible.
+     * Then proceed to subtrees.
+     * @param pairs - list of {@code pairs} of {@code (T - K}.
+     *              Where T - element to add in the tree
+     *              K - frequency of element.
+     * @param <T>  - type of tree elements
+     * @return - constructed nearly optimal immutable tree.
      */
     public static <T extends Comparable<? super T>> BinarySearchTree<T> buildMehlhorn(List<Pair<T, Integer>> pairs) {
         BinarySearchTree<T> tree = new BinarySearchTree<>();
