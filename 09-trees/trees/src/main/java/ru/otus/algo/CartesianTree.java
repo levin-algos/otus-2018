@@ -20,6 +20,14 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
             super(value, parent);
             this.priority = priority;
         }
+
+        @Override
+        public String toString() {
+            return "{" +
+                    value +", " +
+                    priority +
+                    '}';
+        }
     }
 
     public CartesianTree(Function<V, Integer> priority) {
@@ -90,17 +98,21 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
             } else {
                 if (left == null) {
                     left = cur.left;
-                    left.parent = null;
+                    if (left != null)
+                        left.parent = null;
                 } else {
                     left.right = cur.left;
-                    left.right.parent = left;
+                    if (left.right != null)
+                        left.right.parent = left;
                 }
 
                 if (right == null) {
                     right = cur.right;
-                    right.parent = null;
+                    if (right != null)
+                        right.parent = null;
                 } else {
                     right.left = cur.right;
+                    if (right.left != null)
                     right.left.parent = right;
                 }
                 cur = null;

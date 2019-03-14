@@ -3,6 +3,7 @@ package ru.otus.algo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -15,7 +16,7 @@ class CartesianTreeTest {
     private final Integer[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     private static final TreeChecker<Integer> checker = new TreeChecker<>();
     private static Random rnd = new Random();
-    Function<Integer, Integer> priority = o -> rnd.nextInt(4);
+    private Function<Integer, Integer> priority = o -> rnd.nextInt(4);
 
     @BeforeAll
     static void init() {
@@ -86,40 +87,74 @@ class CartesianTreeTest {
         assertTrue(checker.check(pair.getLeft()));
         assertTrue(checker.check(pair.getRight()));
 
-        for (int i=0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
             assertTrue(pair.getLeft().contains(values[i]));
             assertFalse(pair.getRight().contains(values[i]));
         }
-        for (int i=7; i < values.length; i++) {
+        for (int i = 7; i < values.length; i++) {
             assertFalse(pair.getLeft().contains(values[i]));
             assertTrue(pair.getRight().contains(values[i]));
         }
 
         List<Integer> l = new ArrayList<>();
         pair.getLeft().traverse(Traversal.IN_ORDER, l::add);
-        assertArrayEquals(new Integer[] {0, 1, 2, 3, 4, 5, 6}, l.toArray(new Integer[0]));
+        assertArrayEquals(new Integer[]{0, 1, 2, 3, 4, 5, 6}, l.toArray(new Integer[0]));
 
         l.clear();
         pair.getRight().traverse(Traversal.IN_ORDER, l::add);
-        assertArrayEquals(new Integer[] {8, 9, 10, 11}, l.toArray(new Integer[0]));
+        assertArrayEquals(new Integer[]{8, 9, 10, 11}, l.toArray(new Integer[0]));
     }
 
-//
-//    @Test
-//    void add() {
-//        Integer[] values =     {1, 2, 3,  4,  5, 6, 7,  8, 10, 11, 14};
-//        Integer[] priorities = {3, 1, 2,  4,  5, 3, 2,  4,  2,  3,  2};
-//        CartesianTree<Integer, Integer> tree = CartesianTree.of(Pair.combine(values, priorities));
-//
-//        assertTrue(checker.check(tree));
-//        Pair<CartesianTree<Integer, Integer>, CartesianTree<Integer, Integer>> split = tree.split(5);
-//        assertTrue(checker.check(split.getLeft()));
-//        assertTrue(checker.check(split.getRight()));
-//
-//        CartesianTree<Integer, Integer> merge = CartesianTree.merge(split.getLeft(), split.getRight());
-//        assertTrue(checker.check(merge));
-//
-//        merge.add(Pair.of(5, 5));
-//        assertTrue(checker.check(merge));
-//    }
+
+    @Test
+    void add() {
+        TreeVisualizer vis = new TreeVisualizer();
+        int splitPos = 5;
+        Integer[] values = {1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 14};
+        CartesianTree<Integer> tree = CartesianTree.of(values, priority);
+        vis.add(tree, "init");
+        assertTrue(checker.check(tree));
+        Pair<CartesianTree<Integer>, CartesianTree<Integer>> split = tree.split(values[splitPos]);
+        assertTrue(checker.check(split.getLeft()));
+        assertTrue(checker.check(split.getRight()));
+
+        vis.addBottom("split("+values[splitPos]+")");
+        TreeVisualizer splitted = new TreeVisualizer();
+        splitted.add(split.getLeft());
+        splitted.addRight(split.getRight());
+        vis.addBottom(splitted);
+
+        for (int i = 0; i < splitPos; i++) {
+            assertTrue(split.getLeft().contains(values[i]));
+        }
+        assertFalse(split.getLeft().contains(values[splitPos]));
+        assertFalse(split.getRight().contains(values[splitPos]));
+
+        for (int i = splitPos+1; i < values.length; i++) {
+            assertTrue(split.getRight().contains(values[i]));
+        }
+
+        CartesianTree<Integer> merge = CartesianTree.merge(split.getLeft(), split.getRight());
+        assertTrue(checker.check(merge));
+        vis.addBottom(merge, "merge:");
+        assertNotNull(merge);
+        assertFalse(merge.contains(values[splitPos]));
+
+        for (int i = 0; i < splitPos; i++) {
+            assertTrue(merge.contains(values[i]));
+        }
+
+        for (int i = 0; i < splitPos; i++) {
+            assertTrue(merge.contains(values[i]));
+        }
+
+        merge.add(values[splitPos]);
+        vis.addBottom(merge, "add("+values[splitPos]+")");
+        assertTrue(checker.check(merge));
+        for (Integer value : values) {
+            assertTrue(merge.contains(value));
+        }
+
+        vis.save(Paths.get("add-test.png"));
+    }
 }

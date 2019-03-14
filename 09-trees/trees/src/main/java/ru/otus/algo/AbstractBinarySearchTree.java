@@ -1,5 +1,6 @@
 package ru.otus.algo;
 
+import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
@@ -334,10 +335,8 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         return Math.max(left, right) + 1;
     }
 
-
-    public void saveToFile(Path path) {
-        TreeVisualizer treeVisualizer = new TreeVisualizer(getMaxHeight());
-        treeVisualizer.save(path, root);
+    void accept(TreeVisualizer visitor) {
+        visitor.drawTree(root, getMaxHeight());
     }
 
     @Override
