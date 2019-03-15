@@ -108,19 +108,18 @@ class CartesianTreeTest {
 
     @Test
     void add() {
-        TreeVisualizer vis = new TreeVisualizer();
         int splitPos = 5;
         Integer[] values = {1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 14};
         CartesianTree<Integer> tree = CartesianTree.of(values, priority);
-        vis.add(tree, "init");
+        TreeVisualizer vis = new TreeVisualizer(tree, "init");
+
         assertTrue(checker.check(tree));
         Pair<CartesianTree<Integer>, CartesianTree<Integer>> split = tree.split(values[splitPos]);
         assertTrue(checker.check(split.getLeft()));
         assertTrue(checker.check(split.getRight()));
 
         vis.addBottom("split("+values[splitPos]+")");
-        TreeVisualizer splitted = new TreeVisualizer();
-        splitted.add(split.getLeft());
+        TreeVisualizer splitted = new TreeVisualizer(split.getLeft());
         splitted.addRight(split.getRight());
         vis.addBottom(splitted);
 
@@ -151,10 +150,11 @@ class CartesianTreeTest {
         merge.add(values[splitPos]);
         vis.addBottom(merge, "add("+values[splitPos]+")");
         assertTrue(checker.check(merge));
+        vis.save(Paths.get("add-test.png"));
         for (Integer value : values) {
             assertTrue(merge.contains(value));
         }
 
-        vis.save(Paths.get("add-test.png"));
+
     }
 }

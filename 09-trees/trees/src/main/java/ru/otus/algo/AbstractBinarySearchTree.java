@@ -1,5 +1,6 @@
 package ru.otus.algo;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.*;
@@ -335,9 +336,46 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         return Math.max(left, right) + 1;
     }
 
-    void accept(TreeVisualizer visitor) {
-        visitor.drawTree(root, getMaxHeight());
+    Image asImage() {
+        return drawTree(root, getMaxHeight());
     }
+
+    private void drawNode(Image img, int x, int y, AbstractBinarySearchTree.Node<?> node) {
+        String str = node.toString();
+        img.drawString(str, x, y, TextAlign.CENTER);
+    }
+
+
+    private static final int HEIGHT_COEFF = 35;
+    private Image drawTree(AbstractBinarySearchTree.Node<?> root, int treeHeight) {
+        if (treeHeight <= 0)
+            throw new IllegalArgumentException();
+
+        int h = treeHeight + 1;
+        int width = (1 << (h - 1)) * 65;
+        int height = h * HEIGHT_COEFF;
+
+        Image image = Image.of(width, height);
+        drawTree(image, image.getWidth() / 2, 0, root);
+        return image;
+    }
+
+    private void drawTree(Image img, int x, int lvl, AbstractBinarySearchTree.Node<?> root) {
+        int y0 = lvl * HEIGHT_COEFF;
+        drawNode(img, x, y0+16, root);
+        int pad = img.getWidth() / (1 << (lvl + 1));
+        int y1 = (lvl + 1) * HEIGHT_COEFF;
+        if (root.left != null) {
+            img.drawLine(x, y0, x - pad / 2, y1, Color.BLACK);
+            drawTree(img, x - pad / 2, lvl + 1, root.left);
+        }
+
+        if (root.right != null) {
+            img.drawLine(x, y0, x + pad / 2, y1, Color.BLACK);
+            drawTree(img, x + pad / 2, lvl + 1, root.right);
+        }
+    }
+
 
     @Override
     public int size() {

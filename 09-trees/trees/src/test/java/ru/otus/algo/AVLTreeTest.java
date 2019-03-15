@@ -37,8 +37,7 @@ class AVLTreeTest {
             Files.delete(path);
 
         AVLTree<Integer> tree = AVLTree.of(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        TreeVisualizer vis = new TreeVisualizer();
-        vis.add(tree, "test");
+        TreeVisualizer vis = new TreeVisualizer(tree, "test");
         vis.save(path);
     }
 
