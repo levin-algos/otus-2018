@@ -1,8 +1,6 @@
 package ru.otus.algo;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -352,7 +350,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
             throw new IllegalArgumentException();
 
         int h = treeHeight + 1;
-        int width = (1 << (h - 1)) * 65;
+        int width = (1 << (h - 1)) * 30;
         int height = h * HEIGHT_COEFF;
 
         Image image = Image.of(width, height);
@@ -376,6 +374,9 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         }
     }
 
+    public Comparator<? super T> getComparator() {
+        return comparator;
+    }
 
     @Override
     public int size() {

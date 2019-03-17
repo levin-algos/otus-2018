@@ -31,37 +31,49 @@
 
 package ru.otus.algo;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
 
-import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
-@Warmup(iterations = 10, time = 1)
-@Measurement(iterations = 10, time = 1)
-@Fork(1)
 @State(Scope.Benchmark)
 public class MyBenchmark {
 
     @State(Scope.Benchmark)
     public static class Data {
-        AVLTree<Integer> tree;
-        Field field;
+        Integer[] data;
+        @Param({"100000", "1000000", "10000000"})
+        int size;
 
         @Setup
         public void setup() {
-            field = FieldUtils.getField(AVLTree.class, "root", true);
-            tree = AVLTree.of(new Integer[]{10});
+            data = new Random().ints(size, 0, Integer.MAX_VALUE).boxed().toArray(Integer[]::new);
         }
     }
 
+    private Random rnd = new Random();
 
     @Benchmark
-    public void callByField(Blackhole bh, Data data) throws IllegalAccessException {
-        bh.consume(data.field.get(data.tree));
+    @BenchmarkMode(Mode.SingleShotTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Fork(1)
+    public CartesianTree<?> treapAdd(Data data) {
+        CartesianTree<Integer> tree = CartesianTree.of(new Integer[0], integer -> rnd.nextInt());
+        for (Integer v: data.data) {
+            tree.add(v);
+        }
+        return tree;
     }
 
+    @Benchmark
+    @BenchmarkMode(Mode.SingleShotTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Fork(1)
+    public CartesianTree<?> treapBuild(Data data) {
+        Integer[] d = new Integer[data.data.length];
+        System.arraycopy(data.data, 0, d, 0, data.data.length);
+        Arrays.sort(d);
+        return CartesianTree.of(d, integer -> rnd.nextInt());
+    }
 }
