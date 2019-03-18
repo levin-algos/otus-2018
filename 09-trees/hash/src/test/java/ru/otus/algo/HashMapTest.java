@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +22,16 @@ class HashMapTest {
         assertTrue(map.containsKey("2"));
         assertTrue(map.containsKey("3"));
         assertFalse(map.containsKey("4"));
+    }
+
+    @Test
+    void resize() {
+//        new ChainHashMap<String, String>(new TrivialHash<>(16));
+//        int[] range = IntStream.range(0, 100).toArray();
+//
+//        for (int r: range) {
+//
+//        }
     }
 
     @ParameterizedTest
@@ -52,6 +63,6 @@ class HashMapTest {
     }
 
     static Stream<Map<String, String>> mapProducer() {
-        return Stream.of(new ChainHashMap<>(new TrivialHash<>(16), 16));
+        return Stream.of(new ChainHashMap<>(new TrivialHash<>(), 16));
     }
 }

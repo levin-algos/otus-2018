@@ -8,8 +8,11 @@ public class ChainHashMap<K, V> implements Map<K, V> {
 
     private Bucket<K, V>[] table;
     private final Hash<K> hash;
+    private int size;
 
-    private final int BUCKETS_NUM;
+    private int BUCKETS_NUM;
+
+    private static final float MAX_LOAD_FACTOR = 0.75f;
 
     public ChainHashMap(Hash<K> hash, int bucketSize) {
         BUCKETS_NUM = bucketSize;
@@ -18,7 +21,7 @@ public class ChainHashMap<K, V> implements Map<K, V> {
     }
 
     private int getBucketNum(K key) {
-        int h = hash.get(key);
+        int h = hash.get(key, BUCKETS_NUM);
         return (BUCKETS_NUM - 1) & h;
     }
 
@@ -32,7 +35,25 @@ public class ChainHashMap<K, V> implements Map<K, V> {
             table[i] = bucket;
         }
 
-        bucket.put(key, value);
+        if (bucket.put(key, value))
+            size++;
+
+        resize();
+    }
+
+    private void resize() {
+        if (BUCKETS_NUM < 1073741823 && MAX_LOAD_FACTOR < (float)size / BUCKETS_NUM) {
+            BUCKETS_NUM *= 2;
+            Bucket<K, V>[] oldTable = this.table;
+            this.table = new Bucket[BUCKETS_NUM];
+            for (Bucket<K, V> buck: oldTable) {
+                if (buck == null)
+                    continue;
+
+                for (Node<K, V> node: buck)
+                    put(node.getKey(), node.getValue());
+            }
+        }
     }
 
     @Override
@@ -42,7 +63,8 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         Bucket<K, V> bucket = table[i];
 
         if (bucket !=null)
-            bucket.remove(key);
+            if (bucket.remove(key))
+                size++;
     }
 
     @Override
@@ -54,10 +76,9 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         return bucket != null && bucket.get(key) != null;
     }
 
-
     interface Bucket<K,V> extends Iterable<Node<K, V>> {
 
-        void put(K key, V value);
+        boolean put(K key, V value);
         V get(K key);
         boolean remove(K key);
         int size();
@@ -71,17 +92,19 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public void put(K key, V value) {
+        public boolean put(K key, V value) {
             if (list == null)
                 createList();
 
             for (Node<K, V> node: list) {
-                if (node.getKey().equals(key))
+                if (node.getKey().equals(key)) {
                     node.setValue(value);
-                    return;
+                    return false;
+                }
             }
 
             list.add(new Node<>(key, value));
+            return true;
         }
 
         @Override
@@ -125,7 +148,7 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         private final K key;
         private V value;
 
-        public Node(K key, V value) {
+        Node(K key, V value) {
             this.key = key;
             this.value = value;
         }

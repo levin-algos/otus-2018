@@ -10,17 +10,9 @@ package ru.otus.algo;
  * @param <K> -
  */
 public class TrivialHash<K> implements Hash<K> {
-    private final int M;
-
-    public TrivialHash(int M) {
-        if (M <= 0)
-            throw new IllegalArgumentException();
-
-        this.M = M;
-    }
 
     @Override
-    public int get(K key) {
+    public int get(K key, int M) {
         if (key == null)
             throw new IllegalArgumentException();
 

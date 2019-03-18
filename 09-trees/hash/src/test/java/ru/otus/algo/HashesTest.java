@@ -13,7 +13,7 @@ public class HashesTest {
     @ParameterizedTest
     @MethodSource("hashProducer")
     void determinismTest(Hash<Integer> hash) {
-        assertEquals(hash.get(100), hash.get(100));
+        assertEquals(hash.get(100, M), hash.get(100, M));
     }
 
     static Stream<Hash<Integer>> hashProducer() {
@@ -21,8 +21,8 @@ public class HashesTest {
         int W = 64;
         int p = 3;
         return Stream.of(
-                new TrivialHash<>(M),
-                new MultiplicativeHash<>(A, W, M),
-                new PerfectHash.Builder<>().coeffs(31, 13).p(37).size(M).build());
+                new TrivialHash<>(),
+                new MultiplicativeHash<>(A, W),
+                new PerfectHash.Builder<>().coeffs(31, 13).p(37).build());
     }
 }

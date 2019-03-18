@@ -20,17 +20,15 @@ import java.util.Random;
 public class PerfectHash<K> implements Hash<K> {
     private final int a, b;
     private final long p;
-    private final int M;
 
-    private PerfectHash(int a, int b, long p, int m) {
+    private PerfectHash(int a, int b, long p) {
         this.a = a;
         this.b = b;
         this.p = p;
-        M = m;
     }
 
     @Override
-    public int get(K key) {
+    public int get(K key, int M) {
         if (key == null)
             throw new IllegalArgumentException();
 
@@ -41,7 +39,6 @@ public class PerfectHash<K> implements Hash<K> {
 
     /**
      * Builder class for constructing perfect hash function.
-     * Call of {@link #size(int)} is required for constructing hash function.
      *
      * If {@link #p(int)} is not called - p is set to {@code 2147483659} - next prime from {@link Integer#MAX_VALUE}
      * if {@link #coeffs(int, int)} is not called - a and b are generated randomly.
@@ -52,7 +49,6 @@ public class PerfectHash<K> implements Hash<K> {
         private static Random rnd = new Random();
         private int a, b;
         private long p = 2_147_483_659L;
-        private int M;
 
         public Builder coeffs(int a, int b) {
             if (a <=0 || b < 0)
@@ -70,16 +66,7 @@ public class PerfectHash<K> implements Hash<K> {
             return this;
         }
 
-        public Builder size(int M) {
-            if (M <= 0)
-                throw new IllegalArgumentException();
-            this.M = M;
-            return this;
-        }
-
         public PerfectHash<K> build() {
-            if (M == 0)
-                throw new IllegalArgumentException();
 
             int bound = p > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) p;
             while (a % p == 0)
@@ -88,7 +75,7 @@ public class PerfectHash<K> implements Hash<K> {
             if (b != 0)
                 b = rnd.nextInt(bound);
 
-            return new PerfectHash<K>(a, b, p, M);
+            return new PerfectHash<K>(a, b, p);
         }
     }
 }

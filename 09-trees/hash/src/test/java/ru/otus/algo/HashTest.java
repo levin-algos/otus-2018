@@ -12,7 +12,7 @@ public class HashTest {
 
     private static List<String> dict;
 
-    private static Hash<String> hash = new MultiplicativeHash<>(31, 32, 4);
+    private static Hash<String> hash = new MultiplicativeHash<>(31, 32);
 //    private static Hash<String> hash = new TrivialHash<>(16);
 
 
@@ -24,7 +24,7 @@ public class HashTest {
         int[] bins = new int[16];
 
         for (String w: dict) {
-            int h = hash.get(w);
+            int h = hash.get(w, 4);
             bins[15 & h]++;
             int[] b = getBits(h);
             sumArrays(bits, b);

@@ -17,7 +17,8 @@ public interface Hash<K> {
     /**
      * Maps {@code key} into integer.
      * @param key - key to be converted into integer.
+     * @param M - hash output range
      * @return - hash value.
      */
-    int get(K key);
+    int get(K key, int M);
 }
