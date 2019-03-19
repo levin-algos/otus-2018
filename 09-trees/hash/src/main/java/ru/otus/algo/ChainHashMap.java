@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
+/*
+Добавление нового элемента:
++24 (Node)
++2*24 (String)
+
+ */
 public class ChainHashMap<K, V> implements Map<K, V> {
 
     private Bucket<K, V>[] table;
@@ -42,10 +49,11 @@ public class ChainHashMap<K, V> implements Map<K, V> {
     }
 
     private void resize() {
-        if (BUCKETS_NUM < 1073741823 && MAX_LOAD_FACTOR < (float)size / BUCKETS_NUM) {
+        if (BUCKETS_NUM < 1073741824 && MAX_LOAD_FACTOR < (float)size / BUCKETS_NUM) {
             BUCKETS_NUM *= 2;
             Bucket<K, V>[] oldTable = this.table;
             this.table = new Bucket[BUCKETS_NUM];
+            size = 0;
             for (Bucket<K, V> buck: oldTable) {
                 if (buck == null)
                     continue;
@@ -54,6 +62,10 @@ public class ChainHashMap<K, V> implements Map<K, V> {
                     put(node.getKey(), node.getValue());
             }
         }
+    }
+
+    public int size() {
+        return size;
     }
 
     @Override
@@ -84,7 +96,15 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         int size();
     }
 
-    class ArrayBucket<K, V> implements Bucket<K,V> {
+    /*
+    ru.otus.algo.ChainHashMap$ArrayBucket object internals:
+ OFFSET  SIZE             TYPE DESCRIPTION                               VALUE
+      0    12                  (object header)                           N/A
+     12     4   java.util.List ArrayBucket.list                          N/A
+Instance size: 16 bytes
+Space losses: 0 bytes internal + 0 bytes external = 0 bytes total
+     */
+    static class ArrayBucket<K, V> implements Bucket<K,V> {
         private List<Node<K,V>> list;
 
         private void createList() {
@@ -144,6 +164,17 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         }
     }
 
+
+    /*
+    ru.otus.algo.ChainHashMap$Node object internals:
+ OFFSET  SIZE               TYPE DESCRIPTION                               VALUE
+      0    12                    (object header)                           N/A
+     12     4   java.lang.Object Node.key                                  N/A
+     16     4   java.lang.Object Node.value                                N/A
+     20     4                    (loss due to the next object alignment)
+Instance size: 24 bytes
+Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
+     */
     static class Node<K, V> {
         private final K key;
         private V value;
@@ -165,5 +196,4 @@ public class ChainHashMap<K, V> implements Map<K, V> {
             return value;
         }
     }
-
 }

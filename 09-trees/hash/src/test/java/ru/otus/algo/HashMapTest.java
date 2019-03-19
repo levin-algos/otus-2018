@@ -1,9 +1,11 @@
 package ru.otus.algo;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.reflect.Field;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -25,13 +27,23 @@ class HashMapTest {
     }
 
     @Test
-    void resize() {
-//        new ChainHashMap<String, String>(new TrivialHash<>(16));
-//        int[] range = IntStream.range(0, 100).toArray();
-//
-//        for (int r: range) {
-//
-//        }
+    void resize() throws IllegalAccessException {
+        ChainHashMap<String, String> map = new ChainHashMap<>(new TrivialHash<>(), 16);
+        int[] range = IntStream.range(0, 10000).toArray();
+
+        for (int r : range) {
+            map.put("" + r, "val" + r);
+        }
+
+        assertEquals(10000, map.size());
+
+        for (int r : range) {
+            assertTrue(map.containsKey("" + r));
+        }
+
+        Field bucketsNum = FieldUtils.getField(ChainHashMap.class, "BUCKETS_NUM", true);
+
+        assertEquals(1 << 14, bucketsNum.get(map));
     }
 
     @ParameterizedTest
@@ -55,11 +67,6 @@ class HashMapTest {
         assertFalse(map.containsKey("1"));
         assertFalse(map.containsKey("2"));
         assertFalse(map.containsKey("3"));
-    }
-
-    @ParameterizedTest
-    @MethodSource("mapProducer")
-    void containsKey() {
     }
 
     static Stream<Map<String, String>> mapProducer() {

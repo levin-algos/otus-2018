@@ -21,35 +21,10 @@ public class MultiplicativeHash<K> implements Hash<K> {
         if (key == null)
             throw new IllegalArgumentException();
 
-        return A*key.hashCode();
+        return A*key.hashCode() >> (w - getPower(M));
     }
 
-    private int getPower(int M) {
-        if (M >> 16 == 0) {
-            if (M >> 8 == 0) {
-
-            }
-
-        } else {
-
-        }
-        return 0;
+    int getPower(int M) {
+       return Integer.numberOfTrailingZeros(Integer.highestOneBit(M))+1;
     }
 }
-
-
-/*
-1       0001
-2   0010
-4   0100
-8   1000
-16
-32
-64
-128
-
-
-
-
-
- */
