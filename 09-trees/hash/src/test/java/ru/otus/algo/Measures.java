@@ -10,7 +10,7 @@ public class Measures {
 
         System.out.println(VM.current().details());
 //        System.out.println(ClassLayout.parseInstance(bucket).toPrintable());
-        System.out.println(ClassLayout.parseClass(ChainHashMap.ArrayBucket.class).toPrintable());
+        System.out.println(ClassLayout.parseClass(ChainHashMap.TreeNode.class).toPrintable());
 
 //        for (int i=0; i < 16; i++) {
 //            System.out.println(GraphLayout.parseInstance(bucket).toFootprint());

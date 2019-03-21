@@ -1,11 +1,5 @@
 package ru.otus.algo;
 
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-
 public class ChainHashMap<K, V> implements Map<K, V> {
 
     private Bucket<K, V>[] table;
@@ -26,14 +20,18 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         this.hash = hash;
     }
 
-    private int getBucketNum(K key) {
-        int h = hash.get(key, BUCKETS_NUM);
-        return (BUCKETS_NUM - 1) & h;
+    private int getBucketNum(int hash) {
+        return (BUCKETS_NUM - 1) & hash;
     }
 
     @Override
     public void put(K key, V value) {
-        int i = getBucketNum(key);
+        put(key, value, table);
+    }
+
+    private void put(K key, V value, Bucket<K, V>[] table) {
+        int h = hash.get(key, BUCKETS_NUM);
+        int i = getBucketNum(h);
         Bucket<K, V> bucket = table[i];
 
         if (bucket == null) {
@@ -41,26 +39,37 @@ public class ChainHashMap<K, V> implements Map<K, V> {
             table[i] = bucket;
         }
 
-        if (bucket.put(key, value))
+        if (bucket.put(key, value, h))
             size++;
 
-        resize();
+        if (MAX_LOAD_FACTOR < (float) size / BUCKETS_NUM)
+            resize();
     }
 
     private void resize() {
-        if (BUCKETS_NUM < 1073741824 && MAX_LOAD_FACTOR < (float) size / BUCKETS_NUM) {
-            BUCKETS_NUM *= 2;
-            Bucket<K, V>[] oldTable = this.table;
-            this.table = new Bucket[BUCKETS_NUM];
-            size = 0;
-            for (Bucket<K, V> buck : oldTable) {
-                if (buck == null)
-                    continue;
+        BUCKETS_NUM  = BUCKETS_NUM > 1073741824 ? Integer.MAX_VALUE : BUCKETS_NUM * 2;
 
-                for (Node<K, V> node : buck)
-                    put(node.getKey(), node.getValue());
+        Bucket[] newTable = new Bucket[BUCKETS_NUM];
+
+        size = 0;
+        for (Bucket<K, V> buck : table) {
+            if (buck == null)
+                continue;
+
+            if (buck instanceof Node) {
+                Node<K, V> cur = ((Node<K, V>) buck);
+
+                while (cur != null) {
+                    put(cur.key, cur.value, newTable);
+                    cur = cur.next;
+                }
+
             }
+//                for (Node<K, V> node : buck)
+//                    put(node.getKey(), node.getValue());
         }
+        this.table = newTable;
+
     }
 
     public int size() {
@@ -69,7 +78,8 @@ public class ChainHashMap<K, V> implements Map<K, V> {
 
     @Override
     public void remove(K key) {
-        int i = getBucketNum(key);
+        int h = hash.get(key, BUCKETS_NUM);
+        int i = getBucketNum(h);
 
         Bucket<K, V> bucket = table[i];
 
@@ -80,16 +90,17 @@ public class ChainHashMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsKey(K key) {
-        int i = getBucketNum(key);
+        int h = hash.get(key, BUCKETS_NUM);
+        int i = getBucketNum(h);
 
         Bucket<K, V> bucket = table[i];
 
         return bucket != null && bucket.get(key) != null;
     }
 
-    interface Bucket<K, V> extends Iterable<Node<K, V>> {
+    interface Bucket<K, V> {
 
-        boolean put(K key, V value);
+        boolean put(K key, V value, int hash);
 
         V get(K key);
 
@@ -98,21 +109,53 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         int size();
     }
 
+    static class TreeBucket<K, V> implements Bucket<K, V> {
+        private TreeNode<K, V> root;
+        private int size;
+
+        @Override
+        public boolean put(K key, V value, int hash) {
+            if (root == null) {
+                root = new TreeNode<>(key, value, hash);
+                size++;
+                return false;
+            }
+
+
+            return false;
+        }
+
+        @Override
+        public V get(K key) {
+            return null;
+        }
+
+        @Override
+        public boolean remove(K key) {
+            return false;
+        }
+
+        @Override
+        public int size() {
+            return size;
+        }
+    }
+
     static class ArrayBucket<K, V> implements Bucket<K, V> {
         private Node<K, V> root;
         private int size;
 
         @Override
-        public boolean put(K key, V value) {
+        public boolean put(K key, V value, int hash) {
             if (root == null) {
-                root = new Node<>(key, value, null);
+                root = new Node<>(key, value, null, hash);
                 size++;
                 return true;
             }
 
             Node<K, V> cur = root, p = null;
             while (cur != null) {
-                if (cur.getKey().equals(key)) {
+                if (cur.getHash() == hash) {
                     cur.setValue(value);
                     return false;
                 }
@@ -120,7 +163,7 @@ public class ChainHashMap<K, V> implements Map<K, V> {
                 cur = cur.getNext();
             }
 
-            p.setNext(new Node<>(key, value, null));
+            p.setNext(new Node<>(key, value, null, hash));
             size++;
             return true;
         }
@@ -177,36 +220,19 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         public int size() {
             return size;
         }
-
-        @Override
-        public Iterator<Node<K, V>> iterator() {
-            return new Iterator<Node<K, V>>() {
-                Node<K, V> cur = root;
-
-                @Override
-                public boolean hasNext() {
-                    return cur != null;
-                }
-
-                @Override
-                public Node<K, V> next() {
-                    Node<K, V> res = cur;
-                    cur = cur.getNext();
-                    return res;
-                }
-            };
-        }
     }
 
 
     static class Node<K, V> {
         private K key;
         private V value;
+        private int hash;
         private Node<K, V> next;
 
-        Node(K key, V value, Node<K, V> next) {
+        Node(K key, V value, Node<K, V> next, int hash) {
             this.key = key;
             this.value = value;
+            this.hash = hash;
         }
 
         public void setValue(V value) {
@@ -227,6 +253,23 @@ public class ChainHashMap<K, V> implements Map<K, V> {
 
         public void setNext(Node<K, V> next) {
             this.next = next;
+        }
+
+        public int getHash() {
+            return hash;
+        }
+    }
+
+    static class TreeNode<K, V> {
+        private K key;
+        private V value;
+        private TreeNode<K, V> left, right;
+        private int hash;
+
+        public TreeNode(K key, V value, int hash) {
+            this.key = key;
+            this.value = value;
+            this.hash = hash;
         }
     }
 }
