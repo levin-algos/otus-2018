@@ -6,16 +6,13 @@ public class ChainHashMap<K, V> implements Map<K, V> {
     private final Hash<K> hash;
     private int size;
 
-    private int BUCKETS_NUM;
+    private int BUCKETS_NUM = 16;
 
     private static final float MAX_LOAD_FACTOR = 0.75f;
-
     private static final int TREEIFY_THRESHOLD = 8;
-
     private static final int UNTREEIFY_THRESHOLD = 6;
 
-    public ChainHashMap(Hash<K> hash, int bucketSize) {
-        BUCKETS_NUM = bucketSize;
+    public ChainHashMap(Hash<K> hash) {
         table = new Bucket[BUCKETS_NUM];
         this.hash = hash;
     }
@@ -30,7 +27,7 @@ public class ChainHashMap<K, V> implements Map<K, V> {
     }
 
     private void put(K key, V value, Bucket<K, V>[] table) {
-        int h = hash.get(key, BUCKETS_NUM);
+        int h = hash.get(key);
         int i = getBucketNum(h);
         Bucket<K, V> bucket = table[i];
 
@@ -38,16 +35,19 @@ public class ChainHashMap<K, V> implements Map<K, V> {
             bucket = new ArrayBucket<>();
             table[i] = bucket;
         }
-
         if (bucket.put(key, value, h))
             size++;
+
+        if (bucket.size() == TREEIFY_THRESHOLD && bucket instanceof ArrayBucket) {
+            table[i] = treeifyBin((ArrayBucket<K, V>)bucket);
+        }
 
         if (MAX_LOAD_FACTOR < (float) size / BUCKETS_NUM)
             resize();
     }
 
     private void resize() {
-        BUCKETS_NUM  = BUCKETS_NUM > 1073741824 ? Integer.MAX_VALUE : BUCKETS_NUM * 2;
+        BUCKETS_NUM = BUCKETS_NUM > 1073741824 ? Integer.MAX_VALUE : BUCKETS_NUM * 2;
 
         Bucket[] newTable = new Bucket[BUCKETS_NUM];
 
@@ -56,83 +56,192 @@ public class ChainHashMap<K, V> implements Map<K, V> {
             if (buck == null)
                 continue;
 
-            if (buck instanceof Node) {
-                Node<K, V> cur = ((Node<K, V>) buck);
+            if (buck instanceof ArrayBucket) {
+                Node<K, V> cur = ((ArrayBucket<K, V>) buck).root;
 
                 while (cur != null) {
                     put(cur.key, cur.value, newTable);
                     cur = cur.next;
                 }
+            } else if (buck instanceof TreeBucket) {
+                TreeNode<K, V> cur = ((TreeBucket<K, V>) buck).last;
 
+                while (cur != null) {
+                    put(cur.key, cur.value, newTable);
+                    cur = cur.prev;
+                }
             }
-//                for (Node<K, V> node : buck)
-//                    put(node.getKey(), node.getValue());
         }
         this.table = newTable;
-
     }
 
+    private TreeBucket<K, V> treeifyBin(ArrayBucket<K, V> bin) {
+        TreeBucket<K, V> tree = new TreeBucket<>();
+
+        Node<K, V> node = bin.root;
+        while (node != null) {
+            tree.put(node.key, node.value, node.hash);
+            node = node.next;
+        }
+
+        return tree;
+    }
+
+    @Override
     public int size() {
         return size;
     }
 
     @Override
     public void remove(K key) {
-        int h = hash.get(key, BUCKETS_NUM);
+        int h = hash.get(key);
         int i = getBucketNum(h);
 
         Bucket<K, V> bucket = table[i];
 
         if (bucket != null)
-            if (bucket.remove(key))
-                size++;
+            if (bucket.remove(key, h))
+                size--;
     }
 
     @Override
     public boolean containsKey(K key) {
-        int h = hash.get(key, BUCKETS_NUM);
+        return get(key) != null;
+    }
+
+    @Override
+    public V get(K key) {
+        int h = hash.get(key);
         int i = getBucketNum(h);
 
         Bucket<K, V> bucket = table[i];
 
-        return bucket != null && bucket.get(key) != null;
+        if (bucket == null)
+            return null;
+
+        return bucket.get(key, h);
     }
+
 
     interface Bucket<K, V> {
 
         boolean put(K key, V value, int hash);
 
-        V get(K key);
+        V get(K key, int hash);
 
-        boolean remove(K key);
+        boolean remove(K key, int hash);
 
         int size();
     }
 
     static class TreeBucket<K, V> implements Bucket<K, V> {
         private TreeNode<K, V> root;
+        private TreeNode<K, V> last;
         private int size;
 
         @Override
         public boolean put(K key, V value, int hash) {
             if (root == null) {
-                root = new TreeNode<>(key, value, hash);
+                this.root = new TreeNode<>(key, value, hash, null);
+                last = this.root;
                 size++;
-                return false;
+                return true;
             }
 
+            TreeNode<K, V> cur = root, p = null;
+            while (cur!= null) {
+                p = cur;
+                if (hash > cur.hash) {
+                    cur = cur.right;
+                } else {
+                    cur = cur.left;
+                }
+            }
 
-            return false;
+            TreeNode<K, V> node = new TreeNode<>(key, value, hash, p);
+            node.prev = last;
+            last = node;
+            if (p.hash > hash)
+                p.right = node;
+            else
+                p.left = node;
+
+            size++;
+            return true;
         }
 
         @Override
-        public V get(K key) {
+        public V get(K key, int hash) {
+            TreeNode<K, V> cur = find(key, hash);
+            return cur == null? null : cur.value;
+        }
+
+        private TreeNode<K, V> find(K key, int hash) {
+            TreeNode<K, V> cur = root;
+
+            while (cur!= null) {
+                if (cur.hash == hash && cur.key.equals(key)) {
+                    return cur;
+                } else if ( cur.hash > hash) {
+                    cur = cur.right;
+                } else
+                    cur = cur.left;
+            }
+
             return null;
         }
 
         @Override
-        public boolean remove(K key) {
-            return false;
+        public boolean remove(K key, int hash) {
+            TreeNode<K, V> cur = find(key, hash);
+
+            if (cur == null) return false;
+
+            if (cur.left != null && cur.right != null) {
+                TreeNode<K, V> max = getMax(cur.left);
+                cur.key = max.key;
+                cur.value = max.value;
+                cur.hash = max.hash;
+
+                cur = max;
+            }
+
+            TreeNode<K, V> replacement = cur.left == null ? cur.right : cur.left;
+
+            if (replacement != null) {
+                replacement.parent = cur.parent;
+                if (cur.parent == null)
+                    root = replacement;
+                else if (cur == cur.parent.left)
+                    cur.parent.left = replacement;
+                else
+                    cur.parent.right = replacement;
+
+                cur.left = cur.right = cur.parent = null;
+
+            } else if (cur.parent == null) {
+                root = null;
+            } else {
+                if (cur.parent != null) {
+                    if (cur == cur.parent.left)
+                        cur.parent.left = null;
+                    else if (cur == cur.parent.right)
+                        cur.parent.right = null;
+                    cur.parent = null;
+                }
+            }
+
+            size--;
+            return true;
+        }
+
+
+        private TreeNode<K, V> getMax(TreeNode<K, V> root) {
+            TreeNode<K, V> cur = root;
+            while (cur.right != null)
+                cur = cur.right;
+
+            return cur;
         }
 
         @Override
@@ -155,7 +264,7 @@ public class ChainHashMap<K, V> implements Map<K, V> {
 
             Node<K, V> cur = root, p = null;
             while (cur != null) {
-                if (cur.getHash() == hash) {
+                if (cur.getHash() == hash && cur.getKey().equals(key)) {
                     cur.setValue(value);
                     return false;
                 }
@@ -169,14 +278,14 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public V get(K key) {
+        public V get(K key, int hash) {
             if (root == null)
                 return null;
 
 
             Node<K, V> cur = root;
             while (cur != null) {
-                if (cur.getKey().equals(key)) {
+                if (cur.getHash() == hash && cur.getKey().equals(key)) {
                     return cur.getValue();
                 }
                 cur = cur.getNext();
@@ -185,31 +294,26 @@ public class ChainHashMap<K, V> implements Map<K, V> {
         }
 
         @Override
-        public boolean remove(K key) {
+        public boolean remove(K key, int hash) {
             if (root == null)
                 return false;
 
-            Node<K, V> cur = root;
+            Node<K, V> cur = root, p = null;
             while (cur != null) {
-                if (cur.getKey().equals(key)) {
+                if (cur.getHash() == hash && cur.getKey().equals(key)) {
                     break;
                 }
+                p = cur;
                 cur = cur.getNext();
             }
 
             if (cur != null) {
-                if (cur == root) {
+                if (p == null) {
                     root = cur.getNext();
-                    size++;
-                    return true;
-                }
+                } else
+                    p.setNext(cur.getNext());
 
-                Node<K, V> next = cur.getNext();
-
-                cur.key = next.key;
-                cur.value = next.value;
-                cur.next = next.next;
-                size++;
+                size--;
                 return true;
             }
 
@@ -263,13 +367,14 @@ public class ChainHashMap<K, V> implements Map<K, V> {
     static class TreeNode<K, V> {
         private K key;
         private V value;
-        private TreeNode<K, V> left, right;
+        private TreeNode<K, V> left, right, parent, prev;
         private int hash;
 
-        public TreeNode(K key, V value, int hash) {
+        public TreeNode(K key, V value, int hash, TreeNode<K, V> parent) {
             this.key = key;
             this.value = value;
             this.hash = hash;
+            this.parent = parent;
         }
     }
 }

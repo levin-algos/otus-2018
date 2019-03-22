@@ -28,11 +28,11 @@ public class PerfectHash<K> implements Hash<K> {
     }
 
     @Override
-    public int get(K key, int M) {
+    public int get(K key) {
         if (key == null)
             throw new IllegalArgumentException();
 
-        long res = (((long) a * key.hashCode() + b) % p) % M;
+        long res = ((long) a * key.hashCode() + b) % p;
 
         return (int) res;
     }

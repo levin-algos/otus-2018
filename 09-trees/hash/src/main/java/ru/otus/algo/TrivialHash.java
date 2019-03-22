@@ -12,10 +12,10 @@ package ru.otus.algo;
 public class TrivialHash<K> implements Hash<K> {
 
     @Override
-    public int get(K key, int M) {
+    public int get(K key) {
         if (key == null)
             throw new IllegalArgumentException();
 
-        return key.hashCode() % M;
+        return key.hashCode();
     }
 }

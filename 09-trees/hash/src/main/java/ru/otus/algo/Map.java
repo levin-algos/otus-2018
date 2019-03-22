@@ -7,4 +7,8 @@ public interface Map<K, V> {
     void remove(K key);
 
     boolean containsKey(K key);
+
+    V get(K key);
+
+    int size();
 }
