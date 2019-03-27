@@ -1,6 +1,5 @@
 package ru.otus.algo;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.otus.algo.common.Utils;
 
@@ -12,21 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class CartesianTreeTest {
 
     private final Integer[] values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    private static final TreeChecker<Integer> checker = new TreeChecker<>();
     private static Random rnd = new Random();
     private Function<Integer, Integer> priority = o -> rnd.nextInt();
 
-    @BeforeAll
-    static void init() {
-        checker.addCheck(TreeInvariants.isBST(), Integer::compareTo, TreeChecker.Invocation.ROOT);
-        checker.addCheck(TreeInvariants.isHeap(), Integer::compareTo, TreeChecker.Invocation.EACH_NODE);
-    }
 
     @Test
     void buildTest() {
         CartesianTree<Integer> tree = CartesianTree.of(values, priority);
 
-        assertTrue(checker.check(tree));
     }
 
     @Test
@@ -35,7 +27,6 @@ class CartesianTreeTest {
 
         CartesianTree<Integer> tree = CartesianTree.of(values, priority);
 
-        assertFalse(checker.check(tree));
     }
 
     @Test
@@ -47,7 +38,6 @@ class CartesianTreeTest {
         for (Integer v : values) {
             tree.add(v);
         }
-        assertTrue(checker.check(tree));
 
         for (Integer v : values) {
             assertTrue(tree.contains(v));
@@ -64,7 +54,6 @@ class CartesianTreeTest {
         for (Integer v : values) {
             tree.add(v);
         }
-        assertTrue(checker.check(tree));
 
         for (Integer v : values) {
             assertTrue(tree.contains(v));
@@ -75,7 +64,6 @@ class CartesianTreeTest {
 
         }
 
-        assertTrue(checker.check(tree));
 
         for (Integer i: values) {
             assertFalse(tree.contains(i));

@@ -12,11 +12,6 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
         super(cmp);
     }
 
-    @Override
-    protected Node<T> createNode(T value, Node<T> parent) {
-        return new RedBlackTreeNode<>(value, (RedBlackTreeNode<T>)parent);
-    }
-
     static <T> RedBlackTree<T> of(T[] arr) {
         RedBlackTree<T> tree = new RedBlackTree<>();
 
@@ -35,70 +30,108 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
         return tree;
     }
 
-    /**
-     * Adds element to the BST
-     *
-     * @param element - element to add
-     */
-    public void add(T element) {
-        insert(element, node -> insertFixUp((RedBlackTreeNode<T>) node));
+    @Override
+    protected Node<T> createNode(T value, Node<T> parent) {
+        return new RedBlackTreeNode<>(value, (RedBlackTreeNode<T>)parent);
     }
 
-    /**
-     * Removes the {@code element} from red black tree.
-     *
-     * @param element - element to remove
-     */
-    public void remove(T element) {
-        if (element == null)
-            throw new IllegalArgumentException();
-
-        RedBlackTreeNode<T> node = (RedBlackTreeNode<T>) getElement(element);
-
-        if (node != null) {
-            delete(node);
-            size--;
+    @Override
+    void insertionFixup(Node<T> node) {
+        if (colorOf(node) == BLACK) {
+            while (node != null && root != node && colorOf(parentOf(node)) == RED) {
+                Node<T> grand = parentOf(parentOf(node));
+                if (parentOf(node) == leftOf(grand)) {
+                    Node<T> r = rightOf(grand);
+                    if (colorOf(r) == RED) {
+                        setColor(parentOf(node), BLACK);
+                        setColor(r, BLACK);
+                        setColor(grand, RED);
+                        node = grand;
+                    } else {
+                        if (node == rightOf(parentOf(node))) {
+                            node = parentOf(node);
+                            rotateLeft(node);
+                        }
+                        setColor(parentOf(node), BLACK);
+                        setColor(grand, RED);
+                        rotateRight(grand);
+                    }
+                } else {
+                    Node<T> l = leftOf(grand);
+                    if (colorOf(l) == RED) {
+                        setColor(parentOf(node), BLACK);
+                        setColor(l, BLACK);
+                        setColor(grand, RED);
+                        node = grand;
+                    } else {
+                        if (node == leftOf(parentOf(node))) {
+                            node = parentOf(node);
+                            rotateRight(node);
+                        }
+                        setColor(parentOf(node), BLACK);
+                        setColor(grand, RED);
+                        rotateLeft(grand);
+                    }
+                }
+            }
+            setColor(root, BLACK);
         }
     }
 
-    private void insertFixUp(RedBlackTreeNode<T> node) {
-        while (node != null && root != node && colorOf(parentOf(node)) == RED) {
-            Node<T> grand = parentOf(parentOf(node));
-            if (parentOf(node) == leftOf(grand)) {
-                Node<T> r = rightOf(grand);
-                if (colorOf(r) == RED) {
-                    setColor(parentOf(node), BLACK);
-                    setColor(r, BLACK);
-                    setColor(grand, RED);
-                    node = (RedBlackTreeNode<T>) grand;
+    @Override
+    void removeFixup(Node<T> x) {
+        while (x != root && colorOf(x) == BLACK) {
+            if (x == leftOf(parentOf(x))) {
+                Node<T> sib = rightOf(parentOf(x));
+                if (colorOf(sib) == RED) {
+                    setColor(sib, BLACK);
+                    setColor(parentOf(x), RED);
+                    rotateLeft(parentOf(x));
+                    sib = rightOf(parentOf(x));
+                }
+                if (colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK) {
+                    setColor(sib, RED);
+                    x = parentOf(x);
                 } else {
-                    if (node == rightOf(parentOf(node))) {
-                        node = (RedBlackTreeNode<T>) parentOf(node);
-                        rotateLeft(node);
+                    if (colorOf(rightOf(sib)) == BLACK) {
+                        setColor(leftOf(sib), BLACK);
+                        setColor(sib, RED);
+                        rotateRight(sib);
+                        sib = rightOf(parentOf(x));
                     }
-                    setColor(parentOf(node), BLACK);
-                    setColor(grand, RED);
-                    rotateRight(grand);
+                    setColor(sib, colorOf(parentOf(x)));
+                    setColor(parentOf(x), BLACK);
+                    setColor(rightOf(sib), BLACK);
+                    rotateLeft(parentOf(x));
+                    x = root;
                 }
             } else {
-                RedBlackTreeNode<T> l = (RedBlackTreeNode<T>) leftOf(grand);
-                if (colorOf(l) == RED) {
-                    setColor(parentOf(node), BLACK);
-                    setColor(l, BLACK);
-                    setColor(grand, RED);
-                    node = (RedBlackTreeNode<T>) grand;
+                Node<T> sib = leftOf(parentOf(x));
+                if (colorOf(sib) == RED) {
+                    setColor(sib, BLACK);
+                    setColor(parentOf(x), RED);
+                    rotateRight(parentOf(x));
+                    sib = leftOf(parentOf(x));
+                }
+                if (colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK) {
+                    setColor(sib, RED);
+                    x = parentOf(x);
                 } else {
-                    if (node == leftOf(parentOf(node))) {
-                        node = (RedBlackTreeNode<T>) parentOf(node);
-                        rotateRight(node);
+                    if (colorOf(leftOf(sib)) == BLACK) {
+                        setColor(rightOf(sib), BLACK);
+                        setColor(sib, RED);
+                        rotateLeft(sib);
+                        sib = leftOf(parentOf(x));
                     }
-                    setColor(parentOf(node), BLACK);
-                    setColor(grand, RED);
-                    rotateLeft(grand);
+                    setColor(sib, colorOf(parentOf(x)));
+                    setColor(parentOf(x), BLACK);
+                    setColor(leftOf(sib), BLACK);
+                    rotateRight(parentOf(x));
+                    x = root;
                 }
             }
         }
-        setColor(root, BLACK);
+        setColor(x, BLACK);
     }
 
     private static <T> boolean colorOf(Node<T> node) {
@@ -111,109 +144,82 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
         }
     }
 
-    private void delete(RedBlackTreeNode<T> z) {
-
-        if (z.right != null && z.left != null) {
-            Node<T> min = successor(z);
-            z.value = min.value;
-            z = (RedBlackTreeNode<T>) min;
-        }
-
-        Node<T> replacement = z.left != null ? z.left : z.right;
-
-        if (replacement != null) {
-            replacement.parent = z.parent;
-            if (z.parent == null)
-                root = replacement;
-            else if (z == z.parent.left)
-                z.parent.left = replacement;
-            else
-                z.parent.right = replacement;
-
-            z.left = z.right = z.parent = null;
-
-            if (z.color == BLACK)
-                deleteFixup((RedBlackTreeNode<T>) replacement);
-        } else if (z.parent == null) {
-            root = null;
-        } else {
-            if (z.color == BLACK)
-                deleteFixup(z);
-
-            if (z.parent != null) {
-                if (z == z.parent.left)
-                    z.parent.left = null;
-                else if (z == z.parent.right)
-                    z.parent.right = null;
-                z.parent = null;
-            }
-        }
-    }
-
-    private void deleteFixup(RedBlackTreeNode<T> x) {
-
-        while (x != root && colorOf(x) == BLACK) {
-            if (x == leftOf(parentOf(x))) {
-                Node<T> sib = rightOf(parentOf(x));
-                if (colorOf(sib) == RED) {
-                    setColor(sib, BLACK);
-                    setColor(parentOf(x), RED);
-                    rotateLeft(parentOf(x));
-                    sib = rightOf(parentOf(x));
-                }
-                if (colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK) {
-                    setColor(sib, RED);
-                    x = (RedBlackTreeNode<T>) parentOf(x);
-                } else {
-                    if (colorOf(rightOf(sib)) == BLACK) {
-                        setColor(leftOf(sib), BLACK);
-                        setColor(sib, RED);
-                        rotateRight(sib);
-                        sib = rightOf(parentOf(x));
-                    }
-                    setColor(sib, colorOf(parentOf(x)));
-                    setColor(parentOf(x), BLACK);
-                    setColor(rightOf(sib), BLACK);
-                    rotateLeft(parentOf(x));
-                    x = (RedBlackTreeNode<T>) root;
-                }
-            } else {
-                Node<T> sib = leftOf(parentOf(x));
-                if (colorOf(sib) == RED) {
-                    setColor(sib, BLACK);
-                    setColor(parentOf(x), RED);
-                    rotateRight(parentOf(x));
-                    sib = leftOf(parentOf(x));
-                }
-                if (colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK) {
-                    setColor(sib, RED);
-                    x = (RedBlackTreeNode<T>) parentOf(x);
-                } else {
-                    if (colorOf(leftOf(sib)) == BLACK) {
-                        setColor(rightOf(sib), BLACK);
-                        setColor(sib, RED);
-                        rotateLeft(sib);
-                        sib = leftOf(parentOf(x));
-                    }
-                    setColor(sib, colorOf(parentOf(x)));
-                    setColor(parentOf(x), BLACK);
-                    setColor(leftOf(sib), BLACK);
-                    rotateRight(parentOf(x));
-                    x = (RedBlackTreeNode<T>) root;
-                }
-            }
-        }
-        setColor(x, BLACK);
-    }
-
-    final static boolean RED = true;
-    final static boolean BLACK = false;
+    private final static boolean RED = true;
+    private final static boolean BLACK = false;
 
     private static class RedBlackTreeNode<V> extends Node<V> {
-        boolean color = RED;
 
+        boolean color = RED;
         RedBlackTreeNode(V value, RedBlackTreeNode<V> parent) {
             super(value, parent);
+        }
+
+    }
+
+    @Override
+    boolean checkInvariants(Node<T> node, Comparator<? super T> cmp) {
+        if (node == null) return true;
+
+        if (!isRBT(node, getComparator(), null, null))
+            return false;
+
+        return countBlackNodes(node).getLeft();
+    }
+
+    private static <V> boolean isRBT(Node<V> node, Comparator<? super V> cmp, V from, V to) {
+        V value = node.value;
+        if (value != null) {
+            if (cmp == null) {
+                @SuppressWarnings("unchecked")
+                Comparable<V> c = (Comparable<V>) value;
+                if (from != null && c.compareTo(from) < 0)
+                    return false;
+
+                if (to != null && c.compareTo(to) > 0)
+                    return false;
+            } else {
+                if (from != null && cmp.compare(value, from) < 0)
+                    return false;
+
+                if (to != null && cmp.compare(value, to) > 0)
+                    return false;
+            }
+        }
+        if (node.left != null && node.right != null) {
+            boolean leftColor = ((RedBlackTreeNode<V>)node.left).color;
+            boolean rightColor = ((RedBlackTreeNode<V>)node.right).color;
+            boolean color = ((RedBlackTreeNode<V>) node).color;
+            return color != RedBlackTree.RED || (leftColor == RedBlackTree.BLACK && rightColor == RedBlackTree.BLACK);
+        }
+
+        if (node.left != null && !isRBT(node.left, cmp, from, value))
+            return false;
+
+        if (node.right != null && !isRBT(node.right, cmp, value, to))
+            return false;
+
+        return true;
+    }
+
+    private Pair<Boolean, Integer> countBlackNodes(Node<T> entry) {
+        if (entry == null)
+            return Pair.of(true, 0);
+
+        Node<T> left = entry.left;
+        Node<T> right = entry.right;
+
+        Pair<Boolean, Integer> leftRes = countBlackNodes(left);
+        Pair<Boolean, Integer> rightRes = countBlackNodes(right);
+
+        if (leftRes.getLeft() && rightRes.getLeft()) {
+            if (leftRes.getRight().equals(rightRes.getRight())) {
+                int inc = ((RedBlackTreeNode<T>)entry).color == RedBlackTree.BLACK ? 1 : 0;
+                return Pair.of(true, leftRes.getRight() + inc);
+            } else {
+                return Pair.of(false, 0);
+            }
+        } else {
+            return Pair.of(false, 0);
         }
     }
 }

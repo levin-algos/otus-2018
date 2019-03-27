@@ -112,6 +112,21 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
     }
 
     @Override
+    boolean checkInvariants(Node<V> node, Comparator<? super V> cmp) {
+        return false;
+    }
+
+    @Override
+    void insertionFixup(Node<V> root) {
+
+    }
+
+    @Override
+    void removeFixup(Node<V> root) {
+
+    }
+
+    @Override
     protected Node<V> createNode(V value, Node<V> parent) {
         throw new UnsupportedOperationException();
     }

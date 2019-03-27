@@ -85,17 +85,12 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
      */
     @Override
     public void add(T element) {
-        insert(element, tNode -> {
-        });
-    }
-
-    void insert(T element, Consumer<Node<T>> consumer) {
         if (element == null)
             throw new IllegalArgumentException();
 
         if (root == null) {
             root = createNode(element, null);
-            consumer.accept(root);
+            insertionFixup(root);
             size++;
             return;
         }
@@ -135,9 +130,10 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         else
             parent.right = node;
 
-        consumer.accept(node);
-
+        insertionFixup(node);
         size++;
+
+        assert checkInvariants(root, comparator);
     }
 
     /**
@@ -152,37 +148,48 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
         Node<T> node = getElement(element);
         if (node != null) {
-            remove(node);
+            delete(node);
             size--;
         }
+
+        if (root != null)
+            assert checkInvariants(root, comparator);
     }
 
-    private void remove(Node<T> node) {
-        if (node.left == null && node.right == null) {
-            removeLeaf(node);
-        } else if (node.left == null || node.right == null) {
-            removeWithOneChild(node);
+    private void delete(Node<T> z) {
+
+        if (z.right != null && z.left != null) {
+            Node<T> min = successor(z);
+            z.value = min.value;
+            z = min;
+        }
+
+        Node<T> replacement = z.left != null ? z.left : z.right;
+
+        if (replacement != null) {
+            replacement.parent = z.parent;
+            if (z.parent == null)
+                root = replacement;
+            else if (z == z.parent.left)
+                z.parent.left = replacement;
+            else
+                z.parent.right = replacement;
+
+            z.left = z.right = z.parent = null;
+
+            removeFixup(replacement);
+        } else if (z.parent == null) {
+            root = null;
         } else {
-            removeWithTwoChildren(node);
+
+            removeFixup(z);
+            if (z == z.parent.left)
+                z.parent.left = null;
+            else if (z == z.parent.right)
+                z.parent.right = null;
+            z.parent = null;
+
         }
-    }
-
-    private void removeWithTwoChildren(Node<T> node) {
-        Node<T> leftTop = getMax(node.left);
-
-        swapValues(node, leftTop);
-        remove(leftTop);
-    }
-
-    private Node<T> getMax(Node<T> node) {
-        if (node == null)
-            return null;
-
-        Node<T> res = node;
-        while (res.right != null) {
-            res = res.right;
-        }
-        return res;
     }
 
     private Node<T> getMin(Node<T> node) {
@@ -195,51 +202,6 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         }
         return res;
     }
-
-
-    private void swapValues(Node<T> node, Node<T> node1) {
-        T tmp = node.value;
-        node.value = node1.value;
-        node1.value = tmp;
-    }
-
-    private void removeWithOneChild(Node<T> node) {
-        if (node == root) {
-            if (root.left != null) {
-                root = root.left;
-            } else {
-                root = root.right;
-            }
-
-            return;
-        }
-
-        if (node.left == null) {
-            if (node.parent.left == node)
-                node.parent.left = node.right;
-            else
-                node.parent.right = node.right;
-        } else {
-            if (node.parent.left == node)
-                node.parent.left = node.left;
-            else
-                node.parent.right = node.left;
-        }
-    }
-
-    private void removeLeaf(Node<T> node) {
-        if (node == root) {
-            root = null;
-            return;
-        }
-
-        if (node == node.parent.left)
-            node.parent.left = null;
-        else if (node == node.parent.right)
-            node.parent.right = null;
-        else throw new IllegalStateException();
-    }
-
 
     static <T> Node<T> parentOf(Node<T> node) {
         return node == null ? null : node.parent;
@@ -345,6 +307,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
 
     private static final int HEIGHT_COEFF = 35;
+
     private Image drawTree(AbstractBinarySearchTree.Node<?> root, int treeHeight) {
         if (treeHeight <= 0)
             throw new IllegalArgumentException();
@@ -360,7 +323,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
     private void drawTree(Image img, int x, int lvl, AbstractBinarySearchTree.Node<?> root) {
         int y0 = lvl * HEIGHT_COEFF;
-        drawNode(img, x, y0+16, root);
+        drawNode(img, x, y0 + 16, root);
         int pad = img.getWidth() / (1 << (lvl + 1));
         int y1 = (lvl + 1) * HEIGHT_COEFF;
         if (root.left != null) {
@@ -401,4 +364,15 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
             this.parent = parent;
         }
     }
+
+    /**
+     * Recursively checks binary search tree invariants
+     *
+     * @param node - root of the tree to check
+     * @return - true if tree is binary search tree
+     */
+    abstract boolean checkInvariants(Node<T> node, Comparator<? super T> cmp);
+
+    abstract void insertionFixup(Node<T> root);
+    abstract void removeFixup(Node<T> root);
 }

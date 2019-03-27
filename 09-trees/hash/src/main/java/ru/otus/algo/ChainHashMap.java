@@ -10,7 +10,6 @@ public class ChainHashMap<K, V> implements Map<K, V> {
 
     private static final float MAX_LOAD_FACTOR = 0.75f;
     private static final int TREEIFY_THRESHOLD = 8;
-    private static final int UNTREEIFY_THRESHOLD = 6;
 
     public ChainHashMap(Hash<K> hash) {
         table = new Bucket[BUCKETS_NUM];

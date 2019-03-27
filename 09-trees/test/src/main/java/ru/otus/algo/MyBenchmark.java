@@ -33,47 +33,59 @@ package ru.otus.algo;
 
 import org.openjdk.jmh.annotations.*;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 public class MyBenchmark {
 
+    public static class Entity<T> {
+        T val;
+
+        public Entity(T val) {
+            this.val = val;
+        }
+
+        @Override
+        public int hashCode() {
+            return 1;
+        }
+    }
+
     @State(Scope.Benchmark)
     public static class Data {
-        Integer[] data;
-        @Param({"100000", "1000000", "10000000"})
+        Map<Entity<Integer>, String> data;
+        Entity<Integer> last;
+        @Param({"1000", "10000", "100000"})
         int size;
 
         @Setup
         public void setup() {
-            data = new Random().ints(size, 0, Integer.MAX_VALUE).boxed().toArray(Integer[]::new);
+            data = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                Entity<Integer> k = new Entity<>(i);
+                data.put(k, "val"+i);
+                last = k;
+            }
         }
     }
 
-    private Random rnd = new Random();
-
+    /*
+    Benchmark                      (size)  Mode  Cnt  Score   Error  Units
+MyBenchmark.wrongCache           1000  avgt    5  0.006 ± 0.001  ms/op
+MyBenchmark.wrongCache:·stack    1000  avgt         NaN            ---
+MyBenchmark.wrongCache          10000  avgt    5  0.116 ± 0.057  ms/op
+MyBenchmark.wrongCache:·stack   10000  avgt         NaN            ---
+MyBenchmark.wrongCache         100000  avgt    5  2.843 ± 0.063  ms/op
+MyBenchmark.wrongCache:·stack  100000  avgt         NaN            ---
+     */
     @Benchmark
-    @BenchmarkMode(Mode.SingleShotTime)
+    @BenchmarkMode(Mode.AverageTime)
+    @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 5, time = 1)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    @Fork(1)
-    public CartesianTree<?> treapAdd(Data data) {
-        CartesianTree<Integer> tree = CartesianTree.of(new Integer[0], integer -> rnd.nextInt());
-        for (Integer v: data.data) {
-            tree.add(v);
-        }
-        return tree;
+    public String wrongCache(Data data) {
+        return data.data.get(data.last);
     }
 
-    @Benchmark
-    @BenchmarkMode(Mode.SingleShotTime)
-    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    @Fork(1)
-    public CartesianTree<?> treapBuild(Data data) {
-        Integer[] d = new Integer[data.data.length];
-        System.arraycopy(data.data, 0, d, 0, data.data.length);
-        Arrays.sort(d);
-        return CartesianTree.of(d, integer -> rnd.nextInt());
-    }
 }

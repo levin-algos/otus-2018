@@ -54,6 +54,46 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
         return new Node<>(value, parent);
     }
 
+    @Override
+    boolean checkInvariants(Node<T> node, Comparator<? super T> cmp) {
+        return isBST(node, getComparator(), null, null);
+    }
+
+    private static <V> boolean isBST(Node<V> node, Comparator<? super V> cmp, V from, V to) {
+        V value = node.value;
+        if (value != null) {
+            if (cmp == null) {
+                @SuppressWarnings("unchecked")
+                Comparable<V> c = (Comparable<V>) value;
+                if (from != null && c.compareTo(from) < 0)
+                        return false;
+
+                if (to != null && c.compareTo(to) > 0)
+                        return false;
+            } else {
+                if (from != null && cmp.compare(value, from) < 0)
+                        return false;
+
+                if (to != null && cmp.compare(value, to) > 0)
+                        return false;
+            }
+        }
+
+        if (node.left != null && !isBST(node.left, cmp, from, value))
+            return false;
+
+        if (node.right != null && !isBST(node.right, cmp, value, to))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    void insertionFixup(Node<T> root) {}
+
+    @Override
+    void removeFixup(Node<T> root) {}
+
     /**
      * Build approximately optimal search tree using list of {@code pairs}.
      * Pair is an element to add in a tree and element's weight.
@@ -72,7 +112,7 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
      * @param pairs - list of {@code pairs} of {@code (T - K}.
      *              Where T - element to add in the tree
      *              K - weight of element.
-     * @param <T>  - type of tree elements
+     * @param <T>   - type of tree elements
      * @return - constructed approximately optimal immutable tree.
      */
     public static <T> BinarySearchTree<T> buildOptimal(List<Pair<T, Integer>> pairs) {
@@ -93,10 +133,11 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
      * Main idea of this algorithm:
      * choose root of tree so as to equalize the weight of left and right subtrees as much as possible.
      * Then proceed to subtrees.
+     *
      * @param pairs - list of {@code pairs} of {@code (T - K}.
      *              Where T - element to add in the tree
      *              K - frequency of element.
-     * @param <T>  - type of tree elements
+     * @param <T>   - type of tree elements
      * @return - constructed nearly optimal immutable tree.
      */
     public static <T extends Comparable<? super T>> BinarySearchTree<T> buildMehlhorn(List<Pair<T, Integer>> pairs) {

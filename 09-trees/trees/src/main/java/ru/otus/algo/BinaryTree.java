@@ -2,7 +2,7 @@ package ru.otus.algo;
 
 import java.util.function.Consumer;
 
-interface BinaryTree<T> {
+public interface BinaryTree<T> {
 
     boolean contains(T element);
 
@@ -13,4 +13,8 @@ interface BinaryTree<T> {
     int size();
 
     void traverse(Traversal order, Consumer<T> action);
+
+    enum Traversal {
+        IN_ORDER,
+    }
 }

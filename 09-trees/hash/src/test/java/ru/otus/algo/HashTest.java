@@ -12,7 +12,6 @@ public class HashTest {
 
     private static List<String> dict;
 
-
     private static Hash<String> hash = new TrivialHash<>();
 
 

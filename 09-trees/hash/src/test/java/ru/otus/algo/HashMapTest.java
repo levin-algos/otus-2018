@@ -77,6 +77,6 @@ class HashMapTest {
 
     static Stream<Map<String, String>> mapProducer() {
         return Stream.of(new ChainHashMap<>(new TrivialHash<>()),
-                new ChainHashMap<>(key -> 1));
+                new ChainHashMap<>(new PerfectHash.Builder().build()));
     }
 }
