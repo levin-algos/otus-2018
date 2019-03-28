@@ -44,11 +44,11 @@ class BinarySearchTreeTest {
     @Test
     void soloAdd() {
         assertEquals(integers.length, tree.size());
-        assertEquals(6, tree.getMaxHeight());
+        assertEquals(6, tree.getHeight());
         tree.add(100);
         assertEquals(integers.length + 1, tree.size());
         assertTrue(tree.contains(100));
-        assertEquals(7, tree.getMaxHeight());
+        assertEquals(7, tree.getHeight());
     }
 
         @Test
@@ -64,9 +64,9 @@ class BinarySearchTreeTest {
     @Test
     void remove() {
         assertEquals(integers.length, tree.size());
-        assertEquals(integers.length, tree.getMaxHeight());
+        assertEquals(integers.length, tree.getHeight());
         tree.remove(2);
-        assertEquals(integers.length - 1, tree.getMaxHeight());
+        assertEquals(integers.length - 1, tree.getHeight());
         assertEquals(integers.length - 1, tree.size());
         assertFalse(tree.contains(2));
         for (Integer i : new Integer[]{1, 3, 4, 5, 10}) {
@@ -81,7 +81,7 @@ class BinarySearchTreeTest {
         int k = 1;
         for (Integer i : integers) {
             tree.remove(i);
-            assertEquals(integers.length - k++, tree.getMaxHeight());
+            assertEquals(integers.length - k++, tree.getHeight());
         }
     }
 
@@ -91,7 +91,7 @@ class BinarySearchTreeTest {
             tree.remove(integers[i]);
 
             assertEquals(i, this.tree.size());
-            assertEquals(i, tree.getMaxHeight());
+            assertEquals(i, tree.getHeight());
         }
     }
 
@@ -105,7 +105,7 @@ class BinarySearchTreeTest {
             for (Integer[] arr: integers) {
                 tree = BinarySearchTree.of(arr);
 
-                assertEquals(3, tree.getMaxHeight());
+                assertEquals(3, tree.getHeight());
                 tree.remove(arr[1]);
                 assertFalse(BinarySearchTreeTest.this.tree.contains(arr[1]));
                 assertEquals(arr.length - 1, tree.size());

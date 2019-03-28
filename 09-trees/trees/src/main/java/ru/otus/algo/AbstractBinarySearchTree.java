@@ -276,7 +276,8 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
      *
      * @return - maximum height
      */
-    int getMaxHeight() {
+    @Override
+    public int getHeight() {
         if (root == null)
             return 0;
 
@@ -297,7 +298,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
     }
 
     Image asImage() {
-        return drawTree(root, getMaxHeight());
+        return drawTree(root, getHeight());
     }
 
     private void drawNode(Image img, int x, int y, AbstractBinarySearchTree.Node<?> node) {

@@ -43,7 +43,7 @@ class CartesianTreeTest {
             assertTrue(tree.contains(v));
         }
 
-        System.out.println(tree.getMaxHeight());
+        System.out.println(tree.getHeight());
     }
 
     @Test

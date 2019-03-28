@@ -17,4 +17,6 @@ public interface BinaryTree<T> {
     enum Traversal {
         IN_ORDER,
     }
+
+    int getHeight();
 }

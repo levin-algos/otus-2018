@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HashMapTest {
 
-
     private static final int MAX = 10_000;
 
     @ParameterizedTest
@@ -37,7 +36,7 @@ class HashMapTest {
 
     @Test
     void resize() throws IllegalAccessException {
-        ChainHashMap<String, String> map = new ChainHashMap<>(new TrivialHash<>());
+        HashMap<String, String> map = new HashMap<>(new TrivialHash<>());
         int[] range = IntStream.range(0, MAX).toArray();
 
         for (int r : range) {
@@ -50,7 +49,7 @@ class HashMapTest {
             assertTrue(map.containsKey("" + r));
         }
 
-        Field bucketsNum = FieldUtils.getField(ChainHashMap.class, "BUCKETS_NUM", true);
+        Field bucketsNum = FieldUtils.getField(HashMap.class, "BUCKETS_NUM", true);
 
         assertEquals(1 << 14, bucketsNum.get(map));
     }
@@ -76,7 +75,7 @@ class HashMapTest {
     }
 
     static Stream<Map<String, String>> mapProducer() {
-        return Stream.of(new ChainHashMap<>(new TrivialHash<>()),
-                new ChainHashMap<>(new PerfectHash.Builder().build()));
+        return Stream.of(new HashMap<>(new TrivialHash<>()),
+                         new HashMap<>(new PerfectHash.Builder().build()));
     }
 }

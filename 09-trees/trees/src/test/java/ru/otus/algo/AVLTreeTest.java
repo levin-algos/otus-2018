@@ -4,10 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -22,29 +21,19 @@ class AVLTreeTest {
     }
 
     @Test
-    void writeToFileTest() throws IOException {
-        Path path = Paths.get("test.png");
-        if (Files.exists(path))
-            Files.delete(path);
-
-        AVLTree<Integer> tree = AVLTree.of(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-        TreeVisualizer vis = new TreeVisualizer(tree, "test");
-        vis.save(path);
-    }
-
-
-//    @Test
     void test1() {
         AVLTree<Integer> tree = AVLTree.of(new Integer[0]);
-        int MAX = 1000;
+        int MAX = 1_000_000;
+        Integer[] ints = IntStream.rangeClosed(0, MAX).boxed().toArray(Integer[]::new);
 
-        for (int i = 0; i < MAX; i++) {
+        Collections.shuffle(Arrays.asList(ints));
+
+        for (int i : ints) {
             tree.add(i);
         }
 
-        for (int i = 0; i <= 50; i++) {
-            tree.remove(500 - i);
-            tree.remove(500 + i);
+        for (int i: ints) {
+            tree.remove(i);
         }
     }
 
@@ -57,14 +46,11 @@ class AVLTreeTest {
             tree.add(i);
         }
 
-//        TreeVisualizer vis = new TreeVisualizer(tree);
         Random r = new Random();
         for (int i = 0; i < MAX; i++) {
             int element = r.nextInt(MAX);
             tree.remove(element);
-//            vis.add(tree, "removed: " + element);
         }
-//        vis.save(Paths.get("random.png"));
     }
 
     @ParameterizedTest
