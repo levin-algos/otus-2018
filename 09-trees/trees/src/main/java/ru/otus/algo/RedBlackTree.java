@@ -32,50 +32,50 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
 
     @Override
     protected Node<T> createNode(T value, Node<T> parent) {
-        return new RedBlackTreeNode<>(value, (RedBlackTreeNode<T>)parent);
+        return new RedBlackTreeNode<>(value, (RedBlackTreeNode<T>) parent);
     }
 
     @Override
     void insertionFixup(Node<T> node) {
-        if (colorOf(node) == BLACK) {
-            while (node != null && root != node && colorOf(parentOf(node)) == RED) {
-                Node<T> grand = parentOf(parentOf(node));
-                if (parentOf(node) == leftOf(grand)) {
-                    Node<T> r = rightOf(grand);
-                    if (colorOf(r) == RED) {
-                        setColor(parentOf(node), BLACK);
-                        setColor(r, BLACK);
-                        setColor(grand, RED);
-                        node = grand;
-                    } else {
-                        if (node == rightOf(parentOf(node))) {
-                            node = parentOf(node);
-                            rotateLeft(node);
-                        }
-                        setColor(parentOf(node), BLACK);
-                        setColor(grand, RED);
-                        rotateRight(grand);
-                    }
+//        setColor(node, BLACK);
+
+        while (node != null && root != node && colorOf(parentOf(node)) == RED) {
+            Node<T> grand = parentOf(parentOf(node));
+            if (parentOf(node) == leftOf(grand)) {
+                Node<T> r = rightOf(grand);
+                if (colorOf(r) == RED) {
+                    setColor(parentOf(node), BLACK);
+                    setColor(r, BLACK);
+                    setColor(grand, RED);
+                    node = grand;
                 } else {
-                    Node<T> l = leftOf(grand);
-                    if (colorOf(l) == RED) {
-                        setColor(parentOf(node), BLACK);
-                        setColor(l, BLACK);
-                        setColor(grand, RED);
-                        node = grand;
-                    } else {
-                        if (node == leftOf(parentOf(node))) {
-                            node = parentOf(node);
-                            rotateRight(node);
-                        }
-                        setColor(parentOf(node), BLACK);
-                        setColor(grand, RED);
-                        rotateLeft(grand);
+                    if (node == rightOf(parentOf(node))) {
+                        node = parentOf(node);
+                        rotateLeft(node);
                     }
+                    setColor(parentOf(node), BLACK);
+                    setColor(grand, RED);
+                    rotateRight(grand);
+                }
+            } else {
+                Node<T> l = leftOf(grand);
+                if (colorOf(l) == RED) {
+                    setColor(parentOf(node), BLACK);
+                    setColor(l, BLACK);
+                    setColor(grand, RED);
+                    node = grand;
+                } else {
+                    if (node == leftOf(parentOf(node))) {
+                        node = parentOf(node);
+                        rotateRight(node);
+                    }
+                    setColor(parentOf(node), BLACK);
+                    setColor(grand, RED);
+                    rotateLeft(grand);
                 }
             }
-            setColor(root, BLACK);
         }
+        setColor(root, BLACK);
     }
 
     @Override
@@ -135,12 +135,12 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
     }
 
     private static <T> boolean colorOf(Node<T> node) {
-        return node == null ? BLACK : ((RedBlackTreeNode<T>)node).color;
+        return node == null ? BLACK : ((RedBlackTreeNode<T>) node).color;
     }
 
     private static <T> void setColor(Node<T> node, boolean color) {
         if (node != null) {
-            ((RedBlackTreeNode<T>)node).color = color;
+            ((RedBlackTreeNode<T>) node).color = color;
         }
     }
 
@@ -150,6 +150,12 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
     private static class RedBlackTreeNode<V> extends Node<V> {
 
         boolean color = RED;
+
+        @Override
+        public String toString() {
+            return "{" + value + ", " + color + "}";
+        }
+
         RedBlackTreeNode(V value, RedBlackTreeNode<V> parent) {
             super(value, parent);
         }
@@ -172,24 +178,35 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
             if (cmp == null) {
                 @SuppressWarnings("unchecked")
                 Comparable<V> c = (Comparable<V>) value;
-                if (from != null && c.compareTo(from) < 0)
+                if (from != null && c.compareTo(from) < 0) {
+                    System.out.println(String.format("%s less than %s", value, from));
                     return false;
+                }
 
-                if (to != null && c.compareTo(to) > 0)
+                if (to != null && c.compareTo(to) > 0) {
+                    System.out.println(String.format("%s greater than %s", value, to));
                     return false;
+                }
             } else {
-                if (from != null && cmp.compare(value, from) < 0)
+                if (from != null && cmp.compare(value, from) < 0) {
+                    System.out.println(String.format("%s less than %s", value, from));
                     return false;
+                }
 
-                if (to != null && cmp.compare(value, to) > 0)
+                if (to != null && cmp.compare(value, to) > 0) {
+                    System.out.println(String.format("%s greater than %s", value, to));
                     return false;
+                }
             }
         }
         if (node.left != null && node.right != null) {
-            boolean leftColor = ((RedBlackTreeNode<V>)node.left).color;
-            boolean rightColor = ((RedBlackTreeNode<V>)node.right).color;
-            boolean color = ((RedBlackTreeNode<V>) node).color;
-            return color != RedBlackTree.RED || (leftColor == RedBlackTree.BLACK && rightColor == RedBlackTree.BLACK);
+            boolean leftColor = colorOf(leftOf(node));
+            boolean rightColor = colorOf(rightOf(node));
+            boolean color = colorOf(node);
+            if (color == RedBlackTree.RED && (leftColor == RedBlackTree.RED || rightColor == RedBlackTree.RED)) {
+                System.out.println("node is red, but children are not black");
+                return false;
+            }
         }
 
         if (node.left != null && !isRBT(node.left, cmp, from, value))
@@ -213,7 +230,7 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
 
         if (leftRes.getLeft() && rightRes.getLeft()) {
             if (leftRes.getRight().equals(rightRes.getRight())) {
-                int inc = ((RedBlackTreeNode<T>)entry).color == RedBlackTree.BLACK ? 1 : 0;
+                int inc = colorOf(entry) == RedBlackTree.BLACK ? 1 : 0;
                 return Pair.of(true, leftRes.getRight() + inc);
             } else {
                 return Pair.of(false, 0);

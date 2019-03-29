@@ -7,8 +7,6 @@ import java.util.stream.LongStream;
 
 public class GlobalTest {
 
-
-    private static final int MAX = 1_00_000;
     private static final Random random = new Random();
 
     public static void main(String[] args) {
@@ -20,21 +18,25 @@ public class GlobalTest {
         types.add(TestResult.DataType.RANDOM_LONG);
         types.add(TestResult.DataType.ORDERED);
 
-        List<TestResult> testResults = GlobalTest.insertionTest(list, types);
-
         System.out.println(TestResult.header());
-        for (TestResult t: testResults) {
-            System.out.println(t);
+        int low = 100, measures = 30, high = 1_000_000;
+        int step = (high - low)/ measures;
+        for (int i=low; i <= high; i+= step) {
+            List<TestResult> testResults = GlobalTest.insertionTest(list, types, i);
+            for (TestResult t : testResults) {
+                System.out.println(t);
+            }
+
         }
     }
 
-    private static Long[] generateData(TestResult.DataType type) {
-        Long[] longs = new Long[MAX];
+    private static Long[] generateData(TestResult.DataType type, int size) {
+        Long[] longs = new Long[size];
         if (TestResult.DataType.RANDOM_LONG == type) {
             for (int i = 0; i < longs.length; i++)
                 longs[i] = random.nextLong();
         } else if (TestResult.DataType.ORDERED == type) {
-            longs = LongStream.rangeClosed(0, MAX).boxed().toArray(Long[]::new);
+            longs = LongStream.rangeClosed(0, size).boxed().toArray(Long[]::new);
         } else if (TestResult.DataType.FROM_FILE == type){
 
         } else {
@@ -45,11 +47,11 @@ public class GlobalTest {
     }
 
 
-    private static List<TestResult> insertionTest(List<BinaryTree<Long>> trees, List<TestResult.DataType> types) {
+    private static List<TestResult> insertionTest(List<BinaryTree<Long>> trees, List<TestResult.DataType> types, int size) {
         List<TestResult> result = new ArrayList<>();
 
         for (TestResult.DataType type: types) {
-            Long[] arr = generateData(type);
+            Long[] arr = generateData(type, size);
 
             long delta;
             for (BinaryTree<Long> t : trees) {
@@ -59,7 +61,7 @@ public class GlobalTest {
                 }
                 delta = System.nanoTime() - delta;
                 int height = t.getHeight();
-                result.add(new TestResult(t.getClass(), delta, height, type));
+                result.add(new TestResult(t.getClass(), delta, height, type, size));
             }
         }
 
@@ -72,22 +74,24 @@ public class GlobalTest {
         private final long time;
         private final int height;
         private final DataType type;
+        private final int size;
 
         public static String header() {
-            return String.format("%20s%20s%20s%20s", "Class","Test type", "Delta (ms)", "Height");
+            return String.format("%s;%s;%s;%s", "Case", "ms", "height", "size");
         }
 
-        public TestResult(Class<?> cl, long time, int height, DataType type) {
+        TestResult(Class<?> cl, long time, int height, DataType type, int size) {
             this.cl = cl;
             this.time = time;
             this.height = height;
             this.type = type;
+            this.size = size;
         }
 
         @Override
         public String toString() {
-            return String.format("%20s%20s%20f%20s",
-                    cl.getSimpleName(), type, (double)time/1_000_000, height);
+            return String.format("%s %s;%f;%s;%s",
+                    cl.getSimpleName(), type, (double)time/1_000_000, height, size);
         }
 
         private enum DataType {

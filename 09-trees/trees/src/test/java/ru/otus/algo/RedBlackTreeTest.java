@@ -4,6 +4,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import ru.otus.algo.common.Utils;
 
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RedBlackTreeTest {
 
     private RedBlackTree<Integer> tree;
-    private static final int MAX = 1000;
+    private static final int MAX = 100;
 
     static Stream<Comparator<Integer>> comparatorProducer() {
         return Stream.of(null, Integer::compareTo);
