@@ -64,6 +64,17 @@ class AVLTreeTest {
         }
     }
 
+    @Test
+    void getHeightTest() {
+        BinaryTree<Integer> t = AVLTree.of();
+
+        for (Integer i=0; i < 5_000_000; i++) {
+            t.add(i);
+        }
+
+        assertEquals(10, t.getHeight());
+    }
+
     @ParameterizedTest
     @MethodSource("comparatorSource")
     void addAVLTreeRightRotation(Comparator<? super Integer> cmp) {
@@ -82,7 +93,6 @@ class AVLTreeTest {
     void addAVLTreeLeftRotation(Comparator<? super Integer> cmp) {
         Integer[] integers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         tree = AVLTree.of(integers, cmp);
-
 
         for (Integer i : integers) {
             assertTrue(this.tree.contains(i));

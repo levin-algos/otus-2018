@@ -1,21 +1,27 @@
 require(ggplot2)
+library(ggpubr)
 
+tbl <- read.csv("insert-5M.csv", header = TRUE, sep = ';')
 
-tbl <- read.csv("insertion.csv", header = TRUE, sep = ';')
-# classes <- unique(tbl$Class)
-# types <- unique(tbl$Test.type)
-
-ggplot(tbl, aes(x = size, y = ms,
+time <- ggplot(tbl, aes(x = size, y = ms,
     group = interaction(Case),
     colour = Case)) + geom_point() + geom_line()
 
-ggsave("1.png");
-# plotlist <- ggplot();
-# for (cl in classes) {
-#     classSubset <- subset(tbl, subset =(Class == cl))
-#     for (type in types) {
-#         typeSubset <- subset(classSubset, subset=(Test.type == type))
-#         g <- ggplot(typeSubset, aes(typeSubset$Size, typeSubset$Delta..ms.)) + geom_line()
-#         multiplot(g, plotlist)
-#     }
-# }
+
+h <- ggplot(tbl, aes(x = size, y = height,
+group = interaction(Case),
+colour = Case)) + geom_point() + geom_line()
+
+left_rot <- ggplot(tbl, aes(x = size, y = l_rot,
+group = interaction(Case),
+colour = Case)) + geom_point() + geom_line()
+
+right_rot <- ggplot(tbl, aes(x = size, y = r_rot,
+group = interaction(Case),
+colour = Case)) + geom_point() + geom_line()
+
+
+
+ggarrange(time, h, left_rot, right_rot, ncol=2, nrow=2, common.legend = TRUE, legend="top")
+
+ggsave("1.png")

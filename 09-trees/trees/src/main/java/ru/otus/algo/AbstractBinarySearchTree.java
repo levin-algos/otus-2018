@@ -6,6 +6,20 @@ import java.util.function.Consumer;
 
 abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
 
+    private int leftRotations;
+    private int rightRotations;
+
+
+    @Override
+    public int getLeftRotationCount() {
+        return leftRotations;
+    }
+
+    @Override
+    public int getRightRotationCount() {
+        return rightRotations;
+    }
+
     int size;
     private final Comparator<? super T> comparator;
     Node<T> root;
@@ -228,6 +242,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
             else node.parent.left = l;
             l.right = node;
             node.parent = l;
+            rightRotations++;
         }
     }
 
@@ -245,6 +260,7 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
             else node.parent.right = r;
             r.left = node;
             node.parent = r;
+            leftRotations++;
         }
     }
 
@@ -281,8 +297,8 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         if (root == null)
             return 0;
 
-        int left = getMaxHeightNode(root.left);
-        int right = getMaxHeightNode(root.right);
+        int left = root.left == null ? 0 : getMaxHeightNode(root.left);
+        int right = root.right == null ? 0 : getMaxHeightNode(root.right);
 
         return Math.max(left, right) + 1;
     }
@@ -291,8 +307,8 @@ abstract class AbstractBinarySearchTree<T> implements BinaryTree<T> {
         if (node == null)
             return 0;
 
-        int left = getMaxHeightNode(node.left);
-        int right = getMaxHeightNode(node.right);
+        int left = node.left == null ? 0 : getMaxHeightNode(node.left);
+        int right = node.right == null ? 0 : getMaxHeightNode(node.right);
 
         return Math.max(left, right) + 1;
     }

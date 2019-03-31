@@ -114,26 +114,33 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
     }
 
     private void balanceAfterInsertion(Node<T> node) {
+        boolean rotated = false;
         while (node != null) {
 
-            int balance = getBalance((AVLNode<T>) node);
-            if (balance == 2) {
-                Node<T> right = rightOf(node);
-                if (right != null && getBalance((AVLNode<T>) right) < 0) {
-                    rotateRight(right);
-                    rotateLeft(node);
-                    ((AVLNode<T>) right).height = calculateHeight(right);
-                } else if (right != null) {
-                    rotateLeft(node);
-                }
-            } else if (balance == -2) {
-                Node<T> left = leftOf(node);
-                if (left != null && getBalance((AVLNode<T>) left) > 0) {
-                    rotateLeft(left);
-                    rotateRight(node);
-                    ((AVLNode<T>) left).height = calculateHeight(left);
-                } else if (left != null) {
-                    rotateRight(node);
+            if (!rotated) {
+                int balance = getBalance((AVLNode<T>) node);
+                if (balance == 2) {
+                    Node<T> right = rightOf(node);
+                    if (right != null && getBalance((AVLNode<T>) right) < 0) {
+                        rotateRight(right);
+                        rotateLeft(node);
+                        ((AVLNode<T>) right).height = calculateHeight(right);
+                        rotated = true;
+                    } else if (right != null) {
+                        rotateLeft(node);
+                        rotated = true;
+                    }
+                } else if (balance == -2) {
+                    Node<T> left = leftOf(node);
+                    if (left != null && getBalance((AVLNode<T>) left) > 0) {
+                        rotateLeft(left);
+                        rotateRight(node);
+                        rotated = true;
+                        ((AVLNode<T>) left).height = calculateHeight(left);
+                    } else if (left != null) {
+                        rotateRight(node);
+                        rotated = true;
+                    }
                 }
             }
 

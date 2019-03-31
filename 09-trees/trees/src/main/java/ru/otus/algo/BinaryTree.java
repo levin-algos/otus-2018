@@ -19,4 +19,8 @@ public interface BinaryTree<T> {
     }
 
     int getHeight();
+
+    int getLeftRotationCount();
+
+    int getRightRotationCount();
 }
