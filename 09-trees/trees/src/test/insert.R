@@ -1,7 +1,7 @@
 require(ggplot2)
 library(ggpubr)
 
-tbl <- read.csv("insert-5M.csv", header = TRUE, sep = ';')
+tbl <- read.csv("insertion.csv", header = TRUE, sep = ';')
 
 time <- ggplot(tbl, aes(x = size, y = ms,
     group = interaction(Case),

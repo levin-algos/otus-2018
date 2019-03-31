@@ -30,7 +30,7 @@ public class AVLTree<T> extends AbstractBinarySearchTree<T> {
         super(cmp);
     }
 
-    static <T> AVLTree<T> of(T[] arr) {
+    public static <T> AVLTree<T> of(T[] arr) {
         AVLTree<T> tree = new AVLTree<>();
         for (T i : arr) {
             tree.add(i);

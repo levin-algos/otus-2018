@@ -12,7 +12,12 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
         super(cmp);
     }
 
-    static <T> RedBlackTree<T> of(T[] arr) {
+    public static <T> RedBlackTree<T> of() {
+
+        return new RedBlackTree<>();
+    }
+
+    public static <T> RedBlackTree<T> of(T[] arr) {
         RedBlackTree<T> tree = new RedBlackTree<>();
 
         for (T i : arr) {
@@ -21,7 +26,7 @@ public class RedBlackTree<T> extends AbstractBinarySearchTree<T> {
         return tree;
     }
 
-    static <T> RedBlackTree<T> of(T[] arr, Comparator<? super T> cmp) {
+    public static <T> RedBlackTree<T> of(T[] arr, Comparator<? super T> cmp) {
         RedBlackTree<T> tree = new RedBlackTree<>(cmp);
 
         for (T i : arr) {
