@@ -23,7 +23,7 @@ public class InsertionTest {
         types.add(DataType.ASC);
 
         System.out.println(InsertResult.header());
-        int low = 1_000_000, measures = 15, high = 5_000_000;
+        int low = 1_000_00, measures = 15, high = 5_00_000;
         int step = (high - low) / measures;
         for (int i = low; i < high; i += step) {
             List<Supplier<BinaryTree<Long>>> list = new ArrayList<>();

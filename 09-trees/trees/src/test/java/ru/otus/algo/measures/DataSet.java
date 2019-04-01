@@ -26,12 +26,12 @@ final class DataSet {
         return data.subList(0, newSize);
     }
 
-    public String[] getRandomTokens(int size) {
-        String[] strings = new String[size];
+    public List<String> getRandomTokens(int size) {
+        List<String> strings = new ArrayList<>();
         Random rnd = new Random();
         for (int i = 0; i < size; i++) {
             int pos = rnd.nextInt(data.size());
-            strings[i] = data.get(pos);
+            strings.add(data.get(pos));
         }
 
         return strings;
