@@ -1,12 +1,13 @@
 package ru.otus.algo.measures;
 
 import ru.otus.algo.AVLTree;
+import ru.otus.algo.BinarySearchTree;
 import ru.otus.algo.BinaryTree;
 import ru.otus.algo.RedBlackTree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class SearchTest {
 
@@ -14,20 +15,28 @@ public class SearchTest {
 
         List<SearchResult> results = new ArrayList<>();
 
-        int low = 100_000, measures = 15, high = 500_000;
-        List<Long> arr = InsertionTest.generateLongData(DataType.RND, high);
-        List<Long> data = InsertionTest.generateLongData(DataType.RND, high);
+        int low = 1_000_000, measures = 15, high = 5_000_000;
+        List<Long> arr = DataSet.generateLongData(DataSet.DataType.RND, high);
+        List<Long> data = DataSet.generateLongData(DataSet.DataType.RND, high);
 
-        search(arr, DataType.RND,  i -> RedBlackTree.of(data.subList(0, i).toArray(new Long[0])), low, measures, high, results);
+        search(arr, DataSet.DataType.RND, ()-> BinarySearchTree.of(data.toArray(new Long[0])), low, measures, high, results);
+        search(arr, DataSet.DataType.RND, () -> RedBlackTree.of(data.toArray(new Long[0])), low, measures, high, results);
+        search(arr, DataSet.DataType.RND, () -> AVLTree.of(data.toArray(new Long[0])), low, measures, high, results);
 
-        search(arr, DataType.RND, i -> AVLTree.of(data.subList(0, i).toArray(new Long[0])), low, measures, high, results);
 
         DataSet set = new DataSet("wiki.train.tokens");
         List<String> searchTokens = set.getRandomTokens(high);
 
-        search(searchTokens, DataType.TOKENS, i -> RedBlackTree.of(set.getData(i).toArray(new String[0])), low, measures, high, results);
-        search(searchTokens, DataType.TOKENS, i -> AVLTree.of(set.getData(i).toArray(new String[0])), low, measures, high, results);
+        search(searchTokens, DataSet.DataType.TOKENS, () -> BinarySearchTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
+        search(searchTokens, DataSet.DataType.TOKENS, () -> RedBlackTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
+        search(searchTokens, DataSet.DataType.TOKENS, () -> AVLTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
 
+        searchCycle(BinarySearchTree.of(data.toArray(new Long[0])), arr, 5000, results);
+        searchCycle(RedBlackTree.of(data.toArray(new Long[0])), arr, 5000,  results);
+        searchCycle(AVLTree.of(data.toArray(new Long[0])), arr, 5000, results);
+
+
+        System.out.println("Summary:");
         System.out.println(SearchResult.header());
 
         for (SearchResult result : results) {
@@ -35,37 +44,40 @@ public class SearchTest {
         }
     }
 
-    private static <T> void search(List<T> arr, DataType type, Function<Integer, BinaryTree<T>> fn, int low, int measures, int high, List<SearchResult> results) {
+    private static <T> void search(List<T> arr, DataSet.DataType type, Supplier<BinaryTree<T>> fn, int low, int measures, int high, List<SearchResult> results) {
         int step = (high - low) / measures;
         BinaryTree<T> tree;
+        tree = fn.get();
         for (int i = low; i <= high; i += step) {
+            System.out.println(String.format("Running search test for %s of %s data type. Tree size: %s. i: %s", tree.getClass().getSimpleName(), type, tree.size(), i));
 
-            System.out.println(i);
+            SearchResult e = measureSearch(tree, arr.subList(0, i), type);
 
-            tree = fn.apply(i);
-
-            searchRandomTest(tree, arr.subList(0, i), results, type);
+            results.add(e);
+            System.out.println(e);
+            System.out.println();
         }
     }
 
-    private static <T> void searchRandomTest(BinaryTree<T> tree, List<T> arr, List<SearchResult> results, DataType type) {
-        results.add(measureSearch(tree, arr, type));
-    }
-
-    private static <T> void searchCycleTest(BinaryTree<T> tree, List<T> arr, List<SearchResult> results) {
+    private static <T> void searchCycle(BinaryTree<T> tree, List<T> arr, int size, List<SearchResult> results) {
         int counter = 0;
+        System.out.println(String.format("Running cycle (%s searches %s times) search test for %s of %s data type. " +
+                "Tree size: %s", size, 1000, tree.getClass().getSimpleName(), DataSet.DataType.RND, tree.size()));
         long delta = System.nanoTime();
         for (int i = 0; i < 1000; i++) {
-            for (T l : arr) {
-                if (tree.contains(l))
+            for (int k =0; k < size; k++) {
+                if (tree.contains(arr.get(k)))
                     counter++;
             }
         }
         delta = System.nanoTime() - delta;
-        results.add(new SearchResult(tree.getClass(), delta, DataType.CYCLE, tree.size(), counter));
+        SearchResult e = new SearchResult(tree.getClass(), delta, DataSet.DataType.CYCLE, 1000*size, counter);
+        results.add(e);
+        System.out.println(e);
+        System.out.println();
     }
 
-    private static <T> SearchResult measureSearch(BinaryTree<T> tree, List<T> arr, DataType type) {
+    private static <T> SearchResult measureSearch(BinaryTree<T> tree, List<T> arr, DataSet.DataType type) {
         int counter = 0;
         long delta = System.nanoTime();
 
@@ -75,6 +87,6 @@ public class SearchTest {
 
         }
         delta = System.nanoTime() - delta;
-        return new SearchResult(tree.getClass(), delta, type, tree.size(), counter);
+        return new SearchResult(tree.getClass(), delta, type, arr.size(), counter);
     }
 }

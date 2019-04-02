@@ -1,91 +1,71 @@
 package ru.otus.algo.measures;
 
 import ru.otus.algo.AVLTree;
+import ru.otus.algo.BinarySearchTree;
 import ru.otus.algo.BinaryTree;
 import ru.otus.algo.RedBlackTree;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 public class InsertionTest {
 
-    private static final Random random = new Random();
-
     public static void main(String[] args) {
 
-        ArrayList<DataType> types = new ArrayList<>();
-        types.add(DataType.RND);
-        types.add(DataType.ASC);
+        ArrayList<DataSet.DataType> types = new ArrayList<>();
+        types.add(DataSet.DataType.RND);
+        types.add(DataSet.DataType.ASC);
+        types.add(DataSet.DataType.TOKENS);
 
-        System.out.println(InsertResult.header());
-        int low = 1_000_00, measures = 15, high = 5_00_000;
-        int step = (high - low) / measures;
-        for (int i = low; i < high; i += step) {
-            List<Supplier<BinaryTree<Long>>> list = new ArrayList<>();
-            list.add(RedBlackTree::of);
-            list.add(AVLTree::of);
-            List<InsertResult> insertResults = new ArrayList<>();
-            InsertionTest.insertionLongTest(list, types, i, insertResults);
-
-            List<Supplier<BinaryTree<String>>> list1 = new ArrayList<>();
-            list1.add(RedBlackTree::of);
-            list1.add(AVLTree::of);
-            InsertionTest.insertionTokensTest(list1, i, insertResults);
-
-            for (InsertResult t : insertResults) {
-                System.out.println(t);
+        int low = 1_000_000, measures = 15, high = 5_000_000;
+        List<InsertResult> res = new ArrayList<>();
+        for (DataSet.DataType type : types) {
+            if (DataSet.DataType.TOKENS == type) {
+                DataSet set = new DataSet("wiki.train.tokens");
+                List<String> tokens = set.getRandomTokens(high);
+                insert(tokens, DataSet.DataType.TOKENS, BinarySearchTree::of, low, measures, high, res);
+                insert(tokens, DataSet.DataType.TOKENS, RedBlackTree::of, low, measures, high, res);
+                insert(tokens, DataSet.DataType.TOKENS, AVLTree::of, low, measures, high, res);
+            } else {
+                List<Long> data = DataSet.generateLongData(type, high);
+                if (DataSet.DataType.ASC != type)
+                    insert(data, type, BinarySearchTree::of, low, measures, high, res);
+                insert(data, type, RedBlackTree::of, low, measures, high, res);
+                insert(data, type, AVLTree::of, low, measures, high, res);
             }
         }
-    }
 
-    static List<Long> generateLongData(DataType type, int size) {
-        List<Long> longs = new ArrayList<>();
-        if (DataType.RND == type) {
-            for (int i = 0; i < size; i++)
-                longs.add(Math.abs(random.nextLong()));
-        } else if (DataType.ASC == type) {
-            longs = LongStream.rangeClosed(0, size).boxed().collect(Collectors.toList());
-        } else {
-            throw new UnsupportedOperationException();
-        }
-
-        return longs;
-    }
-
-    private static void insertionTokensTest(List<Supplier<BinaryTree<String>>> trees, int size, List<InsertResult> result) {
-        if (result == null)
-            throw new IllegalArgumentException();
-
-        DataSet set = new DataSet("wiki.train.tokens");
-
-        for (Supplier<BinaryTree<String>> sup : trees)
-            result.add(measureInsert(sup.get(), set.getData(size), DataType.TOKENS));
-    }
-
-    private static void insertionLongTest(List<Supplier<BinaryTree<Long>>> trees, List<DataType> types, int size, List<InsertResult> result) {
-        if (result == null)
-            throw new IllegalArgumentException();
-
-        for (DataType type : types) {
-            List<Long> arr = generateLongData(type, size);
-
-            for (Supplier<BinaryTree<Long>> sup : trees)
-                result.add(measureInsert(sup.get(), arr, type));
+        System.out.println("Summary:");
+        System.out.println(InsertResult.header());
+        for (InsertResult t : res) {
+            System.out.println(t);
         }
     }
 
-    private static <T> InsertResult measureInsert(BinaryTree<T> tree, List<T> arr, DataType type) {
+    private static <T> void insert(List<T> arr, DataSet.DataType type, Supplier<BinaryTree<T>> fn, int low, int measures, int high, List<InsertResult> results) {
+        int step = (high - low) / measures;
+        BinaryTree<T> tree;
+        for (int i = low; i <= high; i += step) {
+            tree = fn.get();
+            System.out.println(String.format("Running insert test for %s of %s data type (%s inserts).", tree.getClass().getSimpleName(), type, i));
+            InsertResult e = measureInsert(tree, arr, i, type);
+            results.add(e);
+            System.out.println(e);
+            System.out.println();
+        }
+    }
+
+    private static <T> InsertResult measureInsert(BinaryTree<T> tree, List<T> arr, int size, DataSet.DataType type) {
+        if (size > arr.size())
+            throw new IllegalArgumentException();
+
         long delta = System.nanoTime();
-        for (T t: arr) {
-            tree.add(t);
+        for (int i = 0; i < size; i++) {
+            tree.add(arr.get(i));
         }
         delta = System.nanoTime() - delta;
         int height = tree.getHeight();
-        return new InsertResult(tree.getClass(), delta, height, type, tree.size(), tree.getLeftRotationCount(), tree.getRightRotationCount());
+        return new InsertResult(tree.getClass(), delta, height, type, size, tree.getLeftRotationCount(), tree.getRightRotationCount());
     }
 }

@@ -6,19 +6,34 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 final class DataSet {
 
-    public DataSet(String path) {
-        this.path = path;
+    DataSet(String path) {
         data = parseFile(path);
     }
 
-    private String path;
     private List<String> data;
+    private static Random rnd = new Random();
 
-    public List<String> getData(int size) {
+    static List<Long> generateLongData(DataType type, int size) {
+        List<Long> longs = new ArrayList<>();
+        if (DataType.RND == type) {
+            for (int i = 0; i < size; i++)
+                longs.add(Math.abs(rnd.nextLong()));
+        } else if (DataType.ASC == type) {
+            longs = LongStream.rangeClosed(0, size).boxed().collect(Collectors.toList());
+        } else {
+            throw new UnsupportedOperationException();
+        }
+
+        return longs;
+    }
+
+    List<String> getData(int size) {
         if (data == null)
             throw new IllegalStateException();
 
@@ -26,9 +41,8 @@ final class DataSet {
         return data.subList(0, newSize);
     }
 
-    public List<String> getRandomTokens(int size) {
+    List<String> getRandomTokens(int size) {
         List<String> strings = new ArrayList<>();
-        Random rnd = new Random();
         for (int i = 0; i < size; i++) {
             int pos = rnd.nextInt(data.size());
             strings.add(data.get(pos));
@@ -51,5 +65,12 @@ final class DataSet {
             System.err.println(ex.getMessage());
         }
         return null;
+    }
+
+    enum DataType {
+        RND,
+        ASC,
+        TOKENS,
+        CYCLE
     }
 }

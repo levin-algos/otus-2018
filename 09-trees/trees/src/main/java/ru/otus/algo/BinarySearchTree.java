@@ -29,11 +29,11 @@ public class BinarySearchTree<T> extends AbstractBinarySearchTree<T> {
         super(cmp);
     }
 
-    static <T> BinarySearchTree<T> of() {
+    public static <T> BinarySearchTree<T> of() {
         return new BinarySearchTree<>((Comparator<? super T>) null);
     }
 
-    static <T> BinarySearchTree<T> of(T[] arr) {
+    public static <T> BinarySearchTree<T> of(T[] arr) {
         BinarySearchTree<T> tree = new BinarySearchTree<>();
         for (T i : arr) {
             tree.add(i);
