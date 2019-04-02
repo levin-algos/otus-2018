@@ -1,6 +1,7 @@
 package ru.otus.algo;
 
 import java.util.Comparator;
+import java.util.Random;
 import java.util.function.Function;
 
 /**
@@ -62,6 +63,7 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
             if (cur == null) {
                 if (parent == null) {
                     root = node;
+                    size = 1;
                     return;
                 }
                 int i = c.compareTo(parent.value);
@@ -91,6 +93,9 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
             }
         }
         //TODO: comparator loop
+
+        size++;
+        assert checkInvariants(root, getComparator());
     }
 
     @Override
@@ -109,11 +114,15 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
                 node.parent.right = merged;
             }
         }
+        size--;
+
+        if (root != null)
+            assert checkInvariants(root, getComparator());
     }
 
     @Override
     boolean checkInvariants(Node<V> node, Comparator<? super V> cmp) {
-        return false;
+        return isCartesian(root, getComparator(), null, null);
     }
 
     @Override
@@ -131,7 +140,17 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
         throw new UnsupportedOperationException();
     }
 
-    static <V> CartesianTree<V> of(V[] arr, Function<V, Integer> priority) {
+    public static <V> CartesianTree<V> of() {
+        Random random = new Random();
+        return new CartesianTree<>(v -> random.nextInt());
+    }
+
+    public static <V> CartesianTree<V> of(V[] arr) {
+        Random random = new Random();
+        return CartesianTree.build(arr, v -> random.nextInt());
+    }
+
+    public static <V> CartesianTree<V> of(V[] arr, Function<V, Integer> priority) {
         return CartesianTree.build(arr, priority);
     }
 
@@ -272,7 +291,8 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
         }
 
         tree.root = buildTree(values, priorities, 0, size, null);
-
+        if (tree.root != null)
+            assert tree.checkInvariants(tree.root, tree.getComparator());
         return tree;
     }
 
@@ -310,5 +330,53 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
 
         }
         return pos;
+    }
+
+    private static <V> boolean isCartesian(Node<V> node, Comparator<? super V> cmp, V from, V to) {
+        V value = node.value;
+        if (value != null) {
+            if (cmp == null) {
+                @SuppressWarnings("unchecked")
+                Comparable<V> c = (Comparable<V>) value;
+                if (from != null && c.compareTo(from) < 0) {
+                    System.out.println(String.format("%s less than %s", value, from));
+                    return false;
+                }
+                if (to != null && c.compareTo(to) > 0) {
+                    System.out.println(String.format("%s greater than %s", value, to));
+                    return false;
+                }
+            } else {
+                if (from != null && cmp.compare(value, from) < 0) {
+                    System.out.println(String.format("%s less than %s", value, from));
+                    return false;
+                }
+
+                if (to != null && cmp.compare(value, to) > 0) {
+                    System.out.println(String.format("%s greater than %s", value, to));
+                    return false;
+                }
+            }
+        }
+
+        if (node.left != null && ((CTNode<V>)node).priority < ((CTNode<V>) node.left).priority) {
+            System.out.println(String.format("priority %s less than %s", node, node.left));
+            return false;
+        }
+
+        if (node.right != null && ((CTNode<V>)node).priority < ((CTNode<V>) node.right).priority) {
+            System.out.println(String.format("priority %s less than %s", node, node.right));
+            return false;
+        }
+
+        if (node.left != null && !isCartesian(node.left, cmp, from, value)) {
+            return false;
+        }
+
+        if (node.right != null && !isCartesian(node.right, cmp, value, to)) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -1,9 +1,6 @@
 package ru.otus.algo.measures;
 
-import ru.otus.algo.AVLTree;
-import ru.otus.algo.BinarySearchTree;
-import ru.otus.algo.BinaryTree;
-import ru.otus.algo.RedBlackTree;
+import ru.otus.algo.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +19,7 @@ public class RemoveTest {
         remove(data.subList(0, high), () -> BinarySearchTree.of(arr.toArray(new Long[0])), low, measures, high, results);
         remove(data.subList(0, high), () -> RedBlackTree.of(arr.toArray(new Long[0])), low, measures, high, results);
         remove(data.subList(0, high), () -> AVLTree.of(arr.toArray(new Long[0])), low, measures, high, results);
+        remove(data.subList(0, high), () -> CartesianTree.of(arr.toArray(new Long[0])), low, measures, high, results);
 
         System.out.println(RemoveResult.header());
         for (RemoveResult res: results)

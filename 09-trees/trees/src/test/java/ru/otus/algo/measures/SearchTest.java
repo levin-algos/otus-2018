@@ -1,9 +1,6 @@
 package ru.otus.algo.measures;
 
-import ru.otus.algo.AVLTree;
-import ru.otus.algo.BinarySearchTree;
-import ru.otus.algo.BinaryTree;
-import ru.otus.algo.RedBlackTree;
+import ru.otus.algo.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +19,7 @@ public class SearchTest {
         search(arr, DataSet.DataType.RND, ()-> BinarySearchTree.of(data.toArray(new Long[0])), low, measures, high, results);
         search(arr, DataSet.DataType.RND, () -> RedBlackTree.of(data.toArray(new Long[0])), low, measures, high, results);
         search(arr, DataSet.DataType.RND, () -> AVLTree.of(data.toArray(new Long[0])), low, measures, high, results);
+        search(arr, DataSet.DataType.RND, () -> CartesianTree.of(data.toArray(new Long[0])), low, measures, high, results);
 
 
         DataSet set = new DataSet("wiki.train.tokens");
@@ -30,10 +28,12 @@ public class SearchTest {
         search(searchTokens, DataSet.DataType.TOKENS, () -> BinarySearchTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
         search(searchTokens, DataSet.DataType.TOKENS, () -> RedBlackTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
         search(searchTokens, DataSet.DataType.TOKENS, () -> AVLTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
+        search(searchTokens, DataSet.DataType.TOKENS, () -> CartesianTree.of(searchTokens.toArray(new String[0])), low, measures, high, results);
 
         searchCycle(BinarySearchTree.of(data.toArray(new Long[0])), arr, 5000, results);
         searchCycle(RedBlackTree.of(data.toArray(new Long[0])), arr, 5000,  results);
         searchCycle(AVLTree.of(data.toArray(new Long[0])), arr, 5000, results);
+        searchCycle(CartesianTree.of(data.toArray(new Long[0])), arr, 5000, results);
 
 
         System.out.println("Summary:");

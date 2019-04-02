@@ -10,27 +10,27 @@ tbl <- read.csv("insertion.csv", header = TRUE, sep = ';')
 
 time <- ggplot(tbl, aes(x = size, y = ms,
     group = interaction(Case),
-    colour = Case)) + geom_point() + geom_line()  +
+    colour = Case)) + geom_point() + geom_line()  +  theme(legend.text=element_text(size=6))+
     scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
 
 
 h <- ggplot(tbl, aes(x = size, y = height,
 group = interaction(Case),
-colour = Case)) + geom_point() + geom_line() +
+colour = Case)) + geom_point() + geom_line() +  theme(legend.text=element_text(size=6)) +
     scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
 
 left_rot <- ggplot(tbl, aes(x = size, y = l_rot,
 group = interaction(Case),
-colour = Case)) + geom_point() + geom_line() +
+colour = Case)) + geom_point() + geom_line() +  theme(legend.text=element_text(size=6)) +
     scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
 
 right_rot <- ggplot(tbl, aes(x = size, y = r_rot,
 group = interaction(Case),
-colour = Case)) + geom_point() + geom_line() +
+colour = Case)) + geom_point() + geom_line() +  theme(legend.text=element_text(size=6)) +
     scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
 
 
 
 ggarrange(time, h, left_rot, right_rot, ncol=2, nrow=2, common.legend = TRUE, legend="top")
 
-ggsave("1.png")
+ggsave("insertion.png")

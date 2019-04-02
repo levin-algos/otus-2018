@@ -17,23 +17,21 @@ class CartesianTreeTest {
 
     @Test
     void buildTest() {
-        CartesianTree<Integer> tree = CartesianTree.of(values, priority);
-
+        CartesianTree.of(values, priority);
     }
 
     @Test
     void buildTestNotSorted() {
         Integer[] values = {1, 3, 2, 4, 5, 6, 7, 8, 9, 10};
 
-        CartesianTree<Integer> tree = CartesianTree.of(values, priority);
-
+        assertThrows(AssertionError.class, () -> CartesianTree.of(values, priority));
     }
 
     @Test
     void sequentialAdd() {
         int height = 12;
         Integer[] values = Utils.generateRandom(1 << height, Integer.MAX_VALUE);
-        CartesianTree<Integer> tree = CartesianTree.of(new Integer[0], priority);
+        CartesianTree<Integer> tree = CartesianTree.of();
 
         for (Integer v : values) {
             tree.add(v);
@@ -51,22 +49,38 @@ class CartesianTreeTest {
         List<Integer> values = new ArrayList<>(Arrays.asList(Utils.generateRandom(1 << 10, 100)));
         CartesianTree<Integer> tree = CartesianTree.of(new Integer[0], priority);
 
-        for (Integer v : values) {
+        for (Integer v : values)
             tree.add(v);
-        }
 
-        for (Integer v : values) {
+        for (Integer v : values)
             assertTrue(tree.contains(v));
-        }
-
-        for (int i = 0; i < values.size(); i++) {
-            tree.remove(values.get(i));
-
-        }
 
 
-        for (Integer i: values) {
+        for (Integer value : values)
+            tree.remove(value);
+
+        for (Integer i: values)
             assertFalse(tree.contains(i));
+    }
+
+    @Test
+    void randomAddOrDelete() {
+        List<Integer> values = new ArrayList<>(Arrays.asList(Utils.generateRandom(1 << 14, 100)));
+        Collections.sort(values);
+        CartesianTree<Integer> tree = CartesianTree.of(values.toArray(new Integer[0]), priority);
+
+        for (int i =0; i < 1_000_000; i++) {
+            if ((i & 1) == 0) {
+                int element = rnd.nextInt();
+                tree.add(element);
+                values.add(element);
+            }
+            else {
+                int pos = Math.abs(rnd.nextInt()) % values.size();
+                tree.remove(values.get(pos));
+                values.remove(pos);
+            }
         }
+
     }
 }

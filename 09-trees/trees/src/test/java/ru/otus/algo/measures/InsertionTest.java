@@ -1,12 +1,13 @@
 package ru.otus.algo.measures;
 
-import ru.otus.algo.AVLTree;
-import ru.otus.algo.BinarySearchTree;
-import ru.otus.algo.BinaryTree;
-import ru.otus.algo.RedBlackTree;
+import ru.otus.algo.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class InsertionTest {
@@ -27,12 +28,31 @@ public class InsertionTest {
                 insert(tokens, DataSet.DataType.TOKENS, BinarySearchTree::of, low, measures, high, res);
                 insert(tokens, DataSet.DataType.TOKENS, RedBlackTree::of, low, measures, high, res);
                 insert(tokens, DataSet.DataType.TOKENS, AVLTree::of, low, measures, high, res);
+                insert(tokens, DataSet.DataType.TOKENS, CartesianTree::of, low, measures, high, res);
             } else {
                 List<Long> data = DataSet.generateLongData(type, high);
                 if (DataSet.DataType.ASC != type)
                     insert(data, type, BinarySearchTree::of, low, measures, high, res);
                 insert(data, type, RedBlackTree::of, low, measures, high, res);
                 insert(data, type, AVLTree::of, low, measures, high, res);
+
+                Random random = new Random();
+                Function<Long, Integer> priority =  i -> random.nextInt();
+                for (int i = low; i<high; i+=(high-low)/ measures) {
+                    CartesianTree<Long> tree;
+                    long delta = System.nanoTime();
+                    if (DataSet.DataType.ASC != type) {
+                        ArrayList<Long> longs = new ArrayList<>(data.subList(0, i));
+                        longs.sort(Comparator.naturalOrder());
+                        tree = CartesianTree.of(longs.toArray(new Long[0]), priority);
+                        delta = System.nanoTime() - delta;
+                    } else {
+                        tree = CartesianTree.of(data.subList(0, i).toArray(new Long[0]), priority);
+                        delta = System.nanoTime() - delta;
+                    }
+                    res.add(new InsertResult(CartesianTree.class, delta, tree.getHeight(), type, i, 0, 0));
+                }
+
             }
         }
 
@@ -41,6 +61,10 @@ public class InsertionTest {
         for (InsertResult t : res) {
             System.out.println(t);
         }
+    }
+
+    private static <T> void build() {
+
     }
 
     private static <T> void insert(List<T> arr, DataSet.DataType type, Supplier<BinaryTree<T>> fn, int low, int measures, int high, List<InsertResult> results) {
