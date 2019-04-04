@@ -122,7 +122,7 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
 
     @Override
     boolean checkInvariants(Node<V> node, Comparator<? super V> cmp) {
-        return isCartesian(root, getComparator(), null, null);
+        return isCartesian(node, getComparator(), null, null);
     }
 
     @Override
@@ -147,6 +147,7 @@ public class CartesianTree<V> extends AbstractBinarySearchTree<V> {
 
     public static <V> CartesianTree<V> of(V[] arr) {
         Random random = new Random();
+
         return CartesianTree.build(arr, v -> random.nextInt());
     }
 

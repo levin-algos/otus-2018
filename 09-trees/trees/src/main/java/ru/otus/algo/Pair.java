@@ -14,7 +14,7 @@ public class Pair<K, V> {
         this.right = right;
     }
 
-    public static <K, V> ru.otus.algo.Pair<K, V> of(K value, V value2) {
+    public static <K, V> Pair<K, V> of(K value, V value2) {
         return new ru.otus.algo.Pair<>(value, value2);
     }
 
@@ -31,14 +31,14 @@ public class Pair<K, V> {
         return "Pair{" + left + ":" + right + '}';
     }
 
-    static <K extends Comparable<K>, V extends Comparable<V>> List<ru.otus.algo.Pair<K, V>> combine(K[] values1, V[] values2) {
+    public static <K extends Comparable<K>, V extends Comparable<V>> List<Pair<K, V>> combine(K[] values1, V[] values2) {
         if (values1 == null || values2 == null)
             throw new IllegalArgumentException();
 
         if (values1.length != values2.length)
             throw new IllegalArgumentException();
 
-        List<ru.otus.algo.Pair<K, V>> res = new ArrayList<>();
+        List<Pair<K, V>> res = new ArrayList<>();
 
         for (int i = 0; i < values1.length; i++) {
             res.add(ru.otus.algo.Pair.of(values1[i], values2[i]));

@@ -2,10 +2,9 @@ package ru.otus.algo.measures;
 
 class InsertResult {
 
-    private final Class<?> cl;
+    private final String name;
     private final long time;
     private final int height;
-    private final DataSet.DataType type;
     private final int size;
     private final int leftRot;
     private final int rightRot;
@@ -15,11 +14,10 @@ class InsertResult {
         return String.format("%s;%s;%s;%s;%s;%s", "Case", "ms", "height", "size", "l_rot", "r_rot");
     }
 
-    InsertResult(Class<?> cl, long time, int height, DataSet.DataType type, int size, int leftRot, int rightRot) {
-        this.cl = cl;
+    InsertResult(String name, long time, int height, int size, int leftRot, int rightRot) {
+        this.name = name;
         this.time = time;
         this.height = height;
-        this.type = type;
         this.size = size;
         this.leftRot = leftRot;
         this.rightRot = rightRot;
@@ -27,7 +25,7 @@ class InsertResult {
 
     @Override
     public String toString() {
-        return String.format("%s %s;%f;%s;%s;%s;%s",
-                cl.getSimpleName(), type, (double) time / 1_000_000, height, size, leftRot, rightRot);
+        return String.format("%s;%f;%s;%s;%s;%s",
+                name, (double) time / 1_000_000, height, size, leftRot, rightRot);
     }
 }

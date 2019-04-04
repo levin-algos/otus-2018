@@ -12,6 +12,8 @@ public class RemoveTest {
     public static void main(String[] args) {
         int high = 1_000_000, low = 100_000, measures = 15;
         List<Long> arr = DataSet.generateLongData(DataSet.DataType.RND, 5_000_000);
+        List<Long> sortedDArr = new ArrayList<>(arr);
+        Collections.sort(sortedDArr);
         List<Long> data = new ArrayList<>(arr);
         Collections.shuffle(data);
 
@@ -19,7 +21,7 @@ public class RemoveTest {
         remove(data.subList(0, high), () -> BinarySearchTree.of(arr.toArray(new Long[0])), low, measures, high, results);
         remove(data.subList(0, high), () -> RedBlackTree.of(arr.toArray(new Long[0])), low, measures, high, results);
         remove(data.subList(0, high), () -> AVLTree.of(arr.toArray(new Long[0])), low, measures, high, results);
-        remove(data.subList(0, high), () -> CartesianTree.of(arr.toArray(new Long[0])), low, measures, high, results);
+        remove(data.subList(0, high), () -> CartesianTree.of(sortedDArr.toArray(new Long[0])), low, measures, high, results);
 
         System.out.println(RemoveResult.header());
         for (RemoveResult res: results)

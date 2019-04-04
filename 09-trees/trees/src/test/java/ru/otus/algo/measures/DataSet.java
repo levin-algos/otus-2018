@@ -1,6 +1,8 @@
 package ru.otus.algo.measures;
 
 
+import ru.otus.algo.Pair;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -33,12 +35,11 @@ final class DataSet {
         return longs;
     }
 
-    List<String> getData(int size) {
+    List<String> getData() {
         if (data == null)
             throw new IllegalStateException();
 
-        int newSize = size > data.size() ? data.size() : size;
-        return data.subList(0, newSize);
+        return data;
     }
 
     List<String> getRandomTokens(int size) {
@@ -49,6 +50,17 @@ final class DataSet {
         }
 
         return strings;
+    }
+
+    List<Pair<String, Integer>> getFrequencyPairs() {
+        Map<String, Integer> map = new HashMap<>();
+
+        for (String entity: data) {
+            Integer val = map.get(entity);
+            Integer newVal = val == null? 1 : val+1;
+            map.put(entity, newVal);
+        }
+        return Pair.combine(map.keySet().toArray(new String[0]), map.values().toArray(new Integer[0]));
     }
 
     private List<String> parseFile(String strpath) {

@@ -14,12 +14,12 @@ group = interaction(case),
 colour = case)) + geom_point() + geom_line() + theme(legend.text=element_text(size=6)) +
 scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
 
-#
-# h <- ggplot(tbl, aes(x = search_count, y = found,
-# group = interaction(case),
-# colour = case)) + geom_point() + geom_line() + theme(legend.text=element_text(size=6)) +
-#     scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
-#
-# ggarrange(time, h, ncol=1, nrow=2, common.legend = TRUE, legend="top")
+
+h <- ggplot(tbl, aes(x = search_count, y = height,
+group = interaction(case),
+colour = case)) + geom_point() + geom_line() + theme(legend.text=element_text(size=6)) +
+    scale_fill_manual(values=palette) + scale_colour_manual(values=palette)
+
+ggarrange(time, h, ncol=1, nrow=2, common.legend = TRUE, legend="top")
 
 ggsave("search.png")
