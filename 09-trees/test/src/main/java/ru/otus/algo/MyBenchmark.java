@@ -33,17 +33,47 @@ package ru.otus.algo;
 
 import org.openjdk.jmh.annotations.*;
 
-import java.util.*;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 @State(Scope.Benchmark)
 public class MyBenchmark {
 
-    public static class Entity<T> {
-        T val;
+    @State(Scope.Benchmark)
+    public static class Data1 {
+        Integer[] data;
+        @Param({"100000"})
+        int size;
+        Integer last;
 
-        public Entity(T val) {
-            this.val = val;
+        Map<Integer, String> map = new HashMap<>(key -> 1);
+
+        @Setup
+        public void setup() {
+
+            data = IntStream.range(0, size).boxed().toArray(Integer[]::new);
+            for (Integer i: data) {
+                map.put(i, "" + i);
+                last = i;
+            }
+        }
+    }
+
+
+    static class WrongHash {
+        private Integer i;
+
+        public WrongHash(Integer i) {
+            this.i = i;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            WrongHash wrongHash = (WrongHash) o;
+            return Objects.equals(i, wrongHash.i);
         }
 
         @Override
@@ -53,24 +83,47 @@ public class MyBenchmark {
     }
 
     @State(Scope.Benchmark)
-    public static class Data {
-        Map<Entity<Integer>, String> data;
-        Entity<Integer> last;
+    public static class UtilData {
+        WrongHash[] data;
         @Param({"1000", "10000", "100000"})
         int size;
+        WrongHash last;
+
+        java.util.Map<WrongHash, String> map = new java.util.HashMap<>();
 
         @Setup
         public void setup() {
-            data = new HashMap<>();
-            for (int i = 0; i < size; i++) {
-                Entity<Integer> k = new Entity<>(i);
-                data.put(k, "val"+i);
-                last = k;
+            int[] data = IntStream.range(0, size).toArray();
+            for (int i: data) {
+                WrongHash key = new WrongHash(i);
+                map.put(key, "" + i);
+                last = key;
             }
         }
     }
 
+
     /*
+
+Benchmark                      (size)  Mode  Cnt  Score    Error  Units
+MyBenchmark.wrongCache           1000  avgt   25  0,002 ?  0,001  ms/op
+MyBenchmark.wrongCache:·stack    1000  avgt         NaN             ---
+MyBenchmark.wrongCache          10000  avgt   25  0,040 ?  0,001  ms/op
+MyBenchmark.wrongCache:·stack   10000  avgt         NaN             ---
+MyBenchmark.wrongCache         100000  avgt   25  1,032 ?  0,044  ms/op
+MyBenchmark.wrongCache:·stack  100000  avgt         NaN             ---
+
+queue
+    Benchmark                      (size)  Mode  Cnt  Score    Error  Units
+MyBenchmark.wrongCache           1000  avgt   25  0,009 ?  0,001  ms/op
+MyBenchmark.wrongCache:·stack    1000  avgt         NaN             ---
+MyBenchmark.wrongCache          10000  avgt   25  0,081 ?  0,003  ms/op
+MyBenchmark.wrongCache:·stack   10000  avgt         NaN             ---
+MyBenchmark.wrongCache         100000  avgt   25  1,580 ?  0,058  ms/op
+MyBenchmark.wrongCache:·stack  100000  avgt         NaN             ---
+
+
+    java.util
     Benchmark                      (size)  Mode  Cnt  Score   Error  Units
 MyBenchmark.wrongCache           1000  avgt    5  0.006 ± 0.001  ms/op
 MyBenchmark.wrongCache:·stack    1000  avgt         NaN            ---
@@ -84,8 +137,37 @@ MyBenchmark.wrongCache:·stack  100000  avgt         NaN            ---
     @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
     @Measurement(iterations = 5, time = 1)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public String wrongCache(Data data) {
-        return data.data.get(data.last);
+    public String wrongCache(Data1 data) {
+        return data.map.get(data.last);
+    }
+
+
+    /*
+    Benchmark                          (size)  Mode  Cnt  Score    Error  Units
+MyBenchmark.wrongCache               1000  avgt   25  0,002 ?  0,001  ms/op
+MyBenchmark.wrongCache:·stack        1000  avgt         NaN             ---
+MyBenchmark.wrongCache              10000  avgt   25  0,038 ?  0,001  ms/op
+MyBenchmark.wrongCache:·stack       10000  avgt         NaN             ---
+MyBenchmark.wrongCache              20000  avgt   25  0,079 ?  0,002  ms/op
+MyBenchmark.wrongCache:·stack       20000  avgt         NaN             ---
+MyBenchmark.wrongCache              50000  avgt   25  0,167 ?  0,005  ms/op
+MyBenchmark.wrongCache:·stack       50000  avgt         NaN             ---
+MyBenchmark.wrongUtilCache           1000  avgt   25  0,007 ?  0,002  ms/op
+MyBenchmark.wrongUtilCache:·stack    1000  avgt         NaN             ---
+MyBenchmark.wrongUtilCache          10000  avgt   25  0,107 ?  0,025  ms/op
+MyBenchmark.wrongUtilCache:·stack   10000  avgt         NaN             ---
+MyBenchmark.wrongUtilCache         100000  avgt   25  0,695 ?  0,260  ms/op
+MyBenchmark.wrongUtilCache:·stack  100000  avgt         NaN             ---
+
+     */
+
+//    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+    @Measurement(iterations = 5, time = 1)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    public String wrongUtilCache(UtilData data) {
+        return data.map.get(data.last);
     }
 
 }

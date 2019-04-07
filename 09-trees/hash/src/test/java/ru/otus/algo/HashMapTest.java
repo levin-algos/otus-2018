@@ -15,8 +15,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HashMapTest {
-
-    private static final int MAX = 10_000;
+    private static final int MAX = 1000;
 
     @ParameterizedTest
     @MethodSource("mapProducer")
@@ -35,7 +34,7 @@ class HashMapTest {
     }
 
     @Test
-    void resize() throws IllegalAccessException {
+    void resize() {
         HashMap<String, String> map = new HashMap<>(new TrivialHash<>());
         int[] range = IntStream.range(0, MAX).toArray();
 
@@ -48,10 +47,6 @@ class HashMapTest {
         for (int r : range) {
             assertTrue(map.containsKey("" + r));
         }
-
-        Field bucketsNum = FieldUtils.getField(HashMap.class, "BUCKETS_NUM", true);
-
-        assertEquals(1 << 14, bucketsNum.get(map));
     }
 
     @ParameterizedTest
@@ -60,7 +55,7 @@ class HashMapTest {
         List<Integer> list = IntStream.range(0, MAX).boxed().collect(Collectors.toList());
 
         for (Integer i : list)
-            map.put("" + i, "val" + i);
+            assertNull(map.put("" + i, "val" + i));
 
         Collections.shuffle(list);
 
@@ -76,6 +71,7 @@ class HashMapTest {
 
     static Stream<Map<String, String>> mapProducer() {
         return Stream.of(new HashMap<>(new TrivialHash<>()),
-                         new HashMap<>(new PerfectHash.Builder().build()));
+                         new HashMap<>(new PerfectHash.Builder<String>().build()),
+                        new HashMap<>(key -> 1));
     }
 }

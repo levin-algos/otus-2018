@@ -17,16 +17,15 @@ public class SearchTest {
     public static void main(String[] args) {
 
         List<SearchResult> results = new ArrayList<>();
-//        List<Long> arr = DataSet.generateLongData(DataSet.DataType.RND, HIGH);
-//        List<Long> data = DataSet.generateLongData(DataSet.DataType.RND, HIGH);
-//        List<Long> sortedData = new ArrayList<>(data);
-//        Collections.sort(sortedData);
+        List<Long> arr = DataSet.generateLongData(DataSet.DataType.RND, HIGH);
+        List<Long> data = DataSet.generateLongData(DataSet.DataType.RND, HIGH);
+        List<Long> sortedData = new ArrayList<>(data);
+        Collections.sort(sortedData);
 
-//        search("BST_RND", arr, ()-> BinarySearchTree.of(data.toArray(new Long[0])), results);
-//        search("RBT_RND", arr, () -> RedBlackTree.of(data.toArray(new Long[0])), results);
-//        search("AVL_RND", arr, () -> AVLTree.of(data.toArray(new Long[0])), results);
-//        search("Treap_RND", arr, () -> CartesianTree.of(sortedData.toArray(new Long[0])), results);
-
+        search("BST_RND", arr, ()-> BinarySearchTree.of(data.toArray(new Long[0])), results);
+        search("RBT_RND", arr, () -> RedBlackTree.of(data.toArray(new Long[0])), results);
+        search("AVL_RND", arr, () -> AVLTree.of(data.toArray(new Long[0])), results);
+        search("Treap_RND", arr, () -> CartesianTree.of(sortedData.toArray(new Long[0])), results);
 
         DataSet set = new DataSet("wiki.train.tokens");
         List<String> searchTokens = set.getData();
@@ -41,11 +40,11 @@ public class SearchTest {
         List<Pair<String, Integer>> frequencyPairs = set.getFrequencyPairs();
         search("Optimal1_TOKENS", searchTokens, () -> BinarySearchTree.buildOptimal(new ArrayList<>(frequencyPairs)), results);
         search("Optimal2_TOKENS", searchTokens, () -> BinarySearchTree.buildMehlhorn(new ArrayList<>(frequencyPairs)), results);
-//
-//        searchCycle("BST_CYCLE", BinarySearchTree.of(data.toArray(new Long[0])), arr, 5000, results);
-//        searchCycle("RBT_CYCLE", RedBlackTree.of(data.toArray(new Long[0])), arr, 5000,  results);
-//        searchCycle("AVL_CYCLE", AVLTree.of(data.toArray(new Long[0])), arr, 5000, results);
-//        searchCycle("Treap_CYCLE", CartesianTree.of(sortedData.toArray(new Long[0])), arr, 5000, results);
+
+        searchCycle("BST_CYCLE", BinarySearchTree.of(data.toArray(new Long[0])), arr, 5000, results);
+        searchCycle("RBT_CYCLE", RedBlackTree.of(data.toArray(new Long[0])), arr, 5000,  results);
+        searchCycle("AVL_CYCLE", AVLTree.of(data.toArray(new Long[0])), arr, 5000, results);
+        searchCycle("Treap_CYCLE", CartesianTree.of(sortedData.toArray(new Long[0])), arr, 5000, results);
 
 
         System.out.println("Summary:");

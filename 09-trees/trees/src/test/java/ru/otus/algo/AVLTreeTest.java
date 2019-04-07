@@ -23,7 +23,7 @@ class AVLTreeTest {
     @Test
     void test1() {
         AVLTree<Integer> tree = AVLTree.of(new Integer[0]);
-        int MAX = 1_000_000;
+        int MAX = 10_000;
         Integer[] ints = IntStream.rangeClosed(0, MAX).boxed().toArray(Integer[]::new);
 
         Collections.shuffle(Arrays.asList(ints));
@@ -62,17 +62,6 @@ class AVLTreeTest {
         for (int i = 0; i < MAX; i++) {
             tree.remove(i);
         }
-    }
-
-    @Test
-    void getHeightTest() {
-        BinaryTree<Integer> t = AVLTree.of();
-
-        for (Integer i=0; i < 5_000_000; i++) {
-            t.add(i);
-        }
-
-        assertEquals(10, t.getHeight());
     }
 
     @ParameterizedTest
