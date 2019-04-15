@@ -62,25 +62,4 @@ class CartesianTreeTest {
         for (Integer i: values)
             assertFalse(tree.contains(i));
     }
-
-    @Test
-    void randomAddOrDelete() {
-        List<Integer> values = new ArrayList<>(Arrays.asList(Utils.generateRandom(1 << 14, 100)));
-        Collections.sort(values);
-        CartesianTree<Integer> tree = CartesianTree.of(values.toArray(new Integer[0]), priority);
-
-        for (int i =0; i < 1_000_000; i++) {
-            if ((i & 1) == 0) {
-                int element = rnd.nextInt();
-                tree.add(element);
-                values.add(element);
-            }
-            else {
-                int pos = Math.abs(rnd.nextInt()) % values.size();
-                tree.remove(values.get(pos));
-                values.remove(pos);
-            }
-        }
-
-    }
 }
