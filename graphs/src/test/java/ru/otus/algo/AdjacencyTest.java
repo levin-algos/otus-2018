@@ -1,10 +1,12 @@
 package ru.otus.algo;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,15 +15,11 @@ class AdjacencyTest
     private final Integer a = 1;
     private final Integer b = 2;
     private final Integer c = 3;
-    private Adjacency<Integer> adj;
 
-    @BeforeEach
-    void before() {
-        adj = new AdjacencyList<>();
-    }
 
-    @Test
-    void isConnected() {
+    @ParameterizedTest
+    @MethodSource("adjacencySupplier")
+    void isConnected(Adjacency<Integer> adj) {
         assertTrue(adj.isConnected(a, a));
 
         adj.connect(a, b);
@@ -33,8 +31,9 @@ class AdjacencyTest
         assertFalse(adj.isConnected(b, a));
     }
 
-    @Test
-    void getConnectedList() {
+    @ParameterizedTest
+    @MethodSource("adjacencySupplier")
+    void getConnectedList(Adjacency<Integer> adj) {
         adj.connect(a, b);
         adj.connect(a, c);
 
@@ -43,8 +42,9 @@ class AdjacencyTest
         assertIterableEquals(Collections.emptyList(), adj.getConnected(c));
     }
 
-    @Test
-    void invertAdjacency() {
+    @ParameterizedTest
+    @MethodSource("adjacencySupplier")
+    void invertAdjacency(Adjacency<Integer> adj) {
         adj.connect(a, b);
         adj.connect(a, c);
 
@@ -59,5 +59,10 @@ class AdjacencyTest
         assertIterableEquals(Collections.emptyList(), invert.getConnected(a));
         assertIterableEquals(Collections.singletonList(a), invert.getConnected(b));
         assertIterableEquals(Collections.singletonList(a), invert.getConnected(c));
+    }
+
+    private static Stream<Adjacency<Integer>> adjacencySupplier() {
+        return Stream.of(new AdjacencyList<>(),
+                new AdjacencyMatrix<>(3));
     }
 }
