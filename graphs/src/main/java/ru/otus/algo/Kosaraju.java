@@ -16,43 +16,10 @@ class Kosaraju {
 
     private static final Logger LOGGER = LogManager.getLogger(Kosaraju.class.getSimpleName());
 
-    /*
-        Format:
-        1st line: # of vertexes
-        every next line:
-        #vertex #connections_list
-    */
-    private static int[][] loadEdges(URI path) {
-        int[][] res = null;
-            try (BufferedReader reader = Files.newBufferedReader(Paths.get(path))) {
-                String line = reader.readLine();
-                if (line == null)
-                    throw new IOException();
-
-                int size = Integer.parseInt(line);
-                res = new int[size][];
-                while ((line = reader.readLine()) != null) {
-                    String[] arr = line.split(" ");
-
-                    int id = Integer.parseInt(arr[0]);
-                    int length = arr.length;
-                    int[] conns = new int[length-1];
-                    for (int i = 1; i< length; i++) {
-                        conns[i-1] = Integer.parseInt(arr[i]);
-                    }
-                    res[id] = conns;
-                }
-
-            } catch (IOException e) {
-                LOGGER.error(e);
-            }
-
-            return res;
-    }
 
     public static void main(String[] args) throws URISyntaxException {
         URI resource = ClassLoader.getSystemResource("oracle.docs.graph").toURI();
-        int[][] input = loadEdges(resource);
+        int[][] input = Common.loadEdges(resource);
 
         if (input == null)
             throw new IllegalStateException();
@@ -69,7 +36,6 @@ class Kosaraju {
             }
         }
 
-        LOGGER.info("started");
         Adjacency<Integer> invert = adjacency.invert();
 
         for (int i = 0; i< input.length; i++) {
