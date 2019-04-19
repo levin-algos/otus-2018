@@ -10,7 +10,7 @@ import java.util.Iterator;
 public class AdjacencyList<T> implements Adjacency<T> {
     private final Map<T, Set<T>> edges;
 
-    AdjacencyList() {
+    public AdjacencyList() {
         edges = new HashMap<>(Object::hashCode);
     }
 
@@ -77,7 +77,7 @@ public class AdjacencyList<T> implements Adjacency<T> {
     public Adjacency<T> invert() {
         AdjacencyList<T> newEdges = new AdjacencyList<>();
 
-        for (Map.Entry<T, Set<T>> entry : edges.entrySet()) {
+        for (Map.Entry<T, Set<T>> entry: edges.entrySet()) {
             Set<T> value = entry.getValue();
             if (value != null) {
                 for (T v : value) {
@@ -85,6 +85,7 @@ public class AdjacencyList<T> implements Adjacency<T> {
                 }
             }
         }
+
         return newEdges;
     }
 }
