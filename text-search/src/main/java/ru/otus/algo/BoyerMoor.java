@@ -19,21 +19,27 @@ class BoyerMoor {
 
         List<Integer> ints = new ArrayList<>();
         int shift = 0;
+        int prevK = -1;
         while (shift <= tLen - pLen) {
-            int j = pLen - 1;
+            int j = pLen - 1, h = shift+j;
             boolean eq;
             char tChar;
             do {
                 tChar = text.charAt(shift + j);
                 eq = tChar == pattern.charAt(j);
-                if (eq) j--;
-            } while  (j >= 0 && eq);
-            if (eq) {
+                if (eq) {
+                    j--;
+                    h--;
+                }
+
+            } while  (j >= 0 && h > prevK && eq);
+            if (eq || h == prevK) {
                 ints.add(shift);
                 shift++;
             } else {
                 int badShift = bad.get(tChar);
                 int goodShift = good[j];
+                prevK = j == pLen - 1? prevK: shift;
                 shift += Math.max(badShift, goodShift) - (pLen - 1 - j);
             }
         }
