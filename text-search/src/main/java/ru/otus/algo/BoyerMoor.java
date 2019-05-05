@@ -20,20 +20,21 @@ class BoyerMoor {
         List<Integer> ints = new ArrayList<>();
         int shift = 0;
         while (shift <= tLen - pLen) {
-            boolean eq = true;
             int j = pLen - 1;
-            while (j >= 0 && eq) {
-                eq = text.charAt(shift + j) == pattern.charAt(j);
+            boolean eq;
+            char tChar;
+            do {
+                tChar = text.charAt(shift + j);
+                eq = tChar == pattern.charAt(j);
                 if (eq) j--;
-            }
+            } while  (j >= 0 && eq);
             if (eq) {
                 ints.add(shift);
                 shift++;
             } else {
-                char v = text.charAt(shift + j);
-                int badShift = bad.get(v);
+                int badShift = bad.get(tChar);
                 int goodShift = good[j];
-                shift += pLen - 1 - j + Math.max(badShift, goodShift);
+                shift += Math.max(badShift, goodShift) - (pLen - 1 - j);
             }
         }
         return ints;

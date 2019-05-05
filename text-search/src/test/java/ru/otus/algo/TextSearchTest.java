@@ -16,12 +16,26 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
-class BoyerMoorTest {
+class TextSearchTest {
 
     @ParameterizedTest
     @MethodSource("dataProvider")
-    void test(Data data) {
+    void boyerMoorTest(Data data) {
         List<Integer> actual = BoyerMoor.boyerMoor(data.text, data.pattern);
+        assertIterableEquals(data.result, actual, data.pattern);
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    void finiteAutomataSearch(Data data) {
+        List<Integer> actual = FiniteAutomata.faSearch(data.text, data.pattern);
+        assertIterableEquals(data.result, actual, data.pattern);
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    void KMPTest(Data data) {
+        List<Integer> actual = KMP.kmp(data.text, data.pattern);
         assertIterableEquals(data.result, actual, data.pattern);
     }
 
