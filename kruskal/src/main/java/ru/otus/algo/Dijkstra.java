@@ -3,10 +3,6 @@ package ru.otus.algo;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import ru.otus.algo.common.*;
-import ru.otus.algo.common.HashMap;
-import ru.otus.algo.common.HashSet;
-import ru.otus.algo.common.Map;
-import ru.otus.algo.common.Set;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,7 +18,7 @@ private static final Logger LOGGER = LogManager.getLogger(Dijkstra.class.getSimp
 
     public static void main(String[] args) throws URISyntaxException {
         URI uri = ClassLoader.getSystemResource("simple.graph").toURI();
-        int[][] input = Common.loadEdges(uri);
+        int[][] input = Common.load(uri);
 
         Adjacency<Integer> adjacency = new AdjacencyList<>();
 
@@ -60,10 +56,10 @@ private static final Logger LOGGER = LogManager.getLogger(Dijkstra.class.getSimp
                     int alt = u.mark + length(u.id, v);
                     if (alt < vertex.mark) {
                         vertex.mark = alt;
-                        edges.add(new Edge(u.id, ));
+//                        edges.add(new Edge(u.id, ));
                     }
                 }
-                int alt = dist[u.id]+length(u.id, v);
+//                int alt = dist[u.id]+length(u.id, v);
 
 
             }

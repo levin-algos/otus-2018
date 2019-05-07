@@ -14,13 +14,8 @@ public class Common {
 
     private final static Logger LOGGER = LogManager.getLogger(Common.class.getSimpleName());
 
-    /*
-        Format:
-        1st line: # of vertexes
-        every next line:
-        #vertex #connections_list
-    */
-    public static int[][] loadEdges(URI path) {
+
+    public static int[][] load(URI path) {
         int[][] res = null;
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(path))) {
             String line = reader.readLine();
@@ -28,17 +23,18 @@ public class Common {
                 throw new IOException();
 
             int size = Integer.parseInt(line);
-            res = new int[size][];
+            res = new int[size][size];
+            int i = 0;
             while ((line = reader.readLine()) != null) {
                 String[] arr = line.split(" ");
 
-                int id = Integer.parseInt(arr[0]);
-                int length = arr.length;
-                int[] conns = new int[length-1];
-                for (int i = 1; i< length; i++) {
-                    conns[i-1] = Integer.parseInt(arr[i]);
+                assert arr.length == size;
+
+                for (int j = 0; j < arr.length; j++) {
+                    res[i][j] = Integer.parseInt(arr[j]);
                 }
-                res[id] = conns;
+
+                i++;
             }
 
         } catch (IOException e) {
