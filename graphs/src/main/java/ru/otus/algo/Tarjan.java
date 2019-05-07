@@ -7,7 +7,7 @@ import ru.otus.algo.common.OList;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class Tarjan {
+class Tarjan {
 
     private static final Logger LOGGER = LogManager.getLogger(Tarjan.class.getSimpleName());
 

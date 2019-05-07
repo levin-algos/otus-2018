@@ -8,8 +8,8 @@ import java.util.*;
 
 public class AdjacencyMatrix<T> implements Adjacency<T> {
 
-    private Map<T, Integer> verts;
-    private BitSet[] matrix;
+    private final Map<T, Integer> verts;
+    private final BitSet[] matrix;
     private final int size;
 
     public AdjacencyMatrix(int vertexCount) {
@@ -79,7 +79,7 @@ public class AdjacencyMatrix<T> implements Adjacency<T> {
             };
         return () -> new Iterator<T>() {
 
-            private Iterator<Map.Entry<T, Integer>> it = verts.entrySet().iterator();
+            private final Iterator<Map.Entry<T, Integer>> it = verts.entrySet().iterator();
             private T res;
 
             @Override
@@ -161,7 +161,7 @@ public class AdjacencyMatrix<T> implements Adjacency<T> {
 
     private class InvertAdjacencyMatrix<R> implements Adjacency<R> {
 
-        private AdjacencyMatrix<R> matrix;
+        private final AdjacencyMatrix<R> matrix;
 
         InvertAdjacencyMatrix(AdjacencyMatrix<R> matrix) {
             this.matrix = matrix;
@@ -187,8 +187,8 @@ public class AdjacencyMatrix<T> implements Adjacency<T> {
             Objects.requireNonNull(a);
 
             return () -> new Iterator<R>() {
-                private Iterator<Map.Entry<R, Integer>> it = matrix.verts.entrySet().iterator();
-                private int col = matrix.getVertexNumber(a);
+                private final Iterator<Map.Entry<R, Integer>> it = matrix.verts.entrySet().iterator();
+                private final int col = matrix.getVertexNumber(a);
                 private R res;
 
                 @Override

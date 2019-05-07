@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Demoucron {
+class Demoucron {
 
     private static final Logger LOGGER = LogManager.getLogger(Demoucron.class.getSimpleName());
 

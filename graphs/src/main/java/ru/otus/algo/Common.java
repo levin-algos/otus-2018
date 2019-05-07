@@ -9,7 +9,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Common {
+class Common {
     private Common() {}
 
     private final static Logger LOGGER = LogManager.getLogger(Common.class.getSimpleName());

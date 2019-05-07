@@ -1,25 +1,17 @@
 package ru.otus.algo;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ru.otus.algo.common.OList;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
+class Graphs {
 
-class Kosaraju {
+    private Graphs() {}
 
-    private static final Logger LOGGER = LogManager.getLogger(Kosaraju.class.getSimpleName());
-
-
-    public static void main(String[] args) throws URISyntaxException {
-        URI resource = ClassLoader.getSystemResource("oracle.docs.graph").toURI();
-        int[][] input = Common.loadEdges(resource);
+    /**
+     * Calculates strongly connected components
+     * @param input - adjacency vector
+     * @return - array of connected components
+     */
+    static int[] getSccKosaraju(int[][] input) {
 
         if (input == null)
             throw new IllegalStateException();
@@ -53,7 +45,7 @@ class Kosaraju {
                 component++;
             }
         }
-        LOGGER.info(Arrays.toString(components));
+        return components;
     }
 
     private static void dfs2(Adjacency<Integer> adjacency, Integer i, int[] components, int component) {
