@@ -7,8 +7,11 @@ public class HashSet<T> implements Set<T> {
     private final Map<T, T> set = new HashMap<>(key -> hashCode());
 
     @Override
-    public void add(T el) {
+    public boolean add(T el) {
+        if (set.containsKey(el))
+            return false;
         set.put(el, el);
+        return true;
     }
 
     @Override
@@ -36,5 +39,13 @@ public class HashSet<T> implements Set<T> {
                 return it.next().getKey();
             }
         };
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("{");
+        forEach(t -> sb.append(t).append(" "));
+        sb.append("}");
+        return sb.toString();
     }
 }

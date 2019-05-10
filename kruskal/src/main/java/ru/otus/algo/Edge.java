@@ -2,12 +2,12 @@ package ru.otus.algo;
 
 import java.util.Objects;
 
-public class Edge {
-    final int v1;
-    final int v2;
+public class Edge<T> {
+    final T v1;
+    final T v2;
     final int weight;
 
-    Edge(int v1, int v2, int weight) {
+    Edge(T v1, T v2, int weight) {
         this.v1 = v1;
         this.v2 = v2;
         this.weight = weight;
@@ -28,11 +28,12 @@ public class Edge {
         if (o == null || getClass() != o.getClass()) return false;
         Edge edge = (Edge) o;
         return v1 == edge.v1 &&
-                v2 == edge.v2;
+                v2 == edge.v2 &&
+                weight == edge.weight;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(v1, v2);
+        return Objects.hash(v1, v2, weight);
     }
 }

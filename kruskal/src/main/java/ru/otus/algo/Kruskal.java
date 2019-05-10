@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class Kruskal {
 
     public static void main(String[] args) throws URISyntaxException {
-        URI uri = ClassLoader.getSystemResource("test.matrix.graph").toURI();
+        URI uri = ClassLoader.getSystemResource("1.graph").toURI();
 
         final int[][] input = Common.load(uri);
         System.out.println(Arrays.toString(Graphs.findMinSpanTree(input)));

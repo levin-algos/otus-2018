@@ -1,8 +1,10 @@
 package ru.otus.algo;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import ru.otus.algo.common.*;
+import ru.otus.algo.common.HashMap;
+import ru.otus.algo.common.HashSet;
+import ru.otus.algo.common.Map;
+import ru.otus.algo.common.Set;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,88 +12,129 @@ import java.util.*;
 
 class Dijkstra {
 
-private static final Logger LOGGER = LogManager.getLogger(Dijkstra.class.getSimpleName());
+    private final int[] dist;
+    private final int[] path;
 
-    private static final Random rnd = new Random();
+    public Dijkstra(int[][] matrix, int startingPoint) {
+        Objects.requireNonNull(matrix);
+        int verts = matrix.length;
+        dist = new int[verts];
+        path = new int[verts];
 
-    private static final DynamicArray<Edge> edges = new DArray<>();
+        for (int i = 0; i < dist.length; i++) {
+            dist[i] = i == startingPoint ? 0 : -1;
+            path[i] = i == startingPoint ? 0 : -1;
+        }
 
-    public static void main(String[] args) throws URISyntaxException {
-        URI uri = ClassLoader.getSystemResource("simple.graph").toURI();
-        int[][] input = Common.load(uri);
-
-        Adjacency<Integer> adjacency = new AdjacencyList<>();
-
-        LOGGER.info("creating edge list.");
-        for (int i = 0; i < input.length; i++) {
-            if (input[i] == null)
+        Set<Vertex> s = new HashSet<>();
+        Vertex[] vertexes = new Vertex[matrix.length];
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[i] == null)
                 continue;
-            for (int j: input[i]) {
-                adjacency.connect(i, j);
+            Vertex from = getVertex(i);
+            for (int j=0; j < matrix[i].length; j++) {
+                if (matrix[i][j] != 0)
+                    from.addEdge(getVertex(j), matrix[i][j]);
             }
-        }
-        int A = 0;
+            if (i == startingPoint)
+                from.mark = 0;
 
-        Queue<Vertex> q = new PriorityQueue<>(Comparator.comparing(Vertex::getMark).reversed());
-        Vertex[] vertexes = new  Vertex[input.length];
-        Vertex e1 = new Vertex(A, 0);
-        q.add(e1);
-        vertexes[A] = e1;
-
-        for (int i=0; i< input.length; i++) {
-            if (i != A) {
-                Vertex e = new Vertex(i, Integer.MAX_VALUE);
-                q.add(e);
-                vertexes[i] = e;
-            }
+            vertexes[i] = from;
+            s.add(from);
         }
 
-        DynamicArray<Edge> edges = new DArray<>();
-        while (!q.isEmpty()) {
-            Vertex u = q.poll();
+        Heap<Vertex> q = new Heap<>(vertexes);
 
-            for (Integer v: adjacency.getConnected(u.id)) {
-                Vertex vertex = vertexes[v];
-                if (vertex != null) {
-                    int alt = u.mark + length(u.id, v);
-                    if (alt < vertex.mark) {
-                        vertex.mark = alt;
-//                        edges.add(new Edge(u.id, ));
+        while (q.size() != 0) {
+            Vertex u = q.peek();
+
+            for (Edge<Vertex> v : u.getEdges()) {
+                if (s.contains(v.v2) && !v.v1.equals(v.v2)) {
+                    int alt = u.mark + v.weight;
+                    if (alt < v.v2.mark) {
+                        v.v2.mark = alt;
+                        dist[v.v2.value] = alt;
+                        path[v.v2.value] = u.value;
                     }
                 }
-//                int alt = dist[u.id]+length(u.id, v);
-
-
             }
+            q.remove(u);
+            s.remove(u);
         }
     }
 
-    private static Integer length(int id, Integer v) {
-        return Math.abs(rnd.nextInt(8));
+    public int[] getDist() {
+        return dist;
     }
 
-    private static Integer[] generateMarks(int length) {
-        if (length <1)
-            throw new IllegalArgumentException();
+    public int[] getPath() {
+        return path;
+    }
 
-        Integer[] marks = new Integer[length];
-        for (int i = 0; i < length; i++) {
-            marks[i] = Integer.MAX_VALUE;
+    public static void main(String[] args) throws URISyntaxException {
+        URI uri = ClassLoader.getSystemResource("1.graph").toURI();
+        Dijkstra d = new Dijkstra(Common.load(uri), 0);
+
+        System.out.println(Arrays.toString(d.getDist()));
+        System.out.println(Arrays.toString(d.getPath()));
+    }
+
+    private static final Map<Integer, Vertex> vertexes = new HashMap<>(Objects::hashCode);
+
+    private static Vertex getVertex(int i) {
+        Vertex vertex = vertexes.get(i);
+        if (vertex == null) {
+            vertex = new Vertex(i, Integer.MAX_VALUE/2);
+            vertexes.put(i, vertex);
         }
-        return marks;
+        return vertex;
     }
 
-    private static class Vertex {
-        final int id;
+    private static class Vertex implements Comparable<Vertex> {
+        final int value;
         int mark;
+        private Set<Edge<Vertex>> edges;
 
-        Vertex(int id, int mark) {
-            this.id = id;
+        Vertex(int value, int mark) {
+            this.value = value;
+            edges = new HashSet<>();
             this.mark = mark;
-
         }
 
-        private int getMark() { return mark; }
+        Set<Edge<Vertex>> getEdges() {
+            return edges;
+        }
+
+        void addEdge(Vertex vertex, int weight) {
+            edges.add(new Edge<>(this, vertex, weight));
+        }
+
+        @Override
+        public String toString() {
+            return "Vertex{" +
+                    "value=" + value +
+                    ", mark=" + mark +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Vertex vertex = (Vertex) o;
+            return value == vertex.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+
+
+        @Override
+        public int compareTo(Vertex o) {
+            return -Integer.compare(mark, o.mark);
+        }
     }
 
 }

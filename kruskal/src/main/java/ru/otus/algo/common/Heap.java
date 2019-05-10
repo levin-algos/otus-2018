@@ -97,7 +97,7 @@ public class Heap<T extends Comparable<T>> {
     }
 
     /**
-     * Get and remove the head element from the heap
+     * Get the head element from the heap
      *
      * @return - head element from the heap
      */
