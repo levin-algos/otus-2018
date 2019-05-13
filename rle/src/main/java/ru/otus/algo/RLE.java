@@ -1,60 +1,30 @@
 package ru.otus.algo;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Implementation of run-length encoding algorithm.
+ * Converts byte array or file
+ *
  */
 class RLE {
 
-    static void encode(FileChannel source, FileChannel dest) throws IOException {
+    static void encode(Path source, Path dest) {
         Objects.requireNonNull(source);
         Objects.requireNonNull(dest);
 
-        readWrite(source, dest, byteBuffer -> ByteBuffer.wrap(encode(byteBuffer.array())));
+        new FileConverter(source, dest).convert(byteBuffer -> ByteBuffer.wrap(encode(byteBuffer.array())));
     }
 
-    static void decode(FileChannel source, FileChannel dest) throws IOException {
+    static void decode(Path source, Path dest) {
         Objects.requireNonNull(source);
         Objects.requireNonNull(dest);
 
-        readWrite(source, dest, byteBuffer -> ByteBuffer.wrap(decode(byteBuffer.array())));
-    }
-
-    static boolean contentEquals(FileChannel a, FileChannel b) throws IOException {
-        if (a.size() != b.size())
-            return false;
-
-        int c1, c2;
-        do {
-            ByteBuffer buffer1 = ByteBuffer.allocate(1024);
-            ByteBuffer buffer2 = ByteBuffer.allocate(1024);
-            c1 = a.read(buffer1);
-            c2 = b.read(buffer2);
-            if (c1 != c2)
-                return false;
-
-            if (!buffer1.equals(buffer2))
-                return false;
-        } while (c1 != -1);
-
-        return true;
-    }
-
-    private static void readWrite(FileChannel in, FileChannel out, Function<ByteBuffer, ByteBuffer> action) throws IOException {
-        int read;
-        do {
-            ByteBuffer buffer = ByteBuffer.allocate(1024);
-            read = in.read(buffer);
-            out.write(action.apply(buffer));
-        } while (read != 0);
-
+        new FileConverter(source, dest).convert(byteBuffer -> ByteBuffer.wrap(decode(byteBuffer.array())));
     }
 
     static byte[] encode(byte[] source) {
@@ -66,8 +36,9 @@ class RLE {
         byte count = 1;
         List<Byte> dest = new ArrayList<>();
         for (int i = 1; i < source.length; i++) {
-            Byte b = source[i];
+            byte b = source[i];
             if (cur == b) {
+                //TODO: more tests
                 if (count > 126) {
                     dest.add((byte) 127);
                     dest.add(cur);

@@ -5,7 +5,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -14,6 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,47 +36,43 @@ class RLETest {
 
     @ParameterizedTest
     @MethodSource("equalsProvider")
-    void compareFiles(URL url1, URL url2) throws IOException, URISyntaxException {
-        FileChannel ch1 = FileChannel.open(Paths.get(url1.toURI()), StandardOpenOption.READ);
-        FileChannel ch2 = FileChannel.open(Paths.get(url2.toURI()), StandardOpenOption.READ);
-        assertTrue(RLE.contentEquals(ch1, ch2));
-        ch1.close();
-        ch2.close();
+    void compareFiles(Path url1, Path url2) {
+        assertTrue(FileConverter.contentEquals(url1, url2));
     }
 
     @ParameterizedTest
     @MethodSource("copyProvider")
-    void decodeEncodeFiles(Path url1, Path url2, Path url3) throws IOException {
-        SeekableByteChannel seekableByteChannel = Files.newByteChannel(url1, StandardOpenOption.READ);
-        FileChannel ch1 = FileChannel.open(url1, StandardOpenOption.READ);
-        FileChannel ch2 = FileChannel.open(url2, StandardOpenOption.CREATE_NEW);
-        FileChannel ch3 = FileChannel.open(url3, StandardOpenOption.CREATE_NEW);
-
-        RLE.encode(ch1, ch2);
-        RLE.decode(ch2, ch3);
-        assertTrue(RLE.contentEquals(ch1, ch3));
-        ch1.close();
-        ch2.close();
-        ch3.close();
+    void decodeEncodeFiles(Path url1, Path url2, Path url3) {
+        RLE.encode(url1, url2);
+        RLE.decode(url2, url3);
+        assertTrue(FileConverter.contentEquals(url1, url3));
     }
 
-    static Stream<? extends Arguments> equalsProvider() {
+    static Stream<? extends Arguments> equalsProvider() throws URISyntaxException {
         return Stream.of(
-                Arguments.of(ClassLoader.getSystemClassLoader().getResource("1.txt"),
-                        ClassLoader.getSystemClassLoader().getResource("2.txt")),
-                Arguments.of(ClassLoader.getSystemClassLoader().getResource("1.jpg"),
-                        ClassLoader.getSystemClassLoader().getResource("2.jpg"))
+                Arguments.of(getFromResources("1.txt"),
+                        getFromResources("2.txt"),
+                Arguments.of(getFromResources("1.jpg")),
+                        getFromResources("2.jpg"))
         );
     }
 
     static Stream<? extends Arguments> copyProvider() throws URISyntaxException {
         return Stream.of(
-                Arguments.of(Paths.get(ClassLoader.getSystemClassLoader().getResource("1.txt").toURI()),
-                        Paths.get(ClassLoader.getSystemClassLoader().getResource("1-encoded.txt").toURI()),
-                        Paths.get(ClassLoader.getSystemClassLoader().getResource("1-decoded.txt").toURI())
-//                Arguments.of(ClassLoader.getSystemClassLoader().getResource("1.jpg"),
-//                        ClassLoader.getSystemClassLoader().getResource("1-encoded.jpg"),
-//                        ClassLoader.getSystemClassLoader().getResource("1-decoded.jpg"))
-        ));
+                Arguments.of(getFromResources("1.txt"),
+                        Paths.get("1-encode.txt"),
+                        Paths.get("1-decode.txt")),
+                Arguments.of(getFromResources("1.jpg"),
+                        Paths.get("1-encoded.jpg"),
+                        Paths.get("1-decoded.jpg")));
+    }
+
+    static Path getFromResources(String fileName) throws URISyntaxException {
+        Objects.requireNonNull(fileName);
+        final URL resource = ClassLoader.getSystemClassLoader().getResource(fileName);
+        if (resource == null)
+            throw new IllegalArgumentException();
+
+        return Paths.get(resource.toURI());
     }
 }
