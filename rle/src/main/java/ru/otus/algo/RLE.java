@@ -6,11 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Implementation of run-length encoding algorithm.
- * Converts byte array or file
- *
- */
 class RLE {
 
     static void encode(Path source, Path dest) {
@@ -30,7 +25,7 @@ class RLE {
     static byte[] encode(byte[] source) {
         Objects.requireNonNull(source);
         if (source.length == 0)
-            throw new IllegalArgumentException();
+            return new byte[0];
 
         byte cur = source[0];
         byte count = 1;
@@ -38,7 +33,6 @@ class RLE {
         for (int i = 1; i < source.length; i++) {
             byte b = source[i];
             if (cur == b) {
-                //TODO: more tests
                 if (count > 126) {
                     dest.add((byte) 127);
                     dest.add(cur);

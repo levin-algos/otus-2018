@@ -34,6 +34,22 @@ class RLETest {
         assertArrayEquals(bytes, RLE.decode(encode));
     }
 
+    @Test
+    void repeatingSequence() {
+        byte[] in = new byte[128];
+        byte[] expected = {127, 0, 1, 0};
+
+        assertArrayEquals(expected, RLE.encode(in));
+    }
+
+    @Test
+    void emptySequence() {
+        byte[] in = {};
+        byte[] expected = {};
+
+        assertArrayEquals(expected, RLE.encode(in));
+    }
+
     @ParameterizedTest
     @MethodSource("equalsProvider")
     void compareFiles(Path url1, Path url2) {
