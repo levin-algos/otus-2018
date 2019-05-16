@@ -47,7 +47,6 @@ class MyCacheTest {
 
         assertEquals(50, cache.size());
         System.out.println(objects);
-
     }
 
     @Test
@@ -82,7 +81,6 @@ class MyCacheTest {
         assertEquals(0, cache.size());
 
         System.out.println(cache);
-
     }
 
     @Test

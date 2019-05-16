@@ -1,6 +1,5 @@
 package ru.otus.jsr107;
 
-
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
