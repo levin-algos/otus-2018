@@ -5,33 +5,18 @@ import java.util.Set;
 
 public class King extends AbstractFigure {
 
-    public King(Board board, Position position, Side side) {
+    private final Direction[] dirs = {Direction.NORTH_WEST, Direction.NORTH, Direction.NORTH_EAST,
+                                      Direction.WEST,                        Direction.EAST,
+                                      Direction.SOUTH_WEST, Direction.SOUTH, Direction.SOUTH_EAST  };
+    public King(Board board, int position, Side side) {
         super(board, position, side, Figures.KING);
     }
 
     @Override
-    public Set<Position> getMoves() {
-        final HashSet<Object> set = new HashSet<>();
-
-        return null;
+    public Iterable<Integer> getMoves() {
+        int position = getPosition();
+        Bitboard board = Bitboard.of(position);
+        board.fillOnce(dirs);
+        return board;
     }
-
 }
-
-/*
-M:
-7 0 0 0 0 0 0 0 0
-6 0 0 0 0 0 0 0 0
-5 0 0 0 0 0 0 0 0
-4 0 0 0 0 0 0 0 0
-3 0 0 0 0 0 0 0 0
-2 1 1 1 0 0 0 0 0
-1 1 0 1 0 0 0 0 0
-0 1 1 1 0 0 0 0 0
-
-  0 1 2 3 4 5 6 7
-
-460039
-
-  a1 = M >>>
-*/

@@ -2,12 +2,12 @@ package ru.otus.algo;
 
 abstract class AbstractFigure implements Figure {
 
-    private final Position position;
+    private final int position;
     private final Side side;
     private final Figures figure;
     private final Board board;
 
-    public AbstractFigure(Board board, Position position, Side side, Figures figure) {
+    public AbstractFigure(Board board, int position, Side side, Figures figure) {
         this.board = board;
         this.position = position;
         this.side = side;
@@ -15,7 +15,7 @@ abstract class AbstractFigure implements Figure {
     }
 
     @Override
-    public Position getPosition() {
+    public int getPosition() {
         return position;
     }
 
@@ -29,5 +29,7 @@ abstract class AbstractFigure implements Figure {
         return figure;
     }
 
-
+    public Board getBoard() {
+        return board;
+    }
 }

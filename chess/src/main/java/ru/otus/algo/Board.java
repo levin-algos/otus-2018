@@ -18,16 +18,16 @@ public class Board {
         return null;
     }
 
-    public Figure add(Figures figure, Side side, Position position) {
+    public Figure add(Figures figure, Side side, int position) {
         long buf = buffers[side.getValue()][figure.getValue()];
 
-        final long b = buf & (1L << position.getValue());
+        final long b = buf & (1L << position);
         if (b != 0) {
             throw new IllegalArgumentException("spot already taken");
         }
 
         Figure result = null;
-        long tmp = 1L << position.getValue();
+        long tmp = 1L << position;
         buffers[side.getValue()][figure.getValue()] |= tmp;
 
         if (Figures.KING == figure) {
@@ -37,10 +37,11 @@ public class Board {
         return result;
     }
 
-    public Figure get(Position position) {
+
+    public Figure get(int position) {
         for (Side s: Side.values()) {
             for (Figures f: Figures.values()) {
-                final long b = buffers[s.getValue()][f.getValue()] & (1L << position.getValue());
+                final long b = buffers[s.getValue()][f.getValue()] & (1L << position);
                 if (b != 0) {
                     if (Figures.KING == f)
                         return new King(this, position, s);

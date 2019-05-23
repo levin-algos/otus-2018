@@ -5,11 +5,11 @@ import java.util.Set;
 public interface Figure {
 
 
-    Position getPosition();
+    int getPosition();
 
     Side getSide();
 
     Figures getFigureType();
 
-    Set<Position> getMoves();
+    Iterable<Integer> getMoves();
 }
