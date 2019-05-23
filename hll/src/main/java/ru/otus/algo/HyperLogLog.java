@@ -50,14 +50,11 @@ public class HyperLogLog {
         res = 1.0 / res;
         long E = (long) (alphaMSquared * res);
 
+
         if (E <= 5 / 2 * m) {
             E = v != 0 ? (long) (m * Math.log(m / v)) : E;
-        } else {
-            final long l = 1L << 32;
-            if (E > (l / 30)) {
-                E = (long)(-l * Math.log(1 - (double)E / l));
-            }
         }
+
         return E;
     }
 
