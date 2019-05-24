@@ -6,12 +6,14 @@ abstract class AbstractFigure implements Figure {
     private final Side side;
     private final Figures figure;
     private final Board board;
+    private final Bitboard represent;
 
     public AbstractFigure(Board board, int position, Side side, Figures figure) {
         this.board = board;
         this.position = position;
         this.side = side;
         this.figure = figure;
+        represent = Bitboard.of(position);
     }
 
     @Override
@@ -27,9 +29,5 @@ abstract class AbstractFigure implements Figure {
     @Override
     public Figures getFigureType() {
         return figure;
-    }
-
-    public Board getBoard() {
-        return board;
     }
 }

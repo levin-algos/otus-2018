@@ -12,4 +12,6 @@ public interface Figure {
     Figures getFigureType();
 
     Iterable<Integer> getMoves();
+
+    void move(int i);
 }

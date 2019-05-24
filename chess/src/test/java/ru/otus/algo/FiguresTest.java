@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.HashSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FiguresTest {
 
@@ -19,7 +18,7 @@ public class FiguresTest {
     }
 
     @Test
-    void creationTest() {
+    void kingTest() {
         board.add(Figures.KING, Side.WHITE, 4);
 
         Figure figure = board.get(4);
@@ -28,11 +27,17 @@ public class FiguresTest {
         assertEquals(Side.WHITE, figure.getSide());
         assertEquals(Figures.KING, figure.getFigureType());
 
-        ;
-        HashSet<Object> expected = new HashSet<>();
+        HashSet<Integer> expected = new HashSet<>();
         Collections.addAll(expected, 3, 11, 12, 13, 5);
 
         assertIterableEquals(expected, figure.getMoves());
+        figure.move(3);
+
+        figure = board.get(3);
+        assertNotNull(figure);
+        assertEquals(3, figure.getPosition());
+        assertEquals(Side.WHITE, figure.getSide());
+        assertEquals(Figures.KING, figure.getFigureType());
     }
 
     @Test

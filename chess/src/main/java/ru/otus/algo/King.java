@@ -1,8 +1,5 @@
 package ru.otus.algo;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class King extends AbstractFigure {
 
     private final Direction[] dirs = {Direction.NORTH_WEST, Direction.NORTH, Direction.NORTH_EAST,
@@ -16,7 +13,11 @@ public class King extends AbstractFigure {
     public Iterable<Integer> getMoves() {
         int position = getPosition();
         Bitboard board = Bitboard.of(position);
-        board.fillOnce(dirs);
-        return board;
+        return board.fillOnce(dirs);
+    }
+
+    @Override
+    public void move(int i) {
+
     }
 }

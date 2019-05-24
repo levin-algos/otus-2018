@@ -2,20 +2,30 @@ package ru.otus.algo;
 
 import java.util.Iterator;
 
-public class Bitboard implements Iterable<Integer> {
 
-    private long board;
+/**
+ * Immutable realisation of bitset for keeping figure positions
+ *
+ *
+ */
+public final class Bitboard implements Iterable<Integer> {
+
+    private final long board;
 
     private Bitboard(int pos) {
         board = 1L << pos;
     }
 
-    private Bitboard(Bitboard that) {
-        this.board = that.board;
+    private Bitboard(long that) {
+        this.board = that;
     }
 
     static Bitboard of(int pos) {
         return new Bitboard(pos);
+    }
+
+    static Bitboard of(long that) {
+        return new Bitboard(that);
     }
 
     @Override
@@ -44,10 +54,10 @@ public class Bitboard implements Iterable<Integer> {
         return (num >>> right) << (right + shift);
     }
 
-    private final long notAFile = 0xfefefefefefefefeL;
-    private final long notHFile = 0x7f7f7f7f7f7f7f7fL;
+    private final static long notAFile = 0xfefefefefefefefeL;
+    private final static long notHFile = 0x7f7f7f7f7f7f7f7fL;
 
-    public void fillOnce(Direction[] dirs) {
+    public Bitboard fillOnce(Direction[] dirs) {
         long res = 0L;
         for (Direction d : dirs) {
             if (Direction.EAST == d || Direction.NORTH_EAST == d || Direction.SOUTH_EAST == d) {
@@ -57,7 +67,6 @@ public class Bitboard implements Iterable<Integer> {
             } else
                 res |= genShift(board, d.getValue());
         }
-        System.out.println(Common.longToBinary(res));
-        board = res;
+        return Bitboard.of(res);
     }
 }

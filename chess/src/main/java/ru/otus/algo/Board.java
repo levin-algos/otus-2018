@@ -2,6 +2,12 @@ package ru.otus.algo;
 
 import java.util.Set;
 
+/**
+ * Each figure on the board has it's own bitboard (8 bytes)
+ * Result board can be represented with 12 bitboards:
+ * 1 set of buffers for white and black figures.
+ * buffer contains all figures of current color and current type (e.g. all white bishops)
+ */
 public class Board {
 
     private final long[][] buffers;
@@ -36,7 +42,6 @@ public class Board {
 
         return result;
     }
-
 
     public Figure get(int position) {
         for (Side s: Side.values()) {
