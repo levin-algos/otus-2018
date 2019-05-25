@@ -1,23 +1,125 @@
 package ru.otus.algo;
 
-public enum Position {
+import java.util.*;
 
-    A1(0),  B1(1),  C1(2),  D1(3),  E1(4),  F1(5),  G1(6),  H1(7),
-    A2(8),  B2(9),  C2(10), D2(11), E2(12), F2(13), G2(14), H2(15),
-    A3(16), B3(17), C3(18), D3(19), E3(20), F3(21), G3(22), H3(23),
-    A4(24), B4(25), C4(26), D4(27), E4(28), F4(29), G4(30), H4(31),
-    A5(32), B5(33), C5(34), D5(35), E5(36), F5(37), G5(38), H5(39),
-    A6(40), B6(41), C6(42), D6(43), E6(44), F6(45), G6(46), H6(47),
-    A7(48), B7(49), C7(50), D7(51), E7(52), F7(53), G7(54), H7(55),
-    A8(56), B8(57), C8(58), D8(59), E8(60), F8(61), G8(62), H8(63);
+public class Position {
 
-    private int value;
+    private final Direction[][] MOVE_DIRECTIONS = {
+            // PAWN
+            {},
+            // ROOK
+            {},
+            // KNIGHT
+            {},
+            // BISHOP
+            {},
+            // QUEEN
+            {},
+            // KING
+            {Direction.NORTH_WEST, Direction.NORTH, Direction.NORTH_EAST,
+             Direction.WEST,                        Direction.EAST,
+             Direction.SOUTH_WEST, Direction.SOUTH, Direction.SOUTH_EAST  }
+    };
 
-    Position(int value) {
-        this.value = value;
+    private final Map<Figure, Set<Long>> whites;
+    private final Map<Figure, Set<Long>> blacks;
+
+    private Position() {
+        whites = new HashMap<>();
+        blacks = new HashMap<>();
     }
 
-    public int getValue() {
-        return value;
+    private Position(Position pos) {
+        whites = new HashMap<>();
+        blacks = new HashMap<>();
+
+        pos.whites.forEach(whites::put);
+        pos.blacks.forEach(blacks::put);
+    }
+
+    public static Position of(Side side, Figure figure, Square sq) {
+        Position position = new Position();
+        position.add(side, figure, sq);
+
+        return position;
+    }
+
+    public Position move(Move move) {
+        Objects.requireNonNull(move);
+
+        Map<Figure, Set<Long>> map = move.getSide() == Side.WHITE ? whites : blacks;
+        Set<Long> set = map.get(move.getFigure());
+
+        if (set == null || set.size() == 0)
+            throw new IllegalStateException("wrong move");
+
+        if (!validateMove(move.getFigure(), set, move.getFrom().getValue(), move.getDestination().getValue()))
+            throw new IllegalStateException("wrong move!");
+
+        Position position = new Position(this);
+        map = move.getSide() == Side.WHITE ? position.whites : position.blacks;
+        set = map.get(move.getFigure());
+
+        if (!set.remove(1L << move.getFrom().getValue()))
+            throw new IllegalStateException();
+        set.add(1L << move.getDestination().getValue());
+
+        return position;
+    }
+
+    private boolean validateMove(Figure figure, Set<Long> set, int from, int to) {
+
+        long bits = 1L << from;
+        if (!set.contains(bits))
+            return false;
+
+        long res = 0;
+        if (figure == Figure.KING) {
+            res = BitManipulation.fillOnce(bits, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+        }
+        long value = 1L << to;
+        return (res & value) != 0;
+    }
+
+    private void add(Side side, Figure figure, Square sq) {
+        Map<Figure, Set<Long>> map = side == Side.WHITE ? whites : blacks;
+        Set<Long> longs = map.getOrDefault(figure, new HashSet<>());
+        longs.add(1L << sq.getValue());
+        map.put(figure, longs);
+    }
+
+    public Set<Move> getAllMoves() {
+        Set<Move> moves = new HashSet<>();
+        generateMoves(Side.WHITE, moves);
+        generateMoves(Side.BLACK, moves);
+        return moves;
+    }
+
+    private void generateMoves(Side side, Set<Move> moves) {
+        Map<Figure, Set<Long>> map = side == Side.WHITE ? whites : blacks;
+        for (Map.Entry<Figure, Set<Long>> f: map.entrySet()) {
+            if (f.getKey() == Figure.KING)
+                generateMovesForKing(side, f.getValue(), moves);
+        }
+    }
+
+    private void generateMovesForKing(Side side, Set<Long> value, Set<Move> moves) {
+        for (Long val: value) {
+            Square from = Square.of(Long.numberOfTrailingZeros(val));
+            long res = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+            generateMovesFromLong(res, side, from, Figure.KING, moves);
+        }
+    }
+
+    private void generateMovesFromLong(long bits, Side side, Square from, Figure figure,  Set<Move> moves) {
+        int pos = 0;
+        while ((bits != 0)) {
+            int delta = Long.numberOfTrailingZeros(bits);
+            pos += delta;
+            bits = bits >>> (delta + 1);
+            Move move = side == Side.WHITE ? Move.white(figure, from, Square.of(pos++)) : Move.black(figure, from, Square.of(pos++));
+            if (!moves.add(move))
+                throw new IllegalStateException("move has already added!");
+        }
     }
 }

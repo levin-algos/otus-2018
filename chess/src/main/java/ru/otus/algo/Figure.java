@@ -1,17 +1,21 @@
 package ru.otus.algo;
 
-import java.util.Set;
+public enum Figure {
 
-public interface Figure {
+    PAWN(0),
+    ROOK(1),
+    KNIGHT(2),
+    BISHOP(3),
+    QUEEN(4),
+    KING(5);
 
+    private int value;
 
-    int getPosition();
+    Figure(int value) {
+        this.value = value;
+    }
 
-    Side getSide();
-
-    Figures getFigureType();
-
-    Iterable<Integer> getMoves();
-
-    void move(int i);
+    public int getValue() {
+        return value;
+    }
 }
