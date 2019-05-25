@@ -1,11 +1,11 @@
 package ru.otus.algo;
 
-public class BitManipulation {
+class BitManipulation {
 
     private final static long notAFile = 0xfefefefefefefefeL;
     private final static long notHFile = 0x7f7f7f7f7f7f7f7fL;
 
-    public static long fillOnce(long num, Direction[] dirs) {
+    static long fillOnce(long num, Direction[] dirs) {
         long res = 0L;
         for (Direction d : dirs) {
             if (Direction.EAST == d || Direction.NORTH_EAST == d || Direction.SOUTH_EAST == d) {
@@ -18,7 +18,7 @@ public class BitManipulation {
         return res;
     }
 
-    public static long genShift(long num, int shift) {
+    static long genShift(long num, int shift) {
         int right = -((shift >>> 8) & shift);
         return (num >>> right) << (right + shift);
     }

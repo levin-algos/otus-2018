@@ -6,7 +6,7 @@ public class Position {
 
     private final Direction[][] MOVE_DIRECTIONS = {
             // PAWN
-            {},
+            {Direction.NORTH},
             // ROOK
             {},
             // KNIGHT
@@ -23,6 +23,7 @@ public class Position {
 
     private final Map<Figure, Set<Long>> whites;
     private final Map<Figure, Set<Long>> blacks;
+    private long obstacles;
 
     private Position() {
         whites = new HashMap<>();
@@ -35,12 +36,12 @@ public class Position {
 
         pos.whites.forEach(whites::put);
         pos.blacks.forEach(blacks::put);
+        pos.obstacles = obstacles;
     }
 
     public static Position of(Side side, Figure figure, Square sq) {
         Position position = new Position();
         position.add(side, figure, sq);
-
         return position;
     }
 
@@ -68,7 +69,6 @@ public class Position {
     }
 
     private boolean validateMove(Figure figure, Set<Long> set, int from, int to) {
-
         long bits = 1L << from;
         if (!set.contains(bits))
             return false;
@@ -84,8 +84,10 @@ public class Position {
     private void add(Side side, Figure figure, Square sq) {
         Map<Figure, Set<Long>> map = side == Side.WHITE ? whites : blacks;
         Set<Long> longs = map.getOrDefault(figure, new HashSet<>());
-        longs.add(1L << sq.getValue());
+        long bits = 1L << sq.getValue();
+        longs.add(bits);
         map.put(figure, longs);
+        obstacles |= bits;
     }
 
     public Set<Move> getAllMoves() {
@@ -98,15 +100,32 @@ public class Position {
     private void generateMoves(Side side, Set<Move> moves) {
         Map<Figure, Set<Long>> map = side == Side.WHITE ? whites : blacks;
         for (Map.Entry<Figure, Set<Long>> f: map.entrySet()) {
-            if (f.getKey() == Figure.KING)
+            Figure key = f.getKey();
+            if (key == Figure.KING) {
                 generateMovesForKing(side, f.getValue(), moves);
+            } else if (key == Figure.PAWN) {
+                generateMovesForPawn(side, f.getValue(), moves);
+            }
+        }
+    }
+
+    private void generateMovesForPawn(Side side, Set<Long> value, Set<Move> moves) {
+        for (Long val: value) {
+            int i = Long.numberOfTrailingZeros(val);
+            boolean hasDouble = i > 7 && i < 16;
+            long obs = obstacles & ~val;
+            long res = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.PAWN.getValue()]) & ~obs;
+            if (hasDouble)
+                res |= BitManipulation.fillOnce(res, MOVE_DIRECTIONS[Figure.PAWN.getValue()]) & ~obs;
+            generateMovesFromLong(res, side, Square.of(i), Figure.PAWN, moves);
         }
     }
 
     private void generateMovesForKing(Side side, Set<Long> value, Set<Move> moves) {
         for (Long val: value) {
             Square from = Square.of(Long.numberOfTrailingZeros(val));
-            long res = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+            long obs = obstacles & ~val;
+            long res = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]) & ~obs;
             generateMovesFromLong(res, side, from, Figure.KING, moves);
         }
     }
@@ -120,6 +139,24 @@ public class Position {
             Move move = side == Side.WHITE ? Move.white(figure, from, Square.of(pos++)) : Move.black(figure, from, Square.of(pos++));
             if (!moves.add(move))
                 throw new IllegalStateException("move has already added!");
+        }
+    }
+
+    public static class Builder {
+
+        private Position position;
+
+        public Builder() {
+            this.position = new Position();
+        }
+
+        public Builder add(Side white, Figure figure, Square sq) {
+            position.add(white, figure, sq);
+            return this;
+        }
+
+        public Position build() {
+            return position;
         }
     }
 }
