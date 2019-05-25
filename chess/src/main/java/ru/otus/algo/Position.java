@@ -3,7 +3,6 @@ package ru.otus.algo;
 import java.util.*;
 
 public class Position {
-
     private final Direction[][] MOVE_DIRECTIONS = {
             // PAWN
             {Direction.NORTH},
