@@ -8,8 +8,11 @@ class SquareTest {
 
     @Test
     void ofTest() {
-        for (Square s: Square.values()) {
-            assertEquals(s, Square.of(s.getValue()));
+        for (Square.Rank rank: Square.Rank.values()) {
+            for (Square.File file: Square.File.values()) {
+                String expected = file.name()+(rank.getValue()+1);
+                assertEquals(expected, Square.of(rank, file).name());
+            }
         }
     }
 }

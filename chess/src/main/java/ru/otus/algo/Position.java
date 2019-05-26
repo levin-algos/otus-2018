@@ -3,7 +3,7 @@ package ru.otus.algo;
 import java.util.*;
 
 public class Position {
-    private final Direction[][] MOVE_DIRECTIONS = {
+    private static final Direction[][] MOVE_DIRECTIONS = {
             // PAWN
             {Direction.NORTH},
             // ROOK
@@ -23,6 +23,11 @@ public class Position {
     private final Map<Figure, Set<Long>> whites;
     private final Map<Figure, Set<Long>> blacks;
     private long obstacles;
+    private Side sideToMove = Side.WHITE;
+    private Square enPassant;
+    private int halfMoveClock;
+    private int castleAbility;
+    private int movesNum;
 
     private Position() {
         whites = new HashMap<>();
@@ -42,6 +47,10 @@ public class Position {
         Position position = new Position();
         position.add(side, figure, sq);
         return position;
+    }
+
+    public Side getSideToMove() {
+        return sideToMove;
     }
 
     public Position move(Move move) {
@@ -141,7 +150,28 @@ public class Position {
         }
     }
 
-    public static class Builder {
+    public Set<Piece> getPieces(Side side) {
+        Set<Piece> pieces = new HashSet<>();
+        Map<Figure, Set<Long>> map = side == Side.WHITE ? whites : blacks;
+
+        map.forEach((figure, longs) -> {
+            longs.forEach(aLong -> {
+                int pos = Long.numberOfTrailingZeros(aLong);
+                pieces.add(Piece.of(side, figure, Square.of(pos)));
+            });
+        });
+        return pieces;
+    }
+
+    public int getHalfMoveClock() {
+        return halfMoveClock;
+    }
+
+    public Optional<Square> getEnPassant() {
+        return Optional.ofNullable(enPassant);
+    }
+
+    public static class Builder implements PositionBuilder {
 
         private Position position;
 
@@ -149,13 +179,69 @@ public class Position {
             this.position = new Position();
         }
 
-        public Builder add(Side white, Figure figure, Square sq) {
-            position.add(white, figure, sq);
+        @Override
+        public Builder add(Piece... piece) {
+            for (Piece p : piece)
+                position.add(p.getSide(), p.getFigure(), p.getSquare());
+
             return this;
         }
 
+        @Override
+        public PositionBuilder setMoveSide(Side side) {
+            position.sideToMove = side;
+            return this;
+        }
+
+        @Override
+        public PositionBuilder setEnPassant(Square enPassant) {
+            position.enPassant = enPassant;
+            return this;
+        }
+
+        @Override
+        public PositionBuilder setHalfMoveClock(int halfMoveClock) {
+            position.halfMoveClock = halfMoveClock;
+            return this;
+        }
+
+        @Override
+        public PositionBuilder setCaslte(Side side, Castle castle) {
+            position.setCastle(side, castle);
+            return this;
+        }
+
+        @Override
+        public PositionBuilder setMovesCount(int count) {
+            position.movesNum = count;
+            return this;
+        }
+
+        @Override
         public Position build() {
             return position;
         }
+    }
+
+    private void setCastle(Side side, Castle castle) {
+        int s = side == Side.WHITE? 0: 1;
+        int c = castle == Castle.KINGS_SIDE? 0: 1;
+
+        castleAbility |= 1L << s*2+c;
+    }
+
+    private void unsetCastle(Side side, Castle castle) {
+        int s = side == Side.WHITE? 0: 1;
+        int c = castle == Castle.KINGS_SIDE? 0: 1;
+
+        castleAbility &= ~(1L << s*2+c);
+    }
+
+    public boolean canCastle(Side side, Castle castle) {
+        int s = side == Side.WHITE? 0: 1;
+        int c = castle == Castle.KINGS_SIDE? 0: 1;
+
+        long l = 1L << s * 2 + c;
+        return (castleAbility & l) != 0;
     }
 }

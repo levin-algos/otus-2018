@@ -43,11 +43,8 @@ public class PositionTest {
     @Test
     void pawnTest() {
         Position pos = new Position.Builder()
-                .add(Side.WHITE, Figure.KING, Square.E1)
-                .add(Side.WHITE, Figure.PAWN, Square.E2)
-                .add(Side.WHITE, Figure.PAWN, Square.D2)
-                .add(Side.WHITE, Figure.PAWN, Square.F2)
-                .add(Side.WHITE, Figure.PAWN, Square.F3)
+                .add(Pieces.pawns(Side.WHITE, Square.E2, Square.D2, Square.F2, Square.F3))
+                .add(Piece.of(Side.WHITE, Figure.KING, Square.E1))
                 .build();
 
         HashSet<Move> expected = new HashSet<>();

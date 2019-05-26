@@ -1,5 +1,7 @@
 package ru.otus.algo;
 
+import java.io.File;
+
 public enum Square {
 
     A1(0),  B1(1),  C1(2),  D1(3),  E1(4),  F1(5),  G1(6),  H1(7),
@@ -10,6 +12,35 @@ public enum Square {
     A6(40), B6(41), C6(42), D6(43), E6(44), F6(45), G6(46), H6(47),
     A7(48), B7(49), C7(50), D7(51), E7(52), F7(53), G7(54), H7(55),
     A8(56), B8(57), C8(58), D8(59), E8(60), F8(61), G8(62), H8(63);
+
+    public enum Rank {
+        FIRST(0), SECOND(1), THIRD(2), FORTH(3),
+        FIFTH(4), SIXTH(5), SEVENTH(6), EIGHTS(7);
+
+        private final int value;
+
+        Rank(int value) {
+            this.value = value;
+        }
+
+        int getValue() {
+            return value;
+        }
+    }
+
+    public enum File {
+        A(0), B(1), C(2), D(3), E(4), F(5), G(6), H(7);
+
+        private final int value;
+
+        File(int value) {
+            this.value = value;
+        }
+
+        int getValue() {
+            return value;
+        }
+    }
 
     private static final Square[]  of = {A1, B1, C1, D1, E1, F1, G1, H1,
                                          A2, B2, C2, D2, E2, F2, G2, H2,
@@ -25,9 +56,13 @@ public enum Square {
         this.value = value;
     }
 
-    public static Square of(int i) {
-        assert  i < 64;
-        return of[i];
+    public static Square of(Rank rank, File file) {
+        return of[rank.getValue()*8+file.getValue()];
+    }
+
+    static Square of(int pos) {
+        assert pos >=0 && pos < 64;
+        return of[pos];
     }
 
     public int getValue() {
