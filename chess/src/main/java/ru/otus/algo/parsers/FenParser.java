@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class FenParser {
 
-    Position parse(String fen, PositionBuilder builder) {
+    public Position parse(String fen, PositionBuilder builder) {
 
         String[] fields = fen.split(" ");
 
@@ -26,12 +26,12 @@ public class FenParser {
     private void setNumOfMoves(String field, PositionBuilder builder) {
         try {
             int moves = Integer.parseInt(field);
-            if (moves <= 0)
-                throw new ParseError("wrong number of moves");
+            if (moves < 0)
+                throw new ParseError(field + " is wrong number of moves");
 
             builder.setMovesCount(moves);
         } catch (NumberFormatException e) {
-            throw new ParseError("wrong number of moves");
+            throw new ParseError(field + " is wrong number of moves");
         }
     }
 
