@@ -9,7 +9,9 @@ public class Position {
             // ROOK
             {},
             // KNIGHT
-            {},
+            {Direction.NORTH_NORTH_EAST, Direction.NORTH_EAST_EAST, Direction.SOUTH_EAST_EAST,
+             Direction.SOUTH_SOUTH_EAST, Direction.SOUTH_SOUTH_WEST, Direction.SOUTH_WEST_WEST,
+             Direction.NORTH_WEST_WEST, Direction.NORTH_NORTH_WEST},
             // BISHOP
             {},
             // QUEEN
@@ -23,6 +25,7 @@ public class Position {
     private final Map<Figure, Set<Long>> whites;
     private final Map<Figure, Set<Long>> blacks;
     private long obstacles;
+    private long attack;
     private Side sideToMove = Side.WHITE;
     private Square enPassant;
     private int halfMoveClock;
@@ -96,13 +99,29 @@ public class Position {
         longs.add(bits);
         map.put(figure, longs);
         obstacles |= bits;
+        attack |= generateAttackMap(side, figure, bits);
     }
 
     public Set<Move> getAllMoves() {
         Set<Move> moves = new HashSet<>();
-        generateMoves(Side.WHITE, moves);
-        generateMoves(Side.BLACK, moves);
+        generateMoves(sideToMove, moves);
         return moves;
+    }
+
+    private long generateAttackMap(Side side, Figure figure, Long pieceMap) {
+        if (Figure.PAWN == figure) {
+            if (Side.WHITE == side) {
+                return BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.NORTH_EAST, Direction.NORTH_WEST});
+            } else {
+                return BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.SOUTH_EAST, Direction.SOUTH_WEST});
+            }
+        } else if (Figure.KING == figure) {
+            return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+        } else if (Figure.KNIGHT == figure) {
+            return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]);
+        }
+
+        return 0;
     }
 
     private void generateMoves(Side side, Set<Move> moves) {
@@ -113,7 +132,20 @@ public class Position {
                 generateMovesForKing(side, f.getValue(), moves);
             } else if (key == Figure.PAWN) {
                 generateMovesForPawn(side, f.getValue(), moves);
+            } else if (key == Figure.KNIGHT) {
+                generateMovesForKnight(side, f.getValue(), moves);
             }
+        }
+    }
+
+    private void generateMovesForKnight(Side side, Set<Long> value, Set<Move> moves) {
+        for (Long val: value) {
+            Square from = Square.of(Long.numberOfTrailingZeros(val));
+            long obs = obstacles & ~val;
+            final long kng = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+            long att = attack & ~kng;
+            long res = kng & ~obs & ~att;
+            generateMovesFromLong(res, side, from, Figure.KING, moves);
         }
     }
 
@@ -122,9 +154,10 @@ public class Position {
             int i = Long.numberOfTrailingZeros(val);
             boolean hasDouble = i > 7 && i < 16;
             long obs = obstacles & ~val;
-            long res = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.PAWN.getValue()]) & ~obs;
+            final Direction[] dir = {side == Side.WHITE? Direction.NORTH: Direction.SOUTH};
+            long res = BitManipulation.fillOnce(val, dir) & ~obs;
             if (hasDouble)
-                res |= BitManipulation.fillOnce(res, MOVE_DIRECTIONS[Figure.PAWN.getValue()]) & ~obs;
+                res |= BitManipulation.fillOnce(res, dir) & ~obs;
             generateMovesFromLong(res, side, Square.of(i), Figure.PAWN, moves);
         }
     }
@@ -133,7 +166,9 @@ public class Position {
         for (Long val: value) {
             Square from = Square.of(Long.numberOfTrailingZeros(val));
             long obs = obstacles & ~val;
-            long res = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]) & ~obs;
+            final long kng = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+            long att = attack & ~kng;
+            long res = kng & ~obs & ~att;
             generateMovesFromLong(res, side, from, Figure.KING, moves);
         }
     }

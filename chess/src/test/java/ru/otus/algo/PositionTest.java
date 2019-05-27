@@ -29,6 +29,7 @@ public class PositionTest {
                 .map(move -> String.format("%s%s", move.getFrom(), move.getDestination()))
                 .collect(Collectors.toSet());
 
+        System.out.println(moves.containsAll(m));
         assertEquals(moves, m);
     }
 
