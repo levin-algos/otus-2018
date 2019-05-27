@@ -8,8 +8,11 @@ import java.util.Set;
 public class FenParser {
 
     Position parse(String fen, PositionBuilder builder) {
+
         String[] fields = fen.split(" ");
 
+        if (fields.length != 6)
+            throw new ParseError("Incorrect format");
         addFigures(fields[0], builder);
         setNextMove(fields[1], builder);
         setCastling(fields[2], builder);
@@ -21,11 +24,15 @@ public class FenParser {
     }
 
     private void setNumOfMoves(String field, PositionBuilder builder) {
-        int moves = Integer.parseInt(field);
-        if (moves <= 0)
-            throw new ParseError("wrong number of moves");
+        try {
+            int moves = Integer.parseInt(field);
+            if (moves <= 0)
+                throw new ParseError("wrong number of moves");
 
-        builder.setMovesCount(moves);
+            builder.setMovesCount(moves);
+        } catch (NumberFormatException e) {
+            throw new ParseError("wrong number of moves");
+        }
     }
 
     private void setHalfMove(String field, PositionBuilder builder) {
@@ -91,7 +98,7 @@ public class FenParser {
                 file += f - '0';
             } else if (f == '/') {
                 if (file != 8 || rank <= 0)
-                    throw new ParseError("Wrong format");
+                    throw new ParseError("Wrong figures format");
                 file = 0;
                 rank--;
             } else if (Character.isLetter(f)) {
@@ -105,6 +112,8 @@ public class FenParser {
                 throw new ParseError(f + " unrecognised character");
             }
         }
+        if (rank != 0 || file != 8)
+            throw new ParseError("Wrong figures format");
     }
 
     private Figure getFigure(char f) {

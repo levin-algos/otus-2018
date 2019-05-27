@@ -5,7 +5,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import ru.otus.algo.*;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
