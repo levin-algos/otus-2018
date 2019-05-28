@@ -151,16 +151,55 @@ public class Position {
                 generateMovesForKnight(side, f.getValue(), moves);
             } else if (key == Figure.ROOK) {
                 generateMoveForRook(side, f.getValue(), moves);
+            } else if (key == Figure.QUEEN) {
+                generateMoveForQueen(side, f.getValue(), moves);
+            }  else if (key == Figure.BISHOP) {
+                generateMoveForBishop(side, f.getValue(), moves);
             }
+        }
+    }
+
+    private void generateMoveForBishop(Side side, Set<Long> value, Set<Move> moves) {
+        for (Long val : value) {
+            int square = Long.numberOfTrailingZeros(val);
+            long blockers = (whiteObstacles | blackObstacles) & ~val;
+            long attacks = 0;
+
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.NORTH_WEST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.NORTH_EAST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH_EAST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH_WEST);
+
+            attacks &= ~val;
+            generateMovesFromLong(attacks, side, Square.of(square), Figure.QUEEN, moves);
+        }
+    }
+
+    private void generateMoveForQueen(Side side, Set<Long> value, Set<Move> moves) {
+        for (Long val : value) {
+            int square = Long.numberOfTrailingZeros(val);
+            long blockers = (whiteObstacles | blackObstacles) & ~val;
+            long attacks = 0;
+
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.NORTH_WEST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.NORTH_EAST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH_EAST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH_WEST);
+
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.NORTH);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.EAST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.WEST);
+
+            attacks &= ~val;
+            generateMovesFromLong(attacks, side, Square.of(square), Figure.QUEEN, moves);
         }
     }
 
     private void generateMoveForRook(Side side, Set<Long> value, Set<Move> moves) {
         for (Long val : value) {
             int square = Long.numberOfTrailingZeros(val);
-            long blockers = ~(whiteObstacles | blackObstacles);
-            System.out.println(Long.toBinaryString(whiteObstacles | blackObstacles));
-            System.out.println(Long.toBinaryString(blockers));
+            long blockers = (whiteObstacles | blackObstacles) & ~val;
             long attacks = 0;
 
 //            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH_WEST);
@@ -168,27 +207,33 @@ public class Position {
 //            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH_EAST);
 //            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH_WEST);
 
-            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH);
-            attacks &= calcRayAttack(attacks, square, blockers, Direction.EAST);
-            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH);
-            attacks &= calcRayAttack(attacks, square, blockers, Direction.WEST);
+            attacks = calcRayAttack(attacks, square, blockers, Direction.NORTH);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.EAST);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH);
+            attacks |= calcRayAttack(attacks, square, blockers, Direction.WEST);
 
-            generateMovesFromLong(attacks, side, Square.of(square), Figure.BISHOP, moves);
+            attacks &= ~val;
+            generateMovesFromLong(attacks, side, Square.of(square), Figure.ROOK, moves);
         }
     }
 
     private long calcRayAttack(long attacks, int square, long blockers, Direction direction) {
-        attacks |= RAYS.get(direction).get(square);
-        System.out.println(BitManipulation.drawLong(attacks, 8));
-        System.out.println(BitManipulation.drawLong(blockers, 8));
-        final long l = RAYS.get(direction).get(square) & blockers;
-        System.out.println(BitManipulation.drawLong(l, 8));
+        Long aLong1 = RAYS.get(direction).get(square);
+        if (aLong1 == 0)
+            return attacks;
+
+        attacks |= aLong1;
+        final long l = aLong1 & blockers;
         if (l != 0) {
-            int blockerIndex = Long.numberOfTrailingZeros(l);
-            attacks &=  ~RAYS.get(direction).get(blockerIndex);
+            int blockerIndex;
+            if (direction == Direction.WEST)
+                blockerIndex = 63 - Long.numberOfLeadingZeros(l);
+            else
+                blockerIndex = Long.numberOfTrailingZeros(l);
+            Long aLong = ~RAYS.get(direction).get(blockerIndex);
+            attacks &=  aLong ;
         }
-        System.out.println(BitManipulation.drawLong(attacks, 8));
-        return attacks;
+        return attacks & ~whiteObstacles;
     }
 
     private void generateMovesForKnight(Side side, Set<Long> value, Set<Move> moves) {

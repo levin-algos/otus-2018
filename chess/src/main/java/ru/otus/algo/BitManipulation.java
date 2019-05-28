@@ -23,7 +23,7 @@ public class BitManipulation {
         return res;
     }
 
-    static String drawLong(long lng, int bitsInLine) {
+    static String drawLong(long lng) {
         int c = 64, line = 0;
         StringBuilder bld = new StringBuilder();
         while (c > 0) {
@@ -73,7 +73,7 @@ public class BitManipulation {
     }
 
     static long negativeRay(int val, long ray) {
-        return ray & ((1L << val) - 1);
+        return ray & ((1L << val+1) - 1);
     }
 
     static List<Long> generateMap(Direction dir) {
