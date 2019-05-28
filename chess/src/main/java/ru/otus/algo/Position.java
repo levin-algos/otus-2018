@@ -202,11 +202,6 @@ public class Position {
             long blockers = (whiteObstacles | blackObstacles) & ~val;
             long attacks = 0;
 
-//            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH_WEST);
-//            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH_EAST);
-//            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH_EAST);
-//            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH_WEST);
-
             attacks = calcRayAttack(attacks, square, blockers, Direction.NORTH);
             attacks |= calcRayAttack(attacks, square, blockers, Direction.EAST);
             attacks |= calcRayAttack(attacks, square, blockers, Direction.SOUTH);
@@ -265,9 +260,11 @@ public class Position {
             final Direction[] dir = {side == Side.WHITE ? Direction.NORTH : Direction.SOUTH};
             final long l = BitManipulation.fillOnce(val, dir);
             long captures = generateAttackMap(side, Figure.PAWN, val) & partnerObs;
-            long res = l & ~obs | captures;
+            long res = l & ~obs;
             if (hasDouble)
                 res |= BitManipulation.fillOnce(res, dir) & ~obs;
+
+            res |= captures;
             generateMovesFromLong(res, side, Square.of(i), Figure.PAWN, moves);
         }
     }
