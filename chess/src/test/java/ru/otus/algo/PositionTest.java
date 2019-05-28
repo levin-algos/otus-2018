@@ -84,4 +84,31 @@ public class PositionTest {
 
         assertEquals(expected, pos.getAllMoves());
     }
+
+    @Test
+    void exp01() {
+        long a = 1_143_472_128L;
+        long b =  -9187201950435737472L;
+
+        System.out.println(drawLong(a, 8));
+        System.out.println(drawLong(b, 8));
+        System.out.println(drawLong(a*b, 8));
+        System.out.println(a*b);
+    }
+
+    private String drawLong(long lng, int bitsInLine) {
+        int c = 64, line = 0;
+        StringBuilder bld = new StringBuilder();
+        while (c > 0) {
+            bld.append((lng & 1) == 0? '.': '1').append(" ");
+            line++;
+            if (line == 8) {
+                bld.append(System.lineSeparator());
+                line = 0;
+            }
+            lng = lng >>> 1;
+            c--;
+        }
+        return bld.toString();
+    }
 }

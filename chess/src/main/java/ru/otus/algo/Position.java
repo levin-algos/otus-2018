@@ -10,22 +10,30 @@ public class Position {
             {},
             // KNIGHT
             {Direction.NORTH_NORTH_EAST, Direction.NORTH_EAST_EAST, Direction.SOUTH_EAST_EAST,
-             Direction.SOUTH_SOUTH_EAST, Direction.SOUTH_SOUTH_WEST, Direction.SOUTH_WEST_WEST,
-             Direction.NORTH_WEST_WEST, Direction.NORTH_NORTH_WEST},
+                    Direction.SOUTH_SOUTH_EAST, Direction.SOUTH_SOUTH_WEST, Direction.SOUTH_WEST_WEST,
+                    Direction.NORTH_WEST_WEST, Direction.NORTH_NORTH_WEST},
             // BISHOP
             {},
             // QUEEN
             {},
             // KING
             {Direction.NORTH_WEST, Direction.NORTH, Direction.NORTH_EAST,
-             Direction.WEST,                        Direction.EAST,
-             Direction.SOUTH_WEST, Direction.SOUTH, Direction.SOUTH_EAST  }
+                    Direction.WEST, Direction.EAST,
+                    Direction.SOUTH_WEST, Direction.SOUTH, Direction.SOUTH_EAST}
     };
 
     private final Map<Figure, Set<Long>> whites;
     private final Map<Figure, Set<Long>> blacks;
-    private long obstacles;
-    private long attack;
+    private static final Map<Direction, List<Long>> RAYS = new HashMap<>();
+
+    static {
+        initRays();
+    }
+
+    private long whiteObstacles;
+    private long blackObstacles;
+    private long whiteAttack;
+    private long blackAttack;
     private Side sideToMove = Side.WHITE;
     private Square enPassant;
     private int halfMoveClock;
@@ -37,13 +45,21 @@ public class Position {
         blacks = new HashMap<>();
     }
 
+    private static void initRays() {
+        for (Direction dir : MOVE_DIRECTIONS[Figure.KING.getValue()])
+            RAYS.put(dir, BitManipulation.generateMap(dir));
+    }
+
     private Position(Position pos) {
         whites = new HashMap<>();
         blacks = new HashMap<>();
 
         pos.whites.forEach(whites::put);
         pos.blacks.forEach(blacks::put);
-        pos.obstacles = obstacles;
+        this.whiteObstacles = whiteObstacles;
+        this.blackObstacles = blackObstacles;
+        this.whiteAttack = whiteAttack;
+        this.blackAttack = blackAttack;
     }
 
     public static Position of(Side side, Figure figure, Square sq) {
@@ -98,8 +114,13 @@ public class Position {
         long bits = 1L << sq.getValue();
         longs.add(bits);
         map.put(figure, longs);
-        obstacles |= bits;
-        attack |= generateAttackMap(side, figure, bits);
+        if (Side.WHITE == side) {
+            whiteObstacles |= bits;
+            whiteAttack |= generateAttackMap(side, figure, bits);
+        } else {
+            blackObstacles |= bits;
+            blackAttack |= generateAttackMap(side, figure, bits);
+        }
     }
 
     public Set<Move> getAllMoves() {
@@ -115,18 +136,12 @@ public class Position {
             } else {
                 return BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.SOUTH_EAST, Direction.SOUTH_WEST});
             }
-        } else if (Figure.KING == figure) {
-            return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KING.getValue()]);
-        } else if (Figure.KNIGHT == figure) {
-            return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]);
-        }
-
-        return 0;
+        } else return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[figure.getValue()]);
     }
 
     private void generateMoves(Side side, Set<Move> moves) {
         Map<Figure, Set<Long>> map = side == Side.WHITE ? whites : blacks;
-        for (Map.Entry<Figure, Set<Long>> f: map.entrySet()) {
+        for (Map.Entry<Figure, Set<Long>> f : map.entrySet()) {
             Figure key = f.getKey();
             if (key == Figure.KING) {
                 generateMovesForKing(side, f.getValue(), moves);
@@ -134,28 +149,78 @@ public class Position {
                 generateMovesForPawn(side, f.getValue(), moves);
             } else if (key == Figure.KNIGHT) {
                 generateMovesForKnight(side, f.getValue(), moves);
+            } else if (key == Figure.ROOK) {
+                generateMoveForRook(side, f.getValue(), moves);
             }
         }
     }
 
+    private void generateMoveForRook(Side side, Set<Long> value, Set<Move> moves) {
+        for (Long val : value) {
+            int square = Long.numberOfTrailingZeros(val);
+            long blockers = ~(whiteObstacles | blackObstacles);
+            System.out.println(Long.toBinaryString(whiteObstacles | blackObstacles));
+            System.out.println(Long.toBinaryString(blockers));
+            long attacks = 0;
+
+//            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH_WEST);
+//            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH_EAST);
+//            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH_EAST);
+//            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH_WEST);
+
+            attacks &= calcRayAttack(attacks, square, blockers, Direction.NORTH);
+            attacks &= calcRayAttack(attacks, square, blockers, Direction.EAST);
+            attacks &= calcRayAttack(attacks, square, blockers, Direction.SOUTH);
+            attacks &= calcRayAttack(attacks, square, blockers, Direction.WEST);
+
+            generateMovesFromLong(attacks, side, Square.of(square), Figure.BISHOP, moves);
+        }
+    }
+
+    private long calcRayAttack(long attacks, int square, long blockers, Direction direction) {
+        attacks |= RAYS.get(direction).get(square);
+        System.out.println(BitManipulation.drawLong(attacks, 8));
+        System.out.println(BitManipulation.drawLong(blockers, 8));
+        final long l = RAYS.get(direction).get(square) & blockers;
+        System.out.println(BitManipulation.drawLong(l, 8));
+        if (l != 0) {
+            int blockerIndex = Long.numberOfTrailingZeros(l);
+            attacks &=  ~RAYS.get(direction).get(blockerIndex);
+        }
+        System.out.println(BitManipulation.drawLong(attacks, 8));
+        return attacks;
+    }
+
     private void generateMovesForKnight(Side side, Set<Long> value, Set<Move> moves) {
-        for (Long val: value) {
+        for (Long val : value) {
             Square from = Square.of(Long.numberOfTrailingZeros(val));
-            long obs = obstacles & ~val;
-            final long kng = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]);
-            long att = attack & ~kng;
-            long res = kng & ~obs & ~att;
-            generateMovesFromLong(res, side, from, Figure.KING, moves);
+            if (Side.WHITE == side) {
+                long obs = whiteObstacles & ~val;
+                final long kng = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]);
+                long att = whiteAttack & ~kng;
+                long res = kng & ~obs & ~att;
+                generateMovesFromLong(res, side, from, Figure.KING, moves);
+            } else {
+                long obs = blackObstacles & ~val;
+                final long kng = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]);
+                long att = blackAttack & ~kng;
+                long res = kng & ~obs & ~att;
+                generateMovesFromLong(res, side, from, Figure.KING, moves);
+            }
         }
     }
 
     private void generateMovesForPawn(Side side, Set<Long> value, Set<Move> moves) {
-        for (Long val: value) {
+        for (Long val : value) {
             int i = Long.numberOfTrailingZeros(val);
             boolean hasDouble = i > 7 && i < 16;
+            long obstacles = whiteObstacles | blackObstacles;
+            long partnerObs = Side.WHITE == side ? blackObstacles : whiteObstacles;
             long obs = obstacles & ~val;
-            final Direction[] dir = {side == Side.WHITE? Direction.NORTH: Direction.SOUTH};
-            long res = BitManipulation.fillOnce(val, dir) & ~obs;
+            final Direction[] dir = {side == Side.WHITE ? Direction.NORTH : Direction.SOUTH};
+            final long l = BitManipulation.fillOnce(val, dir);
+            long captures = generateAttackMap(side, Figure.PAWN, val) & partnerObs;
+            long res = l & ~obs | captures;
             if (hasDouble)
                 res |= BitManipulation.fillOnce(res, dir) & ~obs;
             generateMovesFromLong(res, side, Square.of(i), Figure.PAWN, moves);
@@ -163,17 +228,19 @@ public class Position {
     }
 
     private void generateMovesForKing(Side side, Set<Long> value, Set<Move> moves) {
-        for (Long val: value) {
+        for (Long val : value) {
             Square from = Square.of(Long.numberOfTrailingZeros(val));
+            long obstacles = side == Side.WHITE ? whiteObstacles : blackObstacles;
+            long attack = side == Side.WHITE ? blackAttack : whiteAttack;
             long obs = obstacles & ~val;
             final long kng = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KING.getValue()]);
-            long att = attack & ~kng;
-            long res = kng & ~obs & ~att;
+            long att = ~attack & kng;
+            long res = att & ~obs;
             generateMovesFromLong(res, side, from, Figure.KING, moves);
         }
     }
 
-    private void generateMovesFromLong(long bits, Side side, Square from, Figure figure,  Set<Move> moves) {
+    private void generateMovesFromLong(long bits, Side side, Square from, Figure figure, Set<Move> moves) {
         int pos = 0;
         while ((bits != 0)) {
             int delta = Long.numberOfTrailingZeros(bits);
@@ -259,22 +326,22 @@ public class Position {
     }
 
     private void setCastle(Side side, Castle castle) {
-        int s = side == Side.WHITE? 0: 1;
-        int c = castle == Castle.KINGS_SIDE? 0: 1;
+        int s = side == Side.WHITE ? 0 : 1;
+        int c = castle == Castle.KINGS_SIDE ? 0 : 1;
 
-        castleAbility |= 1L << s*2+c;
+        castleAbility |= 1L << s * 2 + c;
     }
 
     private void unsetCastle(Side side, Castle castle) {
-        int s = side == Side.WHITE? 0: 1;
-        int c = castle == Castle.KINGS_SIDE? 0: 1;
+        int s = side == Side.WHITE ? 0 : 1;
+        int c = castle == Castle.KINGS_SIDE ? 0 : 1;
 
-        castleAbility &= ~(1L << s*2+c);
+        castleAbility &= ~(1L << s * 2 + c);
     }
 
     public boolean canCastle(Side side, Castle castle) {
-        int s = side == Side.WHITE? 0: 1;
-        int c = castle == Castle.KINGS_SIDE? 0: 1;
+        int s = side == Side.WHITE ? 0 : 1;
+        int c = castle == Castle.KINGS_SIDE ? 0 : 1;
 
         long l = 1L << s * 2 + c;
         return (castleAbility & l) != 0;
