@@ -41,6 +41,7 @@ public class Position {
     private int halfMoveClock;
     private int castleAbility;
     private int movesNum;
+    private MagicTable magic = new MagicTable();
 
     private Position() {
         whites = new HashMap<>();
@@ -162,33 +163,18 @@ public class Position {
         for (Long val : value) {
             int square = Long.numberOfTrailingZeros(val);
 
-            long attacks = calcRayAttack(square, blockers & ~val, figure) & ~val;
+            long attacks;
+            if (figure == Figure.ROOK)
+                attacks = magic.getRookAttacks(square, blockers & ~val);
+            else if (figure == Figure.BISHOP)
+                attacks = magic.getBishopAttacks(square, blockers  & ~val);
+            else {
+                attacks = magic.getBishopAttacks(square, blockers  & ~val);
+                attacks |= magic.getRookAttacks(square, blockers  & ~val);
+            }
+            attacks &= ~val & ~(sideToMove == Side.WHITE? whiteBlockers : blackBlockers);
             generateMovesFromLong(attacks, side, Square.of(square), figure, moves);
         }
-    }
-
-    private long calcRayAttack(int square, long blockers, Figure figure) {
-        long attacks = 0;
-
-        for (Direction dir: MOVE_DIRECTIONS[figure.getValue()]) {
-            Long aLong1 = RAYS.get(dir).get(square);
-            if (aLong1 == 0)
-                continue;
-
-            attacks |= aLong1;
-            final long l = aLong1 & blockers;
-            if (l != 0) {
-                int blockerIndex;
-                if (dir == Direction.WEST)
-                    blockerIndex = 63 - Long.numberOfLeadingZeros(l);
-                else
-                    blockerIndex = Long.numberOfTrailingZeros(l);
-                Long aLong = ~RAYS.get(dir).get(blockerIndex);
-                attacks &= aLong;
-            }
-        }
-        final long obs = sideToMove == Side.WHITE ? whiteBlockers : blackBlockers;
-        return attacks & ~obs;
     }
 
     private void generateMovesForKnight(Side side, Set<Long> value, Set<Move> moves) {
