@@ -1,6 +1,5 @@
 package ru.otus.algo;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,14 +35,6 @@ public class AttackTableTest {
     @MethodSource("antiDiagSource")
     void checkAntiDiagConnected(int from, int to) {
         assertTrue(attack.isConnected(from, to));
-    }
-
-
-    private boolean checkConnectedAntiDiags(int sq, AttackTable attack) {
-        int r = sq / 8, f = sq % 8;
-        for (int i = (r + f) * 8; i > 0; i -= 7)
-            if (!attack.isConnected(sq, i)) return false;
-        return true;
     }
 
     private static Stream<Arguments> diagSource() {
