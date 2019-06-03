@@ -6,39 +6,17 @@ public class AttackTable {
         init();
     }
 
-    private static final long[][] attacks = new long[64][64];
+    private static final long[][] attack = new long[64][64];
+
     private void init() {
         for (int from = 0; from < 64; from++) {
             for (int to = 0; to < 64; to++) {
-                attacks[from][to] = inBetween(from, to);
+                attack[from][to] = generateAttackTable(from, to);
             }
         }
     }
 
-    public boolean isConnected(int from, int to) {
-        if (from > 63 || to > 63)
-            throw new IllegalArgumentException();
-
-        if (from == to)
-            return true;
-
-        if (isNeighbors(from, to))
-            return true;
-
-        return attacks[from][to] != 0;
-    }
-
-    private boolean isNeighbors(int from, int to) {
-        if (Math.abs(from - to) < 2)
-            return true;
-
-        int fromRank = from / 8, toRank = to / 8;
-        if (Math.abs(fromRank - toRank) < 2)
-            return true;
-        return false;
-    }
-
-    private long inBetween(int sq1, int sq2) {
+    private long generateAttackTable(int sq1, int sq2) {
         long m1 = -1L;
         long a2a7 = 0x0001010101010100L;
         long b2g7 = 0x0040201008040200L;
@@ -54,6 +32,24 @@ public class AttackTable {
         line += (((rank + file) & 15) - 1) & h1b7; /* h1b7 if same antidiag */
         line *= btwn & -btwn; /* mul acts like shift by smaller square */
         return line & btwn;   /* return the bits on that line in-between */
+    }
 
+    boolean inBetween(Figure figure, int from, int to, int i) {
+        long mask = 0;
+        if (Figure.BISHOP == figure && (isSameRank(from, to) || isSameFile(from, to)))
+            return false;
+        else if (Figure.ROOK == figure && (!isSameRank(from, to) && !isSameFile(from, to)))
+            return false;
+
+        mask = attack[from][to];
+        return (mask & (1L << i)) != 0;
+    }
+
+    private boolean isSameFile(int from, int to) {
+        return from % 8 == to % 8;
+    }
+
+    private boolean isSameRank(int from, int to) {
+        return Math.abs(to - from) < 8;
     }
 }
