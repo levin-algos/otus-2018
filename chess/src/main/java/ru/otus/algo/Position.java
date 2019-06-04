@@ -32,7 +32,7 @@ public class Position {
     private long blockers;
     private long whiteAttack;
     private long blackAttack;
-    private Side sideToMove = Side.WHITE;
+    private Side sideToMove;
     private Square enPassant;
     private int halfMoveClock;
     private int castleAbility;
@@ -47,6 +47,7 @@ public class Position {
     private Position(Position pos, Move move) {
         whites = new HashMap<>();
         blacks = new HashMap<>();
+        sideToMove = pos.sideToMove;
 
         pos.whites.forEach((figure, longs) -> {
             Set<Long> res = new HashSet<>(longs);
@@ -135,6 +136,7 @@ public class Position {
 
     public Set<Move> getAllMoves() {
         Set<Move> moves = new HashSet<>();
+        generateAttackMaps();
         generateMoves(sideToMove, moves);
         return moves.stream().filter(this::checkPins).collect(Collectors.toSet());
     }
@@ -149,7 +151,7 @@ public class Position {
             }
         } else if (Figure.KNIGHT == figure) {
             long blocker = side == Side.WHITE ? whiteBlockers : blackBlockers & ~pieceMap;
-            return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]) & ~blocker;
+            return BitManipulation.fillKnight(pieceMap) & ~blocker;
         } else if (Figure.KING == figure) {
             long blocker = (side == Side.WHITE ? whiteBlockers : blackBlockers) & ~pieceMap;
             long attack = side == Side.WHITE ? blackAttack : whiteAttack;
@@ -208,8 +210,8 @@ public class Position {
     private void generateMovesForKnight(Side side, Set<Long> value, Set<Move> moves) {
         for (Long val : value) {
             Square from = Square.of(Long.numberOfTrailingZeros(val));
-            long blocker = side == Side.WHITE ? whiteBlockers : blackBlockers & ~val;
-            final long attack = BitManipulation.fillOnce(val, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]) & ~blocker;
+            long blocker = (side == Side.WHITE ? whiteBlockers : blackBlockers) & ~val;
+            final long attack = BitManipulation.fillKnight(val) & ~blocker;
             generateMovesFromLong(attack, side, from, Figure.KNIGHT, moves);
         }
     }

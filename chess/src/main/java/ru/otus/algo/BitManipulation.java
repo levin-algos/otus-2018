@@ -21,6 +21,16 @@ public class BitManipulation {
         return res;
     }
 
+    public static long fillKnight(long knight) {
+        long l1 = (knight >> 1) & 0x7f7f7f7f7f7f7f7fL;
+        long l2 = (knight >> 2) & 0x3f3f3f3f3f3f3f3fL;
+        long r1 = (knight << 1) & 0xfefefefefefefefeL;
+        long r2 = (knight << 2) & 0xfcfcfcfcfcfcfcfcL;
+        long h1 = l1 | r1;
+        long h2 = l2 | r2;
+        return (h1<<16) | (h1>>16) | (h2<<8) | (h2>>8);
+    }
+
     static String drawLong(long lng) {
         int c = 64, line = 0;
         StringBuilder bld = new StringBuilder();
