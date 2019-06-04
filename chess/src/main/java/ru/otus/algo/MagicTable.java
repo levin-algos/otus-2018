@@ -77,7 +77,7 @@ public class MagicTable {
     public long getBishopAttacks(int square, long blockers) {
         final long bmask = bmask(square);
         blockers &= bmask;
-        int key = (int)((blockers * bishopMagics[square]) >> (64 - bishopIndexBits[square]));
+        int key = (int)((blockers * bishopMagics[square]) >>> (64 - bishopIndexBits[square]));
         return bishopTable[square][key];
     }
 

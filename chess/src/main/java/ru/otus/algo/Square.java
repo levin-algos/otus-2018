@@ -26,6 +26,11 @@ public enum Square {
         int getValue() {
             return value;
         }
+
+        static boolean isOn(Square sq, Rank rank) {
+            int from = rank.getValue()*8;
+            return sq.value >= (from) && sq.value < (from +8);
+        }
     }
 
     public enum File {

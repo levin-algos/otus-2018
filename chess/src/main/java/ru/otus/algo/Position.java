@@ -1,6 +1,7 @@
 package ru.otus.algo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Position {
     private static final Direction[][] MOVE_DIRECTIONS = {
@@ -25,11 +26,6 @@ public class Position {
 
     private final Map<Figure, Set<Long>> whites;
     private final Map<Figure, Set<Long>> blacks;
-    private static final Map<Direction, List<Long>> RAYS = new HashMap<>();
-
-    static {
-        initRays();
-    }
 
     private long whiteBlockers;
     private long blackBlockers;
@@ -41,34 +37,69 @@ public class Position {
     private int halfMoveClock;
     private int castleAbility;
     private int movesNum;
-    private MagicTable magic = new MagicTable();
+    private static MagicTable magic = new MagicTable();
 
-    private Position() {
+    public Position() {
         whites = new HashMap<>();
         blacks = new HashMap<>();
     }
 
-    private static void initRays() {
-        for (Direction dir : MOVE_DIRECTIONS[Figure.KING.getValue()])
-            RAYS.put(dir, BitManipulation.generateMap(dir));
-    }
-
-    private Position(Position pos) {
+    private Position(Position pos, Move move) {
         whites = new HashMap<>();
         blacks = new HashMap<>();
 
-        pos.whites.forEach(whites::put);
-        pos.blacks.forEach(blacks::put);
-        this.whiteBlockers = whiteBlockers;
-        this.blackBlockers = blackBlockers;
-        this.whiteAttack = whiteAttack;
-        this.blackAttack = blackAttack;
+        pos.whites.forEach((figure, longs) -> {
+            Set<Long> res = new HashSet<>(longs);
+            whites.put(figure, res);
+        });
+
+        pos.blacks.forEach((figure, longs) -> {
+            Set<Long> res = new HashSet<>(longs);
+            blacks.put(figure, res);
+        });
+
+        if (sideToMove != move.getSide())
+            throw new IllegalStateException();
+
+        Map<Figure, Set<Long>> map = move.getSide() == Side.WHITE ? whites : blacks;
+        Set<Long> set = map.get(move.getFigure());
+
+        if (!set.remove(1L << move.getFrom().getValue()))
+            throw new IllegalStateException("Cannot find piece: " + move);
+
+        set.add(1L << move.getDestination().getValue());
+
+        generateBlockers();
+
+        sideToMove = sideToMove == Side.WHITE ? Side.BLACK : Side.WHITE;
+        generateAttackMaps();
     }
 
-    public static Position of(Side side, Figure figure, Square sq) {
-        Position position = new Position();
-        position.add(side, figure, sq);
-        return position;
+    private void generateBlockers() {
+        for (Map.Entry<Figure, Set<Long>> entry : whites.entrySet()) {
+            entry.getValue().forEach(l ->
+                    whiteBlockers |= l
+            );
+        }
+
+        for (Map.Entry<Figure, Set<Long>> entry : blacks.entrySet()) {
+            entry.getValue().forEach(l ->
+                    blackBlockers |= l);}
+        blockers = whiteBlockers | blackBlockers;
+    }
+
+    private void generateAttackMaps() {
+        for (Map.Entry<Figure, Set<Long>> entry : whites.entrySet()) {
+            entry.getValue().forEach(l ->
+                    whiteAttack |= generateAttackMap(Side.WHITE, entry.getKey(), l)
+            );
+        }
+
+        for (Map.Entry<Figure, Set<Long>> entry : blacks.entrySet()) {
+            entry.getValue().forEach(l ->
+                    blackAttack |= generateAttackMap(Side.BLACK, entry.getKey(), l)
+            );
+        }
     }
 
     public Side getSideToMove() {
@@ -80,35 +111,12 @@ public class Position {
 
         Map<Figure, Set<Long>> map = move.getSide() == Side.WHITE ? whites : blacks;
         Set<Long> set = map.get(move.getFigure());
+        generateAttackMaps();
 
         if (set == null || set.size() == 0)
             throw new IllegalStateException("wrong move");
 
-        if (!validateMove(move.getFigure(), set, move.getFrom().getValue(), move.getDestination().getValue()))
-            throw new IllegalStateException("wrong move!");
-
-        Position position = new Position(this);
-        map = move.getSide() == Side.WHITE ? position.whites : position.blacks;
-        set = map.get(move.getFigure());
-
-        if (!set.remove(1L << move.getFrom().getValue()))
-            throw new IllegalStateException();
-        set.add(1L << move.getDestination().getValue());
-
-        return position;
-    }
-
-    private boolean validateMove(Figure figure, Set<Long> set, int from, int to) {
-        long bits = 1L << from;
-        if (!set.contains(bits))
-            return false;
-
-        long res = 0;
-        if (figure == Figure.KING) {
-            res = BitManipulation.fillOnce(bits, MOVE_DIRECTIONS[Figure.KING.getValue()]);
-        }
-        long value = 1L << to;
-        return (res & value) != 0;
+        return new Position(this, move);
     }
 
     private void add(Side side, Figure figure, Square sq) {
@@ -119,10 +127,8 @@ public class Position {
         map.put(figure, longs);
         if (Side.WHITE == side) {
             whiteBlockers |= bits;
-            whiteAttack |= generateAttackMap(side, figure, bits);
         } else {
             blackBlockers |= bits;
-            blackAttack |= generateAttackMap(side, figure, bits);
         }
         blockers = whiteBlockers | blackBlockers;
     }
@@ -130,17 +136,39 @@ public class Position {
     public Set<Move> getAllMoves() {
         Set<Move> moves = new HashSet<>();
         generateMoves(sideToMove, moves);
-        return moves;
+        return moves.stream().filter(this::checkPins).collect(Collectors.toSet());
     }
 
     private long generateAttackMap(Side side, Figure figure, Long pieceMap) {
         if (Figure.PAWN == figure) {
             if (Side.WHITE == side) {
-                return BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.NORTH_EAST, Direction.NORTH_WEST});
+                return BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.NORTH_EAST, Direction.NORTH_WEST}) & ~whiteBlockers;
             } else {
-                return BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.SOUTH_EAST, Direction.SOUTH_WEST});
+                final long l = BitManipulation.fillOnce(pieceMap, new Direction[]{Direction.SOUTH_EAST, Direction.SOUTH_WEST});
+                return l & ~blackBlockers;
             }
-        } else return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[figure.getValue()]);
+        } else if (Figure.KNIGHT == figure) {
+            long blocker = side == Side.WHITE ? whiteBlockers : blackBlockers & ~pieceMap;
+            return BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KNIGHT.getValue()]) & ~blocker;
+        } else if (Figure.KING == figure) {
+            long blocker = (side == Side.WHITE ? whiteBlockers : blackBlockers) & ~pieceMap;
+            long attack = side == Side.WHITE ? blackAttack : whiteAttack;
+            final long kng = BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KING.getValue()]);
+            return ~attack & kng & ~blocker;
+        } else {
+            int square = Long.numberOfTrailingZeros(pieceMap);
+            long attacks;
+            if (figure == Figure.ROOK)
+                attacks = magic.getRookAttacks(square, blockers);
+            else if (figure == Figure.BISHOP)
+                attacks = magic.getBishopAttacks(square, blockers);
+            else {
+                attacks = magic.getBishopAttacks(square, blockers);
+                attacks |= magic.getRookAttacks(square, blockers);
+            }
+            attacks &= ~pieceMap & ~(sideToMove == Side.WHITE ? whiteBlockers : blackBlockers);
+            return attacks;
+        }
     }
 
     private void generateMoves(Side side, Set<Move> moves) {
@@ -165,14 +193,14 @@ public class Position {
 
             long attacks;
             if (figure == Figure.ROOK)
-                attacks = magic.getRookAttacks(square, blockers & ~val);
+                attacks = magic.getRookAttacks(square, blockers);
             else if (figure == Figure.BISHOP)
-                attacks = magic.getBishopAttacks(square, blockers  & ~val);
+                attacks = magic.getBishopAttacks(square, blockers);
             else {
-                attacks = magic.getBishopAttacks(square, blockers  & ~val);
-                attacks |= magic.getRookAttacks(square, blockers  & ~val);
+                attacks = magic.getBishopAttacks(square, blockers);
+                attacks |= magic.getRookAttacks(square, blockers);
             }
-            attacks &= ~val & ~(sideToMove == Side.WHITE? whiteBlockers : blackBlockers);
+            attacks &= ~val & ~(sideToMove == Side.WHITE ? whiteBlockers : blackBlockers);
             generateMovesFromLong(attacks, side, Square.of(square), figure, moves);
         }
     }
@@ -200,7 +228,8 @@ public class Position {
     private void generateMovesForPawn(Side side, Set<Long> value, Set<Move> moves) {
         for (Long val : value) {
             int i = Long.numberOfTrailingZeros(val);
-            boolean hasDouble = i > 7 && i < 16;
+            boolean hasDouble = side == Side.WHITE ? Square.Rank.isOn(Square.of(i), Square.Rank.SECOND) :
+                    Square.Rank.isOn(Square.of(i), Square.Rank.SEVENTH);
             long obstacles = whiteBlockers | blackBlockers;
             long partnerObs = Side.WHITE == side ? blackBlockers : whiteBlockers;
             long obs = obstacles & ~val;
@@ -223,9 +252,28 @@ public class Position {
             pos += delta;
             bits = bits >>> (delta + 1);
             Move move = side == Side.WHITE ? Move.white(figure, from, Square.of(pos++)) : Move.black(figure, from, Square.of(pos++));
+
             if (!moves.add(move))
                 throw new IllegalStateException("move has already added!");
         }
+    }
+
+    private boolean checkPins(Move move) {
+//        System.out.println(move);
+        final Position position = move(move);
+//        System.out.println(BitManipulation.drawLong(position.whiteBlockers) + " white blockers");
+        final Side side = position.sideToMove == Side.WHITE ? Side.BLACK : Side.WHITE;
+        return !position.isCheck(side);
+    }
+
+    private boolean isCheck(Side side) {
+        long attacks = Side.WHITE == side ? blackAttack : whiteAttack;
+//        System.out.println(BitManipulation.drawLong(attacks) + ": attacks");
+        long king = Side.BLACK == side ? blacks.get(Figure.KING).toArray(new Long[0])[0] :
+                whites.get(Figure.KING).toArray(new Long[0])[0];
+//        System.out.println(BitManipulation.drawLong(king) + ": king");
+        final long l = attacks & king;
+        return l != 0;
     }
 
     public Set<Piece> getPieces(Side side) {

@@ -25,42 +25,12 @@ public class PositionTest {
 
 
         final Set<Move> allMoves = position.getAllMoves();
-        Set<String> m = allMoves.stream()
+        Set<String> m = allMoves.stream().sequential()
                 .map(move -> String.format("%s%s", move.getFrom(), move.getDestination()))
                 .collect(Collectors.toSet());
 
-        System.out.println(moves.containsAll(m));
+//        System.out.println(moves.containsAll(m));
         assertEquals(moves, m);
-    }
-
-    @Test
-    void creationTest() {
-        Position pos = Position.of(Side.WHITE, Figure.KING, Square.E1);
-
-        Set<Move> expectedMoves = new HashSet<>();
-        Collections.addAll(expectedMoves,
-                Move.white(Figure.KING, Square.E1, Square.D1),
-                Move.white(Figure.KING, Square.E1, Square.D2),
-                Move.white(Figure.KING, Square.E1, Square.E2),
-                Move.white(Figure.KING, Square.E1, Square.F1),
-                Move.white(Figure.KING, Square.E1, Square.F2));
-
-        assertEquals(expectedMoves, pos.getAllMoves());
-
-        Position newPosition = pos.move(Move.white(Figure.KING, Square.E1, Square.E2));
-        expectedMoves = new HashSet<>();
-
-        Collections.addAll(expectedMoves,
-                Move.white(Figure.KING, Square.E2, Square.D1),
-                Move.white(Figure.KING, Square.E2, Square.D2),
-                Move.white(Figure.KING, Square.E2, Square.D3),
-                Move.white(Figure.KING, Square.E2, Square.E1),
-                Move.white(Figure.KING, Square.E2, Square.E3),
-                Move.white(Figure.KING, Square.E2, Square.F1),
-                Move.white(Figure.KING, Square.E2, Square.F2),
-                Move.white(Figure.KING, Square.E2, Square.F3));
-
-        assertEquals(expectedMoves, newPosition.getAllMoves());
     }
 
     @Test
@@ -78,37 +48,9 @@ public class PositionTest {
                 Move.white(Figure.PAWN, Square.E2, Square.E4),
                 Move.white(Figure.PAWN, Square.D2, Square.D3),
                 Move.white(Figure.PAWN, Square.D2, Square.D4),
-//                Move.white(Figure.PAWN, Square.F2, Square.F3)
                 Move.white(Figure.PAWN, Square.F3, Square.F4)
         );
 
         assertEquals(expected, pos.getAllMoves());
-    }
-
-    @Test
-    void exp01() {
-        long a = 1_143_472_128L;
-        long b =  -9187201950435737472L;
-
-        System.out.println(drawLong(a, 8));
-        System.out.println(drawLong(b, 8));
-        System.out.println(drawLong(a*b, 8));
-        System.out.println(a*b);
-    }
-
-    private String drawLong(long lng, int bitsInLine) {
-        int c = 64, line = 0;
-        StringBuilder bld = new StringBuilder();
-        while (c > 0) {
-            bld.append((lng & 1) == 0? '.': '1').append(" ");
-            line++;
-            if (line == 8) {
-                bld.append(System.lineSeparator());
-                line = 0;
-            }
-            lng = lng >>> 1;
-            c--;
-        }
-        return bld.toString();
     }
 }
