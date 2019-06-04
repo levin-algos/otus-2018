@@ -47,7 +47,7 @@ public class FenParser {
             return;
 
         try {
-            Square enPassant = Square.valueOf(field);
+            Square enPassant = Square.valueOf(field.toUpperCase());
             builder.setEnPassant(enPassant);
         } catch (IllegalArgumentException e) {
             throw new ParseError(field +" is not recognised");
