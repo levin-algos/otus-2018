@@ -154,9 +154,8 @@ public class Position {
             return BitManipulation.fillKnight(pieceMap) & ~blocker;
         } else if (Figure.KING == figure) {
             long blocker = (side == Side.WHITE ? whiteBlockers : blackBlockers) & ~pieceMap;
-            long attack = side == Side.WHITE ? blackAttack : whiteAttack;
             final long kng = BitManipulation.fillOnce(pieceMap, MOVE_DIRECTIONS[Figure.KING.getValue()]);
-            return ~attack & kng & ~blocker;
+            return kng & ~blocker;
         } else {
             int square = Long.numberOfTrailingZeros(pieceMap);
             long attacks;
@@ -257,23 +256,20 @@ public class Position {
 
             if (!moves.add(move))
                 throw new IllegalStateException("move has already added!");
+            if (delta == 63) break;
         }
     }
 
     private boolean checkPins(Move move) {
-//        System.out.println(move);
         final Position position = move(move);
-//        System.out.println(BitManipulation.drawLong(position.whiteBlockers) + " white blockers");
         final Side side = position.sideToMove == Side.WHITE ? Side.BLACK : Side.WHITE;
         return !position.isCheck(side);
     }
 
     private boolean isCheck(Side side) {
         long attacks = Side.WHITE == side ? blackAttack : whiteAttack;
-//        System.out.println(BitManipulation.drawLong(attacks) + ": attacks");
         long king = Side.BLACK == side ? blacks.get(Figure.KING).toArray(new Long[0])[0] :
                 whites.get(Figure.KING).toArray(new Long[0])[0];
-//        System.out.println(BitManipulation.drawLong(king) + ": king");
         final long l = attacks & king;
         return l != 0;
     }

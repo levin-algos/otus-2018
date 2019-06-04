@@ -28,14 +28,14 @@ public class BitManipulation {
         long r2 = (knight << 2) & 0xfcfcfcfcfcfcfcfcL;
         long h1 = l1 | r1;
         long h2 = l2 | r2;
-        return (h1<<16) | (h1>>16) | (h2<<8) | (h2>>8);
+        return (h1 << 16) | (h1 >>> 16) | (h2 << 8) | (h2 >>> 8);
     }
 
     static String drawLong(long lng) {
         int c = 64, line = 0;
         StringBuilder bld = new StringBuilder();
         while (c > 0) {
-            bld.append((lng & 1) == 0? '.': '1').append(" ");
+            bld.append((lng & 1) == 0 ? '.' : '1').append(" ");
             line++;
             if (line == 8) {
                 bld.append(System.lineSeparator());
@@ -81,7 +81,7 @@ public class BitManipulation {
     }
 
     static long negativeRay(int val, long ray) {
-        return ray & ((1L << val+1) - 1);
+        return ray & ((1L << val + 1) - 1);
     }
 
     static List<Long> generateMap(Direction dir) {
@@ -108,7 +108,7 @@ public class BitManipulation {
                 lng[value] = negativeRay(value, diagonalMask(value));
         }
         final List<Long> list = new ArrayList<>();
-        for (long l: lng)
+        for (long l : lng)
             list.add(l);
         return list;
     }
