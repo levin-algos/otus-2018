@@ -3,49 +3,44 @@ package ru.otus.algo;
 import java.util.Objects;
 
 public class Move {
-    private final Figure figure;
-    private final Side side;
-    private final Square from;
+    private final Piece piece;
     private final Square destination;
 
-    private Move(Side side, Figure figure, Square from, Square destination) {
-
-        this.figure = figure;
-        this.side = side;
-        this.from = from;
+    private Move(Piece piece, Square destination) {
+        this.piece = piece;
         this.destination = destination;
     }
 
-    static Move white(Figure figure, Square from, Square dest) {
-        return new Move(Side.WHITE, figure, from, dest);
+    static Move of(Piece piece, Square dest) {
+        return new Move(piece, dest);
     }
-    static Move black(Figure figure, Square from, Square dest) {
-        return new Move(Side.BLACK, figure, from, dest);
+
+    public Figure getFigure() {
+        return piece.getFigure();
+    }
+
+    public Side getSide() {
+        return piece.getSide();
+    }
+
+    public Square getFrom() {
+        return piece.getSquare();
+    }
+
+    public Square getDestination() {
+        return destination;
+    }
+
+    public Piece getPiece() {
+        return piece;
     }
 
     @Override
     public String toString() {
         return "Move{" +
-                side +
-                " " + figure +
-                destination +
+                "piece=" + piece +
+                ", destination=" + destination +
                 '}';
-    }
-
-    public Figure getFigure() {
-        return figure;
-    }
-
-    public Side getSide() {
-        return side;
-    }
-
-    public Square getFrom() {
-        return from;
-    }
-
-    public Square getDestination() {
-        return destination;
     }
 
     @Override
@@ -53,14 +48,12 @@ public class Move {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Move move = (Move) o;
-        return figure == move.figure &&
-                side == move.side &&
-                from == move.from &&
+        return piece.equals(move.piece) &&
                 destination == move.destination;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(figure, side, from, destination);
+        return Objects.hash(piece, destination);
     }
 }

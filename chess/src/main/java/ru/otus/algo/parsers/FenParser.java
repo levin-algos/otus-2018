@@ -105,7 +105,7 @@ public class FenParser {
                 assert file <= 7;
                 Side side = Character.isLowerCase(f) ? Side.BLACK : Side.WHITE;
                 Figure figure = getFigure(f);
-                builder.add(Piece.of(side, figure, Square.of(ranks[rank], files[file])));
+                builder.add(side, figure, Square.of(ranks[rank], files[file]));
                 file++;
                 assert file <= 8;
             } else {

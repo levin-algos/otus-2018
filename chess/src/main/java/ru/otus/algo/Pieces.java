@@ -5,7 +5,8 @@ import java.util.Set;
 
 public final class Pieces {
 
-    private Pieces() {}
+    private Pieces() {
+    }
 
     public static Piece[] pawns(Side side, Square... squares) {
         return pieces(side, Figure.PAWN, squares);
@@ -30,7 +31,7 @@ public final class Pieces {
     private static Piece[] pieces(Side side, Figure figure, Square... squares) {
         Set<Piece> pawns = new HashSet<>();
 
-        for (Square s: squares)
+        for (Square s : squares)
             pawns.add(Piece.of(side, figure, s));
 
         return pawns.toArray(new Piece[0]);

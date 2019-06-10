@@ -4,10 +4,9 @@ public interface PositionBuilder {
 
     /**
      * Adds {@link Piece} Pieces into {@link Position} Position object.
-     * @param piece - pieces to add
      * @return - PositionBuilder instance;
      */
-    PositionBuilder add(Piece... piece);
+    PositionBuilder add(Side side, Figure figure, Square square);
 
     /**
      * Sets {@link Side} Side who will make next move

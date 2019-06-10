@@ -1,7 +1,5 @@
 package ru.otus.algo;
 
-import java.io.File;
-
 public enum Square {
 
     A1(0),  B1(1),  C1(2),  D1(3),  E1(4),  F1(5),  G1(6),  H1(7),
@@ -29,7 +27,7 @@ public enum Square {
 
         static boolean isOn(Square sq, Rank rank) {
             int from = rank.getValue()*8;
-            return sq.value >= (from) && sq.value < (from +8);
+            return sq.num >= (from) && sq.num < (from +8);
         }
     }
 
@@ -55,10 +53,11 @@ public enum Square {
                                          A6, B6, C6, D6, E6, F6, G6, H6,
                                          A7, B7, C7, D7, E7, F7, G7, H7,
                                          A8, B8, C8, D8, E8, F8, G8, H8};
-    private int value;
+    private int num;
+    private long pieceMap;
 
     Square(int value) {
-        this.value = value;
+        this.num = value; pieceMap =  1L << value;
     }
 
     public static Square of(Rank rank, File file) {
@@ -70,7 +69,11 @@ public enum Square {
         return of[pos];
     }
 
-    public int getValue() {
-        return value;
+    public int getNum() {
+        return num;
+    }
+
+    public long getPieceMap() {
+        return pieceMap;
     }
 }

@@ -1,11 +1,8 @@
 package ru.otus.algo;
 
-import java.util.*;
-
-public class MagicTable {
+class MagicTable {
 
     public MagicTable() {
-        generate(0, false);
         initArrays();
     }
 
@@ -74,19 +71,21 @@ public class MagicTable {
         }
     }
 
-    public long getBishopAttacks(int square, long blockers) {
-        final long bmask = bmask(square);
+    public long getBishopAttacks(Square square, long blockers) {
+        final int squareNum = square.getNum();
+        final long bmask = bmask(squareNum);
         blockers &= bmask;
-        int key = (int)((blockers * bishopMagics[square]) >>> (64 - bishopIndexBits[square]));
-        return bishopTable[square][key];
+        int key = (int)((blockers * bishopMagics[squareNum]) >>> (64 - bishopIndexBits[squareNum]));
+        return bishopTable[squareNum][key];
     }
 
-    public long getRookAttacks(int square, long blockers) {
-        final long rmask = rmask(square);
+    public long getRookAttacks(Square square, long blockers) {
+        final int squareNum = square.getNum();
+        final long rmask = rmask(squareNum);
         blockers &= rmask;
-        int key = transform(blockers, rookMagics[square], rookIndexBits[square]);
+        int key = transform(blockers, rookMagics[squareNum], rookIndexBits[squareNum]);
 
-        return rookTable[square][key];
+        return rookTable[squareNum][key];
     }
 
     private long[] generate(int sq, boolean isBishop) {
