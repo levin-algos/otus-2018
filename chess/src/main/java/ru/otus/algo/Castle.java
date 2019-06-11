@@ -1,6 +1,6 @@
 package ru.otus.algo;
 
 public enum Castle {
-    KINGS_SIDE,
-    QUEENS_SIDE
+    KING_SIDE,
+    QUEEN_SIDE
 }

@@ -40,10 +40,10 @@ class FenParserTest {
         assertEquals(Side.WHITE, pos.getSideToMove());
         assertEquals(0, pos.getHalfMoveClock());
         assertFalse(pos.getEnPassant().isPresent());
-        assertTrue(pos.canCastle(Side.WHITE, Castle.KINGS_SIDE));
-        assertTrue(pos.canCastle(Side.WHITE, Castle.QUEENS_SIDE));
-        assertTrue(pos.canCastle(Side.BLACK, Castle.KINGS_SIDE));
-        assertTrue(pos.canCastle(Side.BLACK, Castle.QUEENS_SIDE));
+        assertTrue(pos.canCastle(Side.WHITE, Castle.KING_SIDE));
+        assertTrue(pos.canCastle(Side.WHITE, Castle.QUEEN_SIDE));
+        assertTrue(pos.canCastle(Side.BLACK, Castle.KING_SIDE));
+        assertTrue(pos.canCastle(Side.BLACK, Castle.QUEEN_SIDE));
     }
 
     @ParameterizedTest

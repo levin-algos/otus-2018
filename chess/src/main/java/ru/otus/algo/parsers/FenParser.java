@@ -70,9 +70,9 @@ public class FenParser {
 
             Castle castle;
             if (letter == 'K')
-                castle = Castle.KINGS_SIDE;
+                castle = Castle.KING_SIDE;
             else if (letter == 'Q')
-                castle = Castle.QUEENS_SIDE;
+                castle = Castle.QUEEN_SIDE;
             else
                 throw new ParseError("'" + f + "'" + " is not recognised");
 

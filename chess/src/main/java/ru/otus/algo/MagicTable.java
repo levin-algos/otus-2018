@@ -2,7 +2,7 @@ package ru.otus.algo;
 
 class MagicTable {
 
-    public MagicTable() {
+    MagicTable() {
         initArrays();
     }
 
@@ -71,17 +71,17 @@ class MagicTable {
         }
     }
 
-    public long getBishopAttacks(Square square, long blockers) {
+    long getBishopAttacks(Square square, long blockers) {
         final int squareNum = square.getNum();
-        final long bmask = bmask(squareNum);
+        final long bmask = bishopMask(squareNum);
         blockers &= bmask;
         int key = (int)((blockers * bishopMagics[squareNum]) >>> (64 - bishopIndexBits[squareNum]));
         return bishopTable[squareNum][key];
     }
 
-    public long getRookAttacks(Square square, long blockers) {
+    long getRookAttacks(Square square, long blockers) {
         final int squareNum = square.getNum();
-        final long rmask = rmask(squareNum);
+        final long rmask = rookMask(squareNum);
         blockers &= rmask;
         int key = transform(blockers, rookMagics[squareNum], rookIndexBits[squareNum]);
 
@@ -91,12 +91,12 @@ class MagicTable {
     private long[] generate(int sq, boolean isBishop) {
         long[] res = new long[4096];
 
-        long mask = isBishop ? bmask(sq) : rmask(sq);
-        int n = count_1s(mask);
+        long mask = isBishop ? bishopMask(sq) : rookMask(sq);
+        int n = count1s(mask);
         for (int i = 0; i < (1 << n); i++) {
-            long b = index_to_long(i, n, mask);
+            long b = indexToLong(i, n, mask);
             b &= mask;
-            long a = isBishop ? batt(sq, b) : ratt(sq, b);
+            long a = isBishop ? bishopAttack(sq, b) : rookAttack(sq, b);
             long magic = isBishop? bishopMagics[sq]: rookMagics[sq];
             int bits = isBishop? bishopIndexBits[sq]: rookIndexBits[sq];
             int j = transform(b, magic, bits);
@@ -105,7 +105,7 @@ class MagicTable {
         return res;
     }
 
-    private int count_1s(long b) {
+    private int count1s(long b) {
         return Long.bitCount(b);
     }
 
@@ -124,7 +124,7 @@ class MagicTable {
         return BitTable[(fold * 0x783a9b23) >>> 26];
     }
 
-    private long index_to_long(int index, int bits, long m) {
+    private long indexToLong(int index, int bits, long m) {
         int i, j;
         long result = 0L;
         for (i = 0; i < bits; i++) {
@@ -135,7 +135,7 @@ class MagicTable {
         return result;
     }
 
-    private long rmask(int sq) {
+    private long rookMask(int sq) {
         long result = 0 ;
         int rk = sq / 8, fl = sq % 8, r, f;
         for (r = rk + 1; r <= 6; r++) result |= (1L  << (fl + r * 8));
@@ -145,7 +145,7 @@ class MagicTable {
         return result;
     }
 
-    private long bmask(int sq) {
+    private long bishopMask(int sq) {
         long result = 0 ;
         int rk = sq / 8, fl = sq % 8, r, f;
         for (r = rk + 1, f = fl + 1; r <= 6 && f <= 6; r++, f++) result |= (1L  << (f + r * 8));
@@ -155,7 +155,7 @@ class MagicTable {
         return result;
     }
 
-    private long ratt(int sq, long block) {
+    private long rookAttack(int sq, long block) {
         long result = 0 ;
         int rk = sq / 8, fl = sq % 8, r, f;
         for (r = rk + 1; r <= 7; r++) {
@@ -177,7 +177,7 @@ class MagicTable {
         return result;
     }
 
-    private long batt(int sq, long block) {
+    private long bishopAttack(int sq, long block) {
         long result = 0 ;
         int rk = sq / 8, fl = sq % 8, r, f;
         for (r = rk + 1, f = fl + 1; r <= 7 && f <= 7; r++, f++) {

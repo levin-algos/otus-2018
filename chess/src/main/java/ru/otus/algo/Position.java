@@ -1,6 +1,7 @@
 package ru.otus.algo;
 
 import java.util.*;
+
 /*TODO:
     1. generate en passant
     2. add en passant fens for both sides
@@ -260,21 +261,21 @@ public class Position {
 
     private void setCastle(Side side, Castle castle) {
         int s = side == Side.WHITE ? 0 : 1;
-        int c = castle == Castle.KINGS_SIDE ? 0 : 1;
+        int c = castle == Castle.KING_SIDE ? 0 : 1;
 
         castleAbility |= 1L << s * 2 + c;
     }
 
     private void unsetCastle(Side side, Castle castle) {
         int s = side == Side.WHITE ? 0 : 1;
-        int c = castle == Castle.KINGS_SIDE ? 0 : 1;
+        int c = castle == Castle.KING_SIDE ? 0 : 1;
 
         castleAbility &= ~(1L << s * 2 + c);
     }
 
     public boolean canCastle(Side side, Castle castle) {
         int s = side == Side.WHITE ? 0 : 1;
-        int c = castle == Castle.KINGS_SIDE ? 0 : 1;
+        int c = castle == Castle.KING_SIDE ? 0 : 1;
 
         long l = 1L << s * 2 + c;
         return (castleAbility & l) != 0;
