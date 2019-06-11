@@ -48,9 +48,6 @@ public class Position {
         if (!map.remove(move.getFrom(), piece))
             throw new IllegalStateException("Cannot find piece: " + move);
 
-        map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
-        opp.remove(destination);
-
         if (move.getType() == MoveType.EN_PASSANT) {
             if (pos.enPassant == null)
                 throw new IllegalStateException("move type in en passant, but en passant square is null");
@@ -63,7 +60,16 @@ public class Position {
             }
             if (opp.remove(square) == null)
                 throw new IllegalStateException("en passant pawn is not found!");
+
+            map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
+
+        } else if (move.getType() == MoveType.PROMOTION) {
+            map.put(destination, Piece.of(piece.getSide(), move.getPromotion(), destination));
+        } else {
+            map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
         }
+
+        opp.remove(destination);
 
         calculateBlockers(Side.WHITE);
         calculateBlockers(Side.BLACK);
@@ -181,7 +187,7 @@ public class Position {
                 final long enPassant = getEnPassant().isPresent() ? getEnPassant().get().getPieceMap() : 0;
                 final long opponent = sideToMove == Side.BLACK ? whiteBlockers : blackBlockers;
                 if ((bits & enPassant) != 0) {
-                    moves.add(Move.of(piece, getEnPassant().get(), MoveType.EN_PASSANT));
+                    moves.add(Move.enPassant(piece, getEnPassant().get()));
                 }
                 final long m = generator.generateMovesForPawn(piece, this);
                 bits = (bits & opponent) | m;

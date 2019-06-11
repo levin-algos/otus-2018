@@ -80,14 +80,24 @@ final class AttackGenerator {
 
     void generateMovesFromLong(long bits, Piece piece, Set<Move> moves) {
         int pos = 0;
+        final long promotionRanks = 0xFF000000000000FFL;
+        final Figure[] promoteFigures = {Figure.KNIGHT, Figure.BISHOP, Figure.ROOK, Figure.QUEEN};
+
+        boolean isPromotion = piece.getFigure() == Figure.PAWN & (promotionRanks & bits) != 0;
         while ((bits != 0)) {
             int delta = Long.numberOfTrailingZeros(bits);
             pos += delta;
             bits = bits >>> (delta + 1);
-            Move move = Move.of(piece, Square.of(pos++));
-
-            if (!moves.add(move))
-                throw new IllegalStateException("move has already added!");
+            final Square destination = Square.of(pos++);
+            if (isPromotion) {
+                for (Figure fig: promoteFigures) {
+                    if (!moves.add(Move.promote(piece, destination, fig)))
+                        throw new IllegalStateException("move has already added!");
+                }
+            } else {
+                if (!moves.add(Move.of(piece, destination)))
+                    throw new IllegalStateException("move has already added!");
+            }
             if (delta == 63) break;
         }
     }

@@ -6,19 +6,32 @@ public class Move {
     private final Piece piece;
     private final Square destination;
     private final MoveType type;
+    private final Figure promotion;
 
     private Move(Piece piece, Square destination, MoveType type) {
         this.piece = piece;
         this.destination = destination;
         this.type = type;
+        promotion = null;
+    }
+
+    private Move(Piece piece, Square destination, MoveType type, Figure promote) {
+        this.piece = piece;
+        this.destination = destination;
+        this.type = type;
+        promotion = promote;
     }
 
     static Move of(Piece piece, Square dest) {
         return new Move(piece, dest, MoveType.NORMAL);
     }
 
-    static Move of(Piece piece, Square dest, MoveType type) {
-        return new Move(piece, dest, type);
+    static Move enPassant(Piece piece, Square dest) {
+        return new Move(piece, dest, MoveType.EN_PASSANT);
+    }
+
+    static Move promote(Piece piece, Square dest, Figure figure) {
+        return new Move(piece, dest, MoveType.PROMOTION, figure);
     }
 
     public Figure getFigure() {
@@ -45,6 +58,10 @@ public class Move {
         return type;
     }
 
+    public Figure getPromotion() {
+        return promotion;
+    }
+
     @Override
     public String toString() {
         return "Move{" +
@@ -59,11 +76,13 @@ public class Move {
         if (o == null || getClass() != o.getClass()) return false;
         Move move = (Move) o;
         return piece.equals(move.piece) &&
-                destination == move.destination;
+                destination == move.destination &&
+                type == move.type &&
+                promotion == move.promotion;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(piece, destination);
+        return Objects.hash(piece, destination, type, promotion);
     }
 }

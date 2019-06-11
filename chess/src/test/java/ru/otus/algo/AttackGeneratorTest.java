@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AttackGeneratorTest {
+class AttackGeneratorTest {
 
     private final FenParser parser = new FenParser();
     private final AttackGenerator generator = new AttackGenerator();
@@ -25,7 +25,8 @@ public class AttackGeneratorTest {
         final Set<Move> allMoves = position.getAllMoves();
         Set<String> m = allMoves.stream()
                 .filter(move -> !position.move(move).isCheckTo(position.getSideToMove()))
-                .map(move -> String.format("%s%s", move.getFrom(), move.getDestination()))
+                .map(move -> String.format("%s%s%s", move.getFrom(), move.getDestination(),
+                        move.getType() == MoveType.PROMOTION ? move.getPromotion().getShortName():""))
                 .collect(Collectors.toSet());
 
         assertEquals(moves, m);
