@@ -2,23 +2,6 @@ package ru.otus.algo;
 
 import java.util.*;
 
-/*
-Генерация позиции.
-
-Мы добавили все фигуры в позицию.
-Считаем блокеры для обоих сторон.
-На основании этой информации, строим карту атак для обоих сторон.
-У нас есть информация о том кто ходит следующим. Не достаточно считать карту атак только для этой стороны.
-Король не может ходить на битые поля.
-
-Дальше, имея карту атак для каждой фигуры, склеиваем эти карты, получаем общую карту для каждой стороны.
-При вызове метода getAllMoves - мы проходим каждую фигуру и анализируем ее карту атак, записывая возможные ходы.
-
-При вызове функции move - необходимо пересчитывать таблицы атак.
-Получается для каждой позиции нужно отдельно хранить таблицы атак.
-Их нельзя хранить внутри Piece - в этом случае придется генерировать копию piece для каждой позиции.
- */
-
 public class Position {
     private final Map<Square, Piece> whites;
     private final Map<Square, Piece> blacks;
@@ -28,7 +11,7 @@ public class Position {
     private long whiteBlockers, blackBlockers;
     private long whiteAttacks, blackAttacks;
     private Side sideToMove;
-    private Square enPassant;
+    private Square enPassant = null;
     private int halfMoveClock;
     private int castleAbility;
     private int movesNum;
@@ -72,8 +55,8 @@ public class Position {
 
     boolean isCheckTo(Side side) {
         Piece king = null;
-        Map<Square, Piece> map = side == Side.WHITE? whites: blacks;
-        for (Map.Entry<Square, Piece> entry: map.entrySet()) {
+        Map<Square, Piece> map = side == Side.WHITE ? whites : blacks;
+        for (Map.Entry<Square, Piece> entry : map.entrySet()) {
             final Piece value = entry.getValue();
             if (value.getFigure() == Figure.KING)
                 king = value;
@@ -174,10 +157,14 @@ public class Position {
                 throw new IllegalStateException("attack table not found");
 
             if (piece.getFigure() == Figure.KING) {
-                long attack = (sideToMove == Side.WHITE? blackAttacks: whiteAttacks);
+                long attack = (sideToMove == Side.WHITE ? blackAttacks : whiteAttacks);
                 bits &= ~attack;
             } else if (piece.getFigure() == Figure.PAWN) {
+                final long enPassant = getEnPassant().isPresent() ? getEnPassant().get().getPieceMap() : 0;
                 final long opponent = sideToMove == Side.BLACK ? whiteBlockers : blackBlockers;
+                if ((bits & enPassant) != 0) {
+                    moves.add(Move.of(piece, getEnPassant().get()));
+                }
                 final long m = generator.generateMovesForPawn(piece, this);
                 bits = (bits & opponent) | m;
             }

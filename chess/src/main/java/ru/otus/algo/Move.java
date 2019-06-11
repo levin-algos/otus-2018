@@ -5,14 +5,20 @@ import java.util.Objects;
 public class Move {
     private final Piece piece;
     private final Square destination;
+    private final MoveType type;
 
-    private Move(Piece piece, Square destination) {
+    private Move(Piece piece, Square destination, MoveType type) {
         this.piece = piece;
         this.destination = destination;
+        this.type = type;
     }
 
     static Move of(Piece piece, Square dest) {
-        return new Move(piece, dest);
+        return new Move(piece, dest, MoveType.NORMAL);
+    }
+
+    static Move of(Piece piece, Square dest, MoveType type) {
+        return new Move(piece, dest, type);
     }
 
     public Figure getFigure() {
@@ -33,6 +39,10 @@ public class Move {
 
     public Piece getPiece() {
         return piece;
+    }
+
+    public MoveType getType() {
+        return type;
     }
 
     @Override
