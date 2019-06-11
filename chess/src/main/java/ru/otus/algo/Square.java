@@ -64,6 +64,50 @@ public enum Square {
         return of[rank.getValue()*8+file.getValue()];
     }
 
+    /**
+     * Increase rank of {@code square} by {@code ranksNum} ranks.
+     * For example {@code addRank(D4, 2)} gives {@code D6}
+     * If resulting rank &gt; 8 - throws IllegalArgumentException
+     * If {@code ranksNum} &lt;= 0 or &gt; 7 - throws IllegalArgumentException
+     * @param square - starting square
+     * @param ranksNum - number or ranks to add to {@code square}
+     * @return - square with added rank
+     */
+    public static Square addRank(Square square, int ranksNum) {
+        if (ranksNum <= 0 || ranksNum > 7)
+            throw new IllegalArgumentException();
+
+        final int num = square.getNum();
+        final int rank = num / 8;
+        final int resultRank = rank + ranksNum;
+        if (resultRank > 7)
+            throw new IllegalArgumentException();
+
+        return Square.of(num % 8 + 8*resultRank);
+    }
+
+    /**
+     * Decreases rank of {@code square} by {@code ranksNum} ranks.
+     * For example {@code addRank(D4, 2)} gives {@code D2}
+     * If resulting rank &lt; 1 - throws IllegalArgumentException
+     * If {@code ranksNum} &lt;= 0 or &gt; 7 - throws IllegalArgumentException
+     * @param square - starting square
+     * @param ranksNum - number or ranks to subtract to {@code square}
+     * @return - square with subtracted rank
+     */
+    public static Square decreaseRank(Square square, int ranksNum) {
+        if (ranksNum <= 0)
+            throw new IllegalArgumentException();
+
+        final int num = square.getNum();
+        final int rank = num / 8;
+        final int resultRank = rank - ranksNum;
+        if (resultRank < 0)
+            throw new IllegalArgumentException();
+
+        return Square.of(num % 8 + 8*resultRank);
+    }
+
     static Square of(int pos) {
         assert pos >=0 && pos < 64;
         return of[pos];

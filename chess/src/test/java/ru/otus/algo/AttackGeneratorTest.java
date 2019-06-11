@@ -3,6 +3,7 @@ package ru.otus.algo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import ru.otus.algo.converters.MovesConverter;
 import ru.otus.algo.parsers.FenParser;
 
 import java.util.Set;

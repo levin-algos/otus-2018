@@ -1,7 +1,11 @@
 package ru.otus.algo;
 
 import java.util.*;
+/*TODO:
+    1. generate en passant
+    2. add en passant fens for both sides
 
+ */
 public class Position {
     private final Map<Square, Piece> whites;
     private final Map<Square, Piece> blacks;
@@ -28,7 +32,6 @@ public class Position {
         blacks = new HashMap<>(pos.blacks);
         attacks = new HashMap<>();
         sideToMove = pos.sideToMove;
-        enPassant = null;
         movesNum++;
 
         if (sideToMove != move.getSide())
@@ -37,15 +40,30 @@ public class Position {
         Map<Square, Piece> map = move.getSide() == Side.WHITE ? whites : blacks;
         Map<Square, Piece> opp = move.getSide() == Side.BLACK ? whites : blacks;
 
-        if (map.containsKey(move.getDestination()))
+        final Square destination = move.getDestination();
+        if (map.containsKey(destination))
             throw new IllegalStateException("Destination square is not empty: " + move);
 
         final Piece piece = move.getPiece();
         if (!map.remove(move.getFrom(), piece))
             throw new IllegalStateException("Cannot find piece: " + move);
 
-        map.put(move.getDestination(), Piece.of(piece.getSide(), piece.getFigure(), move.getDestination()));
-        opp.remove(move.getDestination());
+        map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
+        opp.remove(destination);
+
+        if (move.getType() == MoveType.EN_PASSANT) {
+            if (pos.enPassant == null)
+                throw new IllegalStateException("move type in en passant, but en passant square is null");
+
+            Square square;
+            if (piece.getSide() == Side.WHITE) {
+                square = Square.decreaseRank(pos.enPassant, 1);
+            } else {
+                square = Square.addRank(pos.enPassant, 1);
+            }
+            if (opp.remove(square) == null)
+                throw new IllegalStateException("en passant pawn is not found!");
+        }
 
         calculateBlockers(Side.WHITE);
         calculateBlockers(Side.BLACK);
@@ -108,7 +126,7 @@ public class Position {
         return sideToMove;
     }
 
-    public Position move(Move move) {
+    Position move(Move move) {
         Objects.requireNonNull(move);
 
         Map<Square, Piece> map = move.getSide() == Side.WHITE ? whites : blacks;
@@ -163,7 +181,7 @@ public class Position {
                 final long enPassant = getEnPassant().isPresent() ? getEnPassant().get().getPieceMap() : 0;
                 final long opponent = sideToMove == Side.BLACK ? whiteBlockers : blackBlockers;
                 if ((bits & enPassant) != 0) {
-                    moves.add(Move.of(piece, getEnPassant().get()));
+                    moves.add(Move.of(piece, getEnPassant().get(), MoveType.EN_PASSANT));
                 }
                 final long m = generator.generateMovesForPawn(piece, this);
                 bits = (bits & opponent) | m;
