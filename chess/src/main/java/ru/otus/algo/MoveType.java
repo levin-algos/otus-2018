@@ -4,5 +4,6 @@ public enum MoveType {
     NORMAL,
     EN_PASSANT,
     PROMOTION,
-    CASTLING
+    CASTLING_KINGSIDE,
+    CASTLING_QUEENSIDE
 }

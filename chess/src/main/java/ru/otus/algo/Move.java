@@ -42,7 +42,8 @@ public class Move {
         else
             destination = castleSide == Castle.QUEEN_SIDE ? Square.C8 : Square.G8;
 
-        return new Move(Piece.of(side, Figure.KING, from), destination, MoveType.CASTLING);
+        MoveType type = castleSide == Castle.KING_SIDE? MoveType.CASTLING_KINGSIDE : MoveType.CASTLING_QUEENSIDE;
+        return new Move(Piece.of(side, Figure.KING, from), destination, type);
     }
 
     public Side getSide() {

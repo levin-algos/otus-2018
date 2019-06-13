@@ -66,6 +66,16 @@ public class Position {
 
         } else if (move.getType() == MoveType.PROMOTION) {
             map.put(destination, Piece.of(piece.getSide(), move.getPromotion(), destination));
+        } else if (move.getType() == MoveType.CASTLING_KINGSIDE) {
+            Square rookSquare = sideToMove == Side.WHITE? Square.H1 : Square.H8;
+            Square rookDestination = sideToMove == Side.WHITE? Square.F1: Square.F8;
+            final Piece rook = map.get(rookSquare);
+            if (rook.getFigure() == Figure.ROOK) {
+                map.remove(rookSquare);
+                Piece last = map.put(rookDestination, Piece.of(sideToMove, Figure.ROOK, rookDestination));
+                if (last != null || opp.containsKey(destination))
+                    throw new IllegalStateException("rook destination square is not empty while castling");
+            }
         } else {
             map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
         }
