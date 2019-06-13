@@ -237,6 +237,21 @@ public class Position {
         return blackBlockers | whiteBlockers;
     }
 
+    public long perft(int depth) {
+        if (depth < 0)
+            throw new IllegalArgumentException();
+        if (depth == 0) return 1;
+
+        final Set<Move> allMoves = getAllMoves();
+
+        long res = 0;
+        for (Move m: allMoves) {
+            res += move(m).perft(depth-1);
+        }
+
+        return res;
+    }
+
     public static class Builder implements PositionBuilder {
         private final Position position;
 
