@@ -34,8 +34,15 @@ public class Move {
         return new Move(piece, dest, MoveType.PROMOTION, figure);
     }
 
-    public Figure getFigure() {
-        return piece.getFigure();
+    public static Move castle(Side side, Castle castleSide) {
+        Square destination = null;
+        Square from = side == Side.WHITE? Square.E1 : Square.E8;
+        if (side == Side.WHITE)
+            destination = castleSide == Castle.KING_SIDE ? Square.G1 : Square.C1;
+        else
+            destination = castleSide == Castle.QUEEN_SIDE ? Square.C8 : Square.G8;
+
+        return new Move(Piece.of(side, Figure.KING, from), destination, MoveType.CASTLING);
     }
 
     public Side getSide() {

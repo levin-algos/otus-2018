@@ -5,8 +5,8 @@ import java.util.*;
 /*TODO:
     1. generate en passant
     2. add en passant fens for both sides
-
  */
+
 public class Position {
     private final Map<Square, Piece> whites;
     private final Map<Square, Piece> blacks;
@@ -183,19 +183,41 @@ public class Position {
 
             if (piece.getFigure() == Figure.KING) {
                 long attack = (sideToMove == Side.WHITE ? blackAttacks : whiteAttacks);
+                castle(piece.getSide(), attack, getBlockers(), moves);
                 bits &= ~attack;
             } else if (piece.getFigure() == Figure.PAWN) {
-                final long enPassant = getEnPassant().isPresent() ? getEnPassant().get().getPieceMap() : 0;
+                enPassant(piece, bits, moves);
                 final long opponent = sideToMove == Side.BLACK ? whiteBlockers : blackBlockers;
-                if ((bits & enPassant) != 0) {
-                    moves.add(Move.enPassant(piece, getEnPassant().get()));
-                }
                 final long m = generator.generateMovesForPawn(piece, this);
                 bits = (bits & opponent) | m;
             }
             generator.generateMovesFromLong(bits, piece, moves);
         }
         return moves;
+    }
+
+    private void enPassant(Piece piece, long bits, Set<Move> moves) {
+        final long enPassant = getEnPassant().isPresent() ? getEnPassant().get().getPieceMap() : 0;
+        if ((bits & enPassant) != 0) {
+            moves.add(Move.enPassant(piece, getEnPassant().get()));
+        }
+    }
+
+    private void castle(Side side, long attack, long blockers, Set<Move> moves) {
+        if (canCastle(side, Castle.KING_SIDE)) {
+            long kingPath = side == Side.WHITE? 3L << 5 : 3L << 61;
+
+            long canCastle = (attack & kingPath) | (kingPath & blockers);
+            if (canCastle == 0)
+                moves.add(Move.castle(side, Castle.KING_SIDE));
+        }
+        if (canCastle(side, Castle.QUEEN_SIDE)) {
+            long kingPath = side == Side.WHITE? 7L << 1: 3L << 58;
+            long castlePath = side == Side.WHITE? 3L << 2: 3L << 58;
+            long canCastle = (attack & castlePath) | (kingPath & blockers);
+            if (canCastle == 0)
+                moves.add(Move.castle(side, Castle.QUEEN_SIDE));
+        }
     }
 
     long getBlockers(Side side) {
