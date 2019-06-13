@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
-import org.junit.jupiter.params.provider.CsvSource;
 import ru.otus.algo.converters.SquareConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,26 +16,6 @@ class SquareTest {
             for (Square.File file : Square.File.values()) {
                 String expected = file.name() + (rank.getValue() + 1);
                 assertEquals(expected, Square.of(rank, file).name());
-            }
-        }
-    }
-
-    @Test
-    void genData() {
-        final char[] chars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
-        for (int file = 0; file < chars.length; file++) {
-            for (int i = 1; i < 9; i++) {
-                String square = "" + chars[file] + i;
-                for (int k = 0; k < 9; k++) {
-                    int resFile = file - k;
-                    String res;
-                    if (k == 0 || resFile < 0)
-                        res = "ERR";
-                    else
-                        res = "" + chars[resFile]+i;
-
-                    System.out.println(String.format("%s;%s;%s", square, k, res));
-                }
             }
         }
     }

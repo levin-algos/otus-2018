@@ -12,15 +12,18 @@ public class Position {
     private final Map<Square, Piece> blacks;
 
     private final Map<Piece, Long> attacks;
+    private Piece whiteKing, blackKing;
 
     private long whiteBlockers, blackBlockers;
     private long whiteAttacks, blackAttacks;
+    private long whitePawnsAttack, blackPawnsAttack;
     private Side sideToMove;
     private Square enPassant = null;
     private int halfMoveClock;
     private int castleAbility;
     private int movesNum;
     private static final AttackGenerator generator = new AttackGenerator();
+    private static final AttackTable pawnMove = new AttackTable();
 
     private Position() {
         whites = new HashMap<>();
@@ -33,6 +36,8 @@ public class Position {
         blacks = new HashMap<>(pos.blacks);
         attacks = new HashMap<>();
         sideToMove = pos.sideToMove;
+        whiteKing = pos.whiteKing;
+        blackKing = pos.blackKing;
         movesNum++;
 
         if (sideToMove != move.getSide())
@@ -61,41 +66,80 @@ public class Position {
             }
             if (opp.remove(square) == null)
                 throw new IllegalStateException("en passant pawn is not found!");
-
             map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
 
         } else if (move.getType() == MoveType.PROMOTION) {
             map.put(destination, Piece.of(piece.getSide(), move.getPromotion(), destination));
         } else if (move.getType() == MoveType.CASTLING_KINGSIDE) {
-            Square rookSquare = sideToMove == Side.WHITE? Square.H1 : Square.H8;
-            Square rookDestination = sideToMove == Side.WHITE? Square.F1: Square.F8;
-            final Piece rook = map.get(rookSquare);
-            if (rook.getFigure() == Figure.ROOK) {
-                map.remove(rookSquare);
-                Piece last = map.put(rookDestination, Piece.of(sideToMove, Figure.ROOK, rookDestination));
-                if (last != null || opp.containsKey(destination))
-                    throw new IllegalStateException("rook destination square is not empty while castling");
-            }
+            castleKingSide(map, opp, destination, move);
+        } else if (move.getType() == MoveType.CASTLING_QUEENSIDE) {
+            castleQueenSide(map, opp, destination, move);
         } else {
-            map.put(destination, Piece.of(piece.getSide(), piece.getFigure(), destination));
+            final Piece p = Piece.of(piece.getSide(), piece.getFigure(), destination);
+            if (p.getFigure() == Figure.KING) {
+                if (p.getSide() == Side.WHITE)
+                    whiteKing = p;
+                else
+                    blackKing = p;
+            }
+            map.put(destination, p);
         }
-
         opp.remove(destination);
         calculateBlockers(Side.WHITE);
         calculateBlockers(Side.BLACK);
         calculateAttacks();
+        if (move.getPiece().getFigure() == Figure.PAWN)
+            calculateEnPassant(move, sideToMove);
         switchSide();
     }
 
-    boolean isCheckTo(Side side) {
-        Piece king = null;
-        Map<Square, Piece> map = side == Side.WHITE ? whites : blacks;
-        for (Map.Entry<Square, Piece> entry : map.entrySet()) {
-            final Piece value = entry.getValue();
-            if (value.getFigure() == Figure.KING)
-                king = value;
+    private void calculateEnPassant(Move move, Side side) {
+        long pawnsAttack = side == Side.BLACK ? whitePawnsAttack : blackPawnsAttack;
+        long pMove = pawnMove.getBetweenMask(move.getFrom(), move.getDestination());
+        long enPas = pMove & pawnsAttack;
+        if (enPas != 0) {
+            this.enPassant = Square.of(Long.numberOfTrailingZeros(enPas));
         }
+    }
 
+    private void castleQueenSide(Map<Square, Piece> map, Map<Square, Piece> opp, Square destination, Move move) {
+        Square rookSquare = sideToMove == Side.WHITE ? Square.A1 : Square.A8;
+        Square rookDestination = sideToMove == Side.WHITE ? Square.C1 : Square.C8;
+        final Piece rook = map.get(rookSquare);
+        if (rook.getFigure() == Figure.ROOK) {
+            map.remove(rookSquare);
+            Piece last = map.put(rookDestination, Piece.of(sideToMove, Figure.ROOK, rookDestination));
+            if (last != null || opp.containsKey(destination))
+                throw new IllegalStateException("rook destination square is not empty while castling");
+        } else throw new IllegalStateException("castling figure is not rook");
+        unsetCastle(move.getSide(), Castle.QUEEN_SIDE);
+        final Piece piece = move.getPiece();
+        final Piece king = Piece.of(piece.getSide(), piece.getFigure(), destination);
+        if (king.getSide() == Side.WHITE) whiteKing = king;
+        else blackKing = king;
+        map.put(destination, king);
+    }
+
+    private void castleKingSide(Map<Square, Piece> map, Map<Square, Piece> opp, Square destination, Move move) {
+        Square rookSquare = sideToMove == Side.WHITE ? Square.H1 : Square.H8;
+        Square rookDestination = sideToMove == Side.WHITE ? Square.F1 : Square.F8;
+        final Piece rook = map.get(rookSquare);
+        if (rook.getFigure() == Figure.ROOK) {
+            map.remove(rookSquare);
+            Piece last = map.put(rookDestination, Piece.of(sideToMove, Figure.ROOK, rookDestination));
+            if (last != null || opp.containsKey(destination))
+                throw new IllegalStateException("rook destination square is not empty while castling");
+        } else throw new IllegalStateException("castling figure is not rook");
+        unsetCastle(move.getSide(), Castle.KING_SIDE);
+        final Piece piece = move.getPiece();
+        final Piece king = Piece.of(piece.getSide(), piece.getFigure(), destination);
+        if (king.getSide() == Side.WHITE) whiteKing = king;
+        else blackKing = king;
+        map.put(destination, king);
+    }
+
+    boolean isCheckTo(Side side) {
+        Piece king = side == Side.WHITE ? whiteKing : blackKing;
         if (king != null) {
             final long attacks = side == Side.WHITE ? blackAttacks : whiteAttacks;
             final long l = attacks & king.getSquare().getPieceMap();
@@ -111,6 +155,9 @@ public class Position {
             final long v = generator.generateAttackMap(piece, this);
             whiteAttacks |= v;
             attacks.put(piece, v);
+            if (piece.getFigure() == Figure.PAWN) {
+                whitePawnsAttack |= v;
+            }
         }
 
         for (Map.Entry<Square, Piece> entry : blacks.entrySet()) {
@@ -118,6 +165,9 @@ public class Position {
             final long v = generator.generateAttackMap(piece, this);
             blackAttacks |= v;
             attacks.put(piece, v);
+            if (piece.getFigure() == Figure.PAWN) {
+                blackPawnsAttack |= v;
+            }
         }
     }
 
@@ -147,7 +197,10 @@ public class Position {
 
         Map<Square, Piece> map = move.getSide() == Side.WHITE ? whites : blacks;
 
-        if (!map.get(move.getFrom()).equals(move.getPiece()))
+        final Square from = move.getFrom();
+        final Piece piece = map.get(from);
+        final Piece piece1 = move.getPiece();
+        if (!piece.equals(piece1))
             throw new IllegalStateException("wrong move");
 
         return new Position(this, move);
@@ -164,8 +217,19 @@ public class Position {
         final long pieceMap = piece.getSquare().getPieceMap();
         if (side == Side.WHITE) {
             whiteBlockers |= pieceMap;
+            if (piece.getFigure() == Figure.PAWN)
+                whitePawnsAttack |= pieceMap;
         } else if (side == Side.BLACK) {
             blackBlockers |= pieceMap;
+            if (piece.getFigure() == Figure.PAWN)
+                blackPawnsAttack |= pieceMap;
+        }
+
+        if (piece.getFigure() == Figure.KING) {
+            if (piece.getSide() == Side.WHITE)
+                whiteKing = piece;
+            else
+                blackKing = piece;
         }
     }
 
@@ -214,15 +278,15 @@ public class Position {
 
     private void castle(Side side, long attack, long blockers, Set<Move> moves) {
         if (canCastle(side, Castle.KING_SIDE)) {
-            long kingPath = side == Side.WHITE? 3L << 5 : 3L << 61;
+            long kingPath = side == Side.WHITE ? 3L << 5 : 3L << 61;
 
             long canCastle = (attack & kingPath) | (kingPath & blockers);
             if (canCastle == 0)
                 moves.add(Move.castle(side, Castle.KING_SIDE));
         }
         if (canCastle(side, Castle.QUEEN_SIDE)) {
-            long kingPath = side == Side.WHITE? 7L << 1: 3L << 58;
-            long castlePath = side == Side.WHITE? 3L << 2: 3L << 58;
+            long kingPath = side == Side.WHITE ? 7L << 1 : 3L << 58;
+            long castlePath = side == Side.WHITE ? 3L << 2 : 3L << 58;
             long canCastle = (attack & castlePath) | (kingPath & blockers);
             if (canCastle == 0)
                 moves.add(Move.castle(side, Castle.QUEEN_SIDE));
@@ -237,7 +301,11 @@ public class Position {
         return blackBlockers | whiteBlockers;
     }
 
-    public long perft(int depth) {
+    long perft(int depth) {
+        return perft(depth, depth);
+    }
+
+    private long perft(int depth, int initialDepth) {
         if (depth < 0)
             throw new IllegalArgumentException();
         if (depth == 0) return 1;
@@ -245,10 +313,16 @@ public class Position {
         final Set<Move> allMoves = getAllMoves();
 
         long res = 0;
-        for (Move m: allMoves) {
-            res += move(m).perft(depth-1);
+        for (Move m : allMoves) {
+            final Position move = move(m);
+            if (!move.isCheckTo(sideToMove)) {
+                long d = move.perft(depth - 1, initialDepth);
+//                if (initialDepth == depth) {
+//                    System.out.println(String.format("%s%s: %s", m.getFrom(), m.getDestination(), d));
+//                }
+                res += d;
+            }
         }
-
         return res;
     }
 

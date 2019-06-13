@@ -16,4 +16,5 @@ class PerftTest {
 
         assertEquals(nodes, initialPos.perft(depth));
     }
+
 }
