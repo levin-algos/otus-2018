@@ -11,6 +11,34 @@ public enum Square {
     A7(48), B7(49), C7(50), D7(51), E7(52), F7(53), G7(54), H7(55),
     A8(56), B8(57), C8(58), D8(59), E8(60), F8(61), G8(62), H8(63);
 
+    public static Square addFile(Square square, int fileNum) {
+        if (fileNum <= 0 || fileNum > 7)
+        throw new IllegalArgumentException();
+
+        final int num = square.getNum();
+        final int file = num % 8;
+        final int rank = num / 8;
+        final int resultFile = file + fileNum;
+        if (resultFile > 7)
+            throw new IllegalArgumentException();
+
+        return Square.of(resultFile + 8*rank);
+    }
+
+    public static Square decreaseFile(Square square, int fileNum) {
+        if (fileNum <= 0 || fileNum > 7)
+            throw new IllegalArgumentException();
+
+        final int num = square.getNum();
+        final int file = num % 8;
+        final int rank = num / 8;
+        final int resultFile = file - fileNum;
+        if (resultFile < 0)
+            throw new IllegalArgumentException();
+
+        return Square.of(resultFile + 8*rank);
+    }
+
     public enum Rank {
         FIRST(0), SECOND(1), THIRD(2), FORTH(3),
         FIFTH(4), SIXTH(5), SEVENTH(6), EIGHTS(7);

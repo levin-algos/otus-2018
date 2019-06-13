@@ -71,7 +71,6 @@ public class Position {
         }
 
         opp.remove(destination);
-
         calculateBlockers(Side.WHITE);
         calculateBlockers(Side.BLACK);
         calculateAttacks();
