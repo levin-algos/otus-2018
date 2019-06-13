@@ -27,7 +27,7 @@ public interface Parser {
      * Return pawn {@link Square} Square can be captured by en passant
      * @return {@link Square} Square of pawn can be captured by en passant.
      */
-    Optional<Square> getEnPassnt();
+    Optional<Square> getEnPassant();
 
     /**
      * Checks if {@code side} can castle {@code castleSide}

@@ -4,44 +4,38 @@ public interface PositionBuilder {
 
     /**
      * Adds {@link Piece} Pieces into {@link Position} Position object.
-     * @return - PositionBuilder instance;
      */
-    PositionBuilder add(Side side, Figure figure, Square square);
+    void add(Side side, Figure figure, Square square);
 
     /**
      * Sets {@link Side} Side who will make next move
-     * @return PositionBuilder instance
      */
-    PositionBuilder setMoveSide(Side side);
+    void setMoveSide(Side side);
 
     /**
      *  Sets pawn {@link Square} Square can be captured by en passant
      * @param enPassant - {@link Square} Square of the pawn
-     * @return PositionBuilder instance
      */
-    PositionBuilder setEnPassant(Square enPassant);
+    void setEnPassant(Square enPassant);
 
     /**
      * Set number of half move since the last captures or pawn advance.
      * @param halfMoveClock - number of half moves
-     * @return - PositionBuilder instance
      */
-    PositionBuilder setHalfMoveClock(int halfMoveClock);
+    void setHalfMoveClock(int halfMoveClock);
 
     /**
      * Sets {@code side} can castle {@code castleSide}
      * @param side - player side
      * @param castle - castling side
-     * @return PositionBuilder instance;
      */
-    PositionBuilder setCaslte(Side side, Castle castle);
+    void setCastle(Side side, Castle castle);
 
     /**
      * Sets number of played moves
      * @param count - positive number of moves;
-     * @return PositionBuilder instance
      */
-    PositionBuilder setMovesCount(int count);
+    void setMovesCount(int count);
     /**
      * Constructs {@link Position} Position object
      * @return Position instance

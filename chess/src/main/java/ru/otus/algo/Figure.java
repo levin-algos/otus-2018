@@ -9,7 +9,7 @@ public enum Figure {
     QUEEN("Q"),
     KING("K");
 
-    private String shortName;
+    private final String shortName;
 
     Figure(String shortName) {
         this.shortName = shortName;

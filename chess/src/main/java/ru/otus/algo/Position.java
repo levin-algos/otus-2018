@@ -11,7 +11,7 @@ public class Position {
     private final Map<Square, Piece> whites;
     private final Map<Square, Piece> blacks;
 
-    private Map<Piece, Long> attacks;
+    private final Map<Piece, Long> attacks;
 
     private long whiteBlockers, blackBlockers;
     private long whiteAttacks, blackAttacks;
@@ -229,8 +229,7 @@ public class Position {
     }
 
     public static class Builder implements PositionBuilder {
-
-        private Position position;
+        private final Position position;
 
         public Builder() {
             this.position = new Position();
@@ -261,7 +260,7 @@ public class Position {
         }
 
         @Override
-        public PositionBuilder setCaslte(Side side, Castle castle) {
+        public PositionBuilder setCastle(Side side, Castle castle) {
             position.setCastle(side, castle);
             return this;
         }

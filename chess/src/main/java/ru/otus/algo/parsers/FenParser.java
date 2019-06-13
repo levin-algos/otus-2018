@@ -10,7 +10,6 @@ public class FenParser {
     public Position parse(String fen, PositionBuilder builder) {
 
         String[] fields = fen.split(" ");
-// Q7/p1p1q1pk/3p2rp/4n3/3bP3/7b/PP3PPK/R1B2R2 b - - 0 1
         if (fields.length != 6)
             throw new ParseError("Incorrect format");
         addFigures(fields[0], builder);
@@ -76,7 +75,7 @@ public class FenParser {
             else
                 throw new ParseError("'" + f + "'" + " is not recognised");
 
-            builder.setCaslte(side, castle);
+            builder.setCastle(side, castle);
             set.add(f);
         }
     }

@@ -60,8 +60,8 @@ class MagicTable {
             6, 5, 5, 5, 5, 5, 5, 6
     };
 
-    private static long[][] rookTable = new long[64][4096];
-    private static long[][] bishopTable = new long[64][4096];
+    private static final long[][] rookTable = new long[64][4096];
+    private static final long[][] bishopTable = new long[64][4096];
 
     private void initArrays() {
         int square;
@@ -73,16 +73,16 @@ class MagicTable {
 
     long getBishopAttacks(Square square, long blockers) {
         final int squareNum = square.getNum();
-        final long bmask = bishopMask(squareNum);
-        blockers &= bmask;
+        final long bishopMask = bishopMask(squareNum);
+        blockers &= bishopMask;
         int key = (int)((blockers * bishopMagics[squareNum]) >>> (64 - bishopIndexBits[squareNum]));
         return bishopTable[squareNum][key];
     }
 
     long getRookAttacks(Square square, long blockers) {
         final int squareNum = square.getNum();
-        final long rmask = rookMask(squareNum);
-        blockers &= rmask;
+        final long rookMask = rookMask(squareNum);
+        blockers &= rookMask;
         int key = transform(blockers, rookMagics[squareNum], rookIndexBits[squareNum]);
 
         return rookTable[squareNum][key];

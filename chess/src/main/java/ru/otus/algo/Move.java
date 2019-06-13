@@ -15,27 +15,27 @@ public class Move {
         promotion = null;
     }
 
-    private Move(Piece piece, Square destination, MoveType type, Figure promote) {
+    private Move(Piece piece, Square destination, Figure promote) {
         this.piece = piece;
         this.destination = destination;
-        this.type = type;
+        this.type = MoveType.PROMOTION;
         promotion = promote;
     }
 
-    static Move of(Piece piece, Square dest) {
-        return new Move(piece, dest, MoveType.NORMAL);
+    static Move of(Piece piece, Square destination) {
+        return new Move(piece, destination, MoveType.NORMAL);
     }
 
-    static Move enPassant(Piece piece, Square dest) {
-        return new Move(piece, dest, MoveType.EN_PASSANT);
+    static Move enPassant(Piece piece, Square destination) {
+        return new Move(piece, destination, MoveType.EN_PASSANT);
     }
 
-    static Move promote(Piece piece, Square dest, Figure figure) {
-        return new Move(piece, dest, MoveType.PROMOTION, figure);
+    static Move promote(Piece piece, Square destination, Figure figure) {
+        return new Move(piece, destination, figure);
     }
 
-    public static Move castle(Side side, Castle castleSide) {
-        Square destination = null;
+    static Move castle(Side side, Castle castleSide) {
+        Square destination;
         Square from = side == Side.WHITE? Square.E1 : Square.E8;
         if (side == Side.WHITE)
             destination = castleSide == Castle.KING_SIDE ? Square.G1 : Square.C1;
@@ -49,23 +49,23 @@ public class Move {
         return piece.getSide();
     }
 
-    public Square getFrom() {
+    Square getFrom() {
         return piece.getSquare();
     }
 
-    public Square getDestination() {
+    Square getDestination() {
         return destination;
     }
 
-    public Piece getPiece() {
+    Piece getPiece() {
         return piece;
     }
 
-    public MoveType getType() {
+    MoveType getType() {
         return type;
     }
 
-    public Figure getPromotion() {
+    Figure getPromotion() {
         return promotion;
     }
 
