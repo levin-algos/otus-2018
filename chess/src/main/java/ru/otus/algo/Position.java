@@ -236,39 +236,33 @@ public class Position {
         }
 
         @Override
-        public Builder add(Side side, Figure figure, Square square) {
+        public void add(Side side, Figure figure, Square square) {
             position.add(Piece.of(side, figure, square));
-            return this;
         }
 
         @Override
-        public PositionBuilder setMoveSide(Side side) {
+        public void setMoveSide(Side side) {
             position.sideToMove = side;
-            return this;
         }
 
         @Override
-        public PositionBuilder setEnPassant(Square enPassant) {
+        public void setEnPassant(Square enPassant) {
             position.enPassant = enPassant;
-            return this;
         }
 
         @Override
-        public PositionBuilder setHalfMoveClock(int halfMoveClock) {
+        public void setHalfMoveClock(int halfMoveClock) {
             position.halfMoveClock = halfMoveClock;
-            return this;
         }
 
         @Override
-        public PositionBuilder setCastle(Side side, Castle castle) {
+        public void setCastle(Side side, Castle castle) {
             position.setCastle(side, castle);
-            return this;
         }
 
         @Override
-        public PositionBuilder setMovesCount(int count) {
+        public void setMovesCount(int count) {
             position.movesNum = count;
-            return this;
         }
 
         @Override
